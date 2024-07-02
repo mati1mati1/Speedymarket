@@ -1,10 +1,12 @@
-// src/screens/LoginScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { login } from '../api/auth';
 import { useUser } from '../context/UserContext';
+import { commonStyles } from '../styles/styles';
+import Button from '../components/Button';
+import Input from '../components/Input';
 
 interface LoginScreenProps {
   navigation: StackNavigationProp<any>;
@@ -32,16 +34,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput
-        style={styles.input}
+    <View style={commonStyles.container}>
+      <Text style={commonStyles.title}>Welcome to MySupermarket</Text>
+      <Text style={commonStyles.subtitle}>Please login to continue</Text>
+      <Input
         value={username}
         onChangeText={setUsername}
         placeholder="Username"
       />
-      <TextInput
-        style={styles.input}
+      <Input
         value={password}
         onChangeText={setPassword}
         placeholder="Password"
@@ -51,25 +52,5 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-});
 
 export default LoginScreen;

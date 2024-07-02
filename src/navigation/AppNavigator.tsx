@@ -1,6 +1,5 @@
-// src/navigation/AppNavigator.tsx
 import React from 'react';
-import { View, Button, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
 import BarcodeScannerScreen from '../screens/BarcodeScannerScreen';
@@ -8,6 +7,8 @@ import ShoppingListScreen from '../screens/ShoppingListScreen';
 import InventoryManagementScreen from '../screens/InventoryManagementScreen';
 import OrderManagementScreen from '../screens/OrderManagementScreen';
 import { useUser } from '../context/UserContext';
+import { commonStyles } from '../styles/styles';
+import Button from '../components/Button';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,9 +23,7 @@ const LogoutButton = () => {
   const { logout } = useUser();
 
   return (
-    <View style={styles.logoutButton}>
-      <Button title="Logout" onPress={logout} />
-    </View>
+    <Button title="Logout" onPress={logout} color="#dc3545" />
   );
 };
 
@@ -63,13 +62,5 @@ function AppNavigator() {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  logoutButton: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-  },
-});
 
 export { AppNavigator };
