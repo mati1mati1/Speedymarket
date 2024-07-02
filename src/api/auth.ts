@@ -8,6 +8,7 @@ interface LoginResponse {
   
   // פונקציה פשוטה לאימות משתמש
   export async function login(username: string, password: string): Promise<LoginResponse> {
+    debugger
     // נתונים לדוגמה של משתמשים
     const users: { [key: string]: { role: 'customer' | 'manager'; username: string } } = {
       user: { role: 'customer', username: 'user' },
@@ -15,12 +16,12 @@ interface LoginResponse {
     };
   
     // אימות המשתמש
-    if (username === 'user' && password === 'password') {
+    if (username === 'user') {
       return {
         success: true,
         user: users.user,
       };
-    } else if (username === 'admin' && password === 'password') {
+    } else if (username === 'admin' ) {
       return {
         success: true,
         user: users.admin,
