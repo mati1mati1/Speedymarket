@@ -20,7 +20,8 @@
     "src",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-, "app/App.tsx", "app/index.tsx"  ],
+,   "app/App.tsx",
+     "app/index.tsx"  ],
   "exclude": [
     "node_modules"
   ],

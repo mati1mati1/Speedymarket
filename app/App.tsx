@@ -1,38 +1,34 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { FontAwesome } from '@expo/vector-icons';
-import BarcodeScannerScreen from '../src/screens/BarcodeScannerScreen';
-import ShoppingListScreen from '../src/screens/ShoppingListScreen';
-import InventoryManagementScreen from '../src/screens/InventoryManagementScreen';
-import OrderManagementScreen from '../src/screens/OrderManagementScreen';
+import { createStackNavigator } from '@react-navigation/stack';
+import LoginScreen from '../src//screens/LoginScreen';
+import { AppNavigator } from '../src//navigation/AppNavigator';
+import { UserProvider, useUser } from '../src//context/UserContext';
 
-const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
-const iconMap: { [key: string]: keyof typeof FontAwesome.glyphMap } = {
-  BarcodeScanner: 'barcode',
-  ShoppingList: 'shopping-cart',
-  InventoryManagement: 'cubes',
-  OrderManagement: 'clipboard',
-};
+const MainNavigator: React.FC = () => {
+  const { user } = useUser();
 
-export default function App() {
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        initialRouteName="BarcodeScanner"
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ color, size }) => {
-            const iconName = iconMap[route.name] as keyof typeof FontAwesome.glyphMap;
-            return <FontAwesome name={iconName} size={size} color={color} />;
-          },
-        })}
-      >
-        <Tab.Screen name="BarcodeScanner" component={BarcodeScannerScreen} />
-        <Tab.Screen name="ShoppingList" component={ShoppingListScreen} />
-        <Tab.Screen name="InventoryManagement" component={InventoryManagementScreen} />
-        <Tab.Screen name="OrderManagement" component={OrderManagementScreen} />
-      </Tab.Navigator>
+      <Stack.Navigator>
+        {!user ? (
+          <Stack.Screen name="Login" component={LoginScreen} />
+        ) : (
+          <Stack.Screen name="AppNavigator" component={AppNavigator} />
+        )}
+      </Stack.Navigator>
     </NavigationContainer>
   );
-}
+};
+
+const App: React.FC = () => {
+  return (
+    <UserProvider>
+      <MainNavigator />
+    </UserProvider>
+  );
+};
+
+export default App;
