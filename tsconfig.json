@@ -1,17 +1,28 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "dom",
+      "es2015"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react"
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
+    "src",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+, "app/App.tsx", "app/index.tsx"  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "extends": "expo/tsconfig.base"
 }
