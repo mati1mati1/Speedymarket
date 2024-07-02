@@ -1,22 +1,40 @@
 import React from 'react';
-import { View, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
 import BarcodeScannerScreen from '../screens/BarcodeScannerScreen';
 import ShoppingListScreen from '../screens/ShoppingListScreen';
 import InventoryManagementScreen from '../screens/InventoryManagementScreen';
 import OrderManagementScreen from '../screens/OrderManagementScreen';
+import PurchaseHistoryScreen from '../screens/PurchaseHistoryScreen';
+import ShoppingCartListScreen from '../screens/ShoppingCartListScreen';
+import SupermarketMapScreen from '../screens/SupermarketMapScreen';
+import AdminMapScreen from '../screens/AdminMapScreen';
 import { useUser } from '../context/UserContext';
 import { commonStyles } from '../styles/styles';
 import Button from '../components/Button';
 
-const Tab = createBottomTabNavigator();
+export type RootStackParamList = {
+  BarcodeScanner: undefined;
+  ShoppingList: { cartId: string };
+  InventoryManagement: undefined;
+  OrderManagement: undefined;
+  PurchaseHistory: undefined;
+  ShoppingCartList: undefined;
+  SupermarketMap: undefined;
+  AdminMap: undefined;
+};
+
+const Tab = createBottomTabNavigator<RootStackParamList>();
 
 const iconMap: { [key: string]: keyof typeof FontAwesome.glyphMap } = {
   BarcodeScanner: 'barcode',
   ShoppingList: 'shopping-cart',
   InventoryManagement: 'cubes',
   OrderManagement: 'clipboard',
+  PurchaseHistory: 'history',
+  ShoppingCartList: 'list',
+  SupermarketMap: 'map',
+  AdminMap: 'edit',
 };
 
 const LogoutButton = () => {
@@ -49,12 +67,17 @@ function AppNavigator() {
           <>
             <Tab.Screen name="BarcodeScanner" component={BarcodeScannerScreen} />
             <Tab.Screen name="ShoppingList" component={ShoppingListScreen} />
+            <Tab.Screen name="PurchaseHistory" component={PurchaseHistoryScreen} />
+            <Tab.Screen name="ShoppingCartList" component={ShoppingCartListScreen} />
+            <Tab.Screen name="SupermarketMap" component={SupermarketMapScreen} />
           </>
         )}
         {user.role === 'manager' && (
           <>
             <Tab.Screen name="InventoryManagement" component={InventoryManagementScreen} />
             <Tab.Screen name="OrderManagement" component={OrderManagementScreen} />
+            <Tab.Screen name="AdminMap" component={AdminMapScreen} />
+
           </>
         )}
       </Tab.Navigator>

@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
+import { RouteProp } from '@react-navigation/native';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
-export default function ShoppingListScreen() {
+type ShoppingListScreenRouteProp = RouteProp<RootStackParamList, 'ShoppingList'>;
+
+const ShoppingListScreen = ({ route }: { route: ShoppingListScreenRouteProp }) => {
+  const { cartId } = route.params;
   const [items, setItems] = useState<string[]>([]);
   const [newItem, setNewItem] = useState('');
 
@@ -10,24 +15,29 @@ export default function ShoppingListScreen() {
     setNewItem('');
   };
 
+  const startShopping = () => {
+    alert('Starting shopping');
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Shopping List</Text>
+      <Text style={styles.title}>Shopping List - Cart {cartId}</Text>
       <TextInput
         style={styles.input}
         value={newItem}
         onChangeText={setNewItem}
         placeholder="Enter item"
       />
-      <Button title="Add" onPress={addItem} />
+      <Button title="Add Item" onPress={addItem} />
       <FlatList
         data={items}
         renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
         keyExtractor={(item, index) => index.toString()}
       />
+      <Button title="Start Shopping" onPress={startShopping} />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -53,3 +63,5 @@ const styles = StyleSheet.create({
     height: 44,
   },
 });
+
+export default ShoppingListScreen;
