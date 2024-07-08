@@ -7,12 +7,14 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "start:azurite": "azurite --location ./azurite --blobPort 10000 --queuePort 10001 --tablePort 10002"
   },
   "jest": {
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@azure/data-tables": "^13.2.2",
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^6.6.0",
     "@react-navigation/native": "^6.1.17",
