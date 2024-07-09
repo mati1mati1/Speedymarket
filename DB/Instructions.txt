@@ -1,0 +1,75 @@
+# Instructions for Setting Up SQL Server and Running the Setup Script
+
+## Prerequisites
+- Docker must be installed and running on your system.
+
+## For macOS
+
+1. **Install Docker**:
+   - Download and install Docker Desktop for Mac from https://www.docker.com/products/docker-desktop.
+   - Follow the installation instructions and start Docker Desktop.
+
+2. **Pull and Run SQL Server Docker Image**:
+   - Open a terminal.
+   - Pull the SQL Server image for ARM64 architecture:
+     ```sh
+     docker pull --platform linux/arm64 mcr.microsoft.com/azure-sql-edge
+     ```
+   - Run the SQL Server container:
+     ```sh
+     docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Your_password123" -p 1433:1433 --platform linux/arm64 --name sql1 -d mcr.microsoft.com/azure-sql-edge
+     ```
+   - Replace `Your_password123` with a strong password.
+
+3. **Run the SQL Script**:
+   - Place the `setup_db.sql` file in an accessible directory.
+   - Run the following command to execute the script:
+     ```sh
+     docker exec -it sql1 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Your_password123 -i /path/to/setup_db.sql
+     ```
+   - Replace `/path/to/setup_db.sql` with the actual path to the `setup_db.sql` file.
+
+## For Windows
+
+1. **Install Docker**:
+   - Download and install Docker Desktop for Windows from https://www.docker.com/products/docker-desktop.
+   - Follow the installation instructions and start Docker Desktop.
+
+2. **Pull and Run SQL Server Docker Image**:
+   - Open a Command Prompt or PowerShell.
+   - Pull the SQL Server image:
+     ```sh
+     docker pull mcr.microsoft.com/mssql/server
+     ```
+   - Run the SQL Server container:
+     ```sh
+     docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Your_password123" -p 1433:1433 --name sql1 -d mcr.microsoft.com/mssql/server
+     ```
+   - Replace `Your_password123` with a strong password.
+
+3. **Run the SQL Script**:
+   - Place the `setup_db.sql` file in an accessible directory.
+   - Run the following command to execute the script:
+     ```sh
+     docker exec -it sql1 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Your_password123 -i C:/path/to/setup_db.sql
+     ```
+   - Replace `C:/path/to/setup_db.sql` with the actual path to the `setup_db.sql` file.
+
+## Running the SQL Script Directly (Alternative)
+If you have SQL Server installed locally without Docker, you can run the script directly using SQL Server Management Studio (SSMS) or sqlcmd:
+
+1. **Open SSMS**:
+   - Connect to your SQL Server instance.
+   - Open the `setup_db.sql` file.
+   - Execute the script.
+
+2. **Using sqlcmd**:
+   - Open a Command Prompt or Terminal.
+   - Run the following command:
+     ```sh
+     sqlcmd -S localhost -U sa -P Your_password123 -i /path/to/setup_db.sql
+     ```
+   - Replace `/path/to/setup_db.sql` with the actual path to the `setup_db.sql` file.
+
+## Summary
+Follow the instructions for your operating system to set up SQL Server using Docker and run the provided SQL script to create the necessary database and tables. Ensure Docker is running, and replace placeholder values as needed.

@@ -1,0 +1,50 @@
+CREATE DATABASE myDatabase;
+GO
+
+USE myDatabase;
+GO
+
+CREATE TABLE Users (
+    UserID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    FirstName NVARCHAR(100),
+    LastName NVARCHAR(100),
+    Email NVARCHAR(100) ,
+    PhoneNumber NVARCHAR(15),
+    UserType NVARCHAR(50) -- Buyer or Seller
+);
+
+CREATE TABLE BuyerOrders (
+    OrderID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    BuyerID UNIQUEIDENTIFIER,
+    Items NVARCHAR(MAX), -- JSON data
+    TotalAmount DECIMAL(18, 2),
+    CreationDate DATETIME DEFAULT GETDATE(),
+    SellerID UNIQUEIDENTIFIER,
+    FOREIGN KEY (BuyerID) REFERENCES Users(UserID),
+    FOREIGN KEY (SellerID) REFERENCES Users(UserID)
+);
+
+CREATE TABLE ShoppingList (
+    ListID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    BuyerID UNIQUEIDENTIFIER,
+    Items NVARCHAR(MAX), -- JSON data
+    FOREIGN KEY (BuyerID) REFERENCES Users(UserID)
+);
+
+CREATE TABLE FullTable (
+    SellerID UNIQUEIDENTIFIER,
+    ItemNumber NVARCHAR(50),
+    Quantity INT,
+    Price DECIMAL(18, 2),
+    Discount DECIMAL(18, 2),
+    Location NVARCHAR(255),
+    FOREIGN KEY (SellerID) REFERENCES Users(UserID)
+);
+
+CREATE TABLE Sellers (
+    SellerID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    BranchName NVARCHAR(100),
+    BranchAddress NVARCHAR(255),
+    BranchMap NVARCHAR(MAX),
+    Location NVARCHAR(255)
+);
