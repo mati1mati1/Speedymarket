@@ -1,4 +1,4 @@
-import { User, BuyerOrder, ShoppingList, FullTable, Seller } from './models';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Seller } from './models';
 
 export interface QueryParam {
   name: string;
@@ -19,7 +19,7 @@ export const getUserByIdQuery = (userId: string): Query => ({
 });
 
 export const getItemBySellerIdAndItemNumberQuery = (sellerId: string, itemNumber: string): Query => ({
-  query: 'SELECT * FROM FullTable WHERE SellerID = @sellerId AND ItemNumber = @itemNumber',
+  query: 'SELECT * FROM ShopInventory WHERE SellerID = @sellerId AND ItemNumber = @itemNumber',
   params: [
     { name: 'sellerId', type: 'UniqueIdentifier', value: sellerId },
     { name: 'itemNumber', type: 'NVarChar', value: itemNumber }

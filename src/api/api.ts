@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { Query, getUserByIdQuery, getItemBySellerIdAndItemNumberQuery, getSellerByIdQuery, getShoppingListByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery } from './queries';
-import { User, BuyerOrder, ShoppingList, FullTable, Seller } from '../models';
+import { Query, getUserByIdQuery, getItemBySellerIdAndItemNumberQuery, getSellerByIdQuery, getShoppingListByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery } from '../queries';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Seller } from '../models';
 
 const API_URL = 'http://localhost:3000/api';
 
@@ -23,9 +23,9 @@ export const getUserById = async (userId: string): Promise<User[]> => {
   return await executeSqlQuery<User>(queryObject);
 };
 
-export const getItemBySellerIdAndItemNumber = async (sellerId: string, itemNumber: string): Promise<FullTable[]> => {
+export const getItemBySellerIdAndItemNumber = async (sellerId: string, itemNumber: string): Promise<ShopInventory[]> => {
   const queryObject = getItemBySellerIdAndItemNumberQuery(sellerId, itemNumber);
-  return await executeSqlQuery<FullTable>(queryObject);
+  return await executeSqlQuery<ShopInventory>(queryObject);
 };
 
 export const getSellerById = async (sellerId: string): Promise<Seller[]> => {

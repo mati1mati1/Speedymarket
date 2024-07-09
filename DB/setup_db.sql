@@ -1,7 +1,7 @@
-CREATE DATABASE myDatabase;
+CREATE DATABASE MySuperMarketDb;
 GO
 
-USE myDatabase;
+USE MySuperMarketDb;
 GO
 
 CREATE TABLE Users (
@@ -31,16 +31,6 @@ CREATE TABLE ShoppingList (
     FOREIGN KEY (BuyerID) REFERENCES Users(UserID)
 );
 
-CREATE TABLE FullTable (
-    SellerID UNIQUEIDENTIFIER,
-    ItemNumber NVARCHAR(50),
-    Quantity INT,
-    Price DECIMAL(18, 2),
-    Discount DECIMAL(18, 2),
-    Location NVARCHAR(255),
-    FOREIGN KEY (SellerID) REFERENCES Users(UserID)
-);
-
 CREATE TABLE Sellers (
     SellerID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     BranchName NVARCHAR(100),
@@ -48,3 +38,15 @@ CREATE TABLE Sellers (
     BranchMap NVARCHAR(MAX),
     Location NVARCHAR(255)
 );
+
+CREATE TABLE ShopInventory (
+    SellerID   UNIQUEIDENTIFIER NULL,
+    ItemNumber NVARCHAR (50)    NULL,
+    Quantity   INT              NULL,
+    Price      DECIMAL (18, 2)  NULL,
+    Discount   DECIMAL (18, 2)  NULL,
+    Location   NVARCHAR (255)   NULL,
+    FOREIGN KEY (SellerID) REFERENCES Sellers(SellerID)
+);
+
+

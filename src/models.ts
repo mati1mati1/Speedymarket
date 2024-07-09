@@ -22,7 +22,7 @@ export interface User {
     Items: string; // JSON data
   }
   
-  export interface FullTable {
+  export interface ShopInventory {
     SellerID: string;
     ItemNumber: string;
     Quantity: number;
