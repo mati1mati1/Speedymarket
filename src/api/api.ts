@@ -2,15 +2,24 @@ import axios from 'axios';
 import { Query, getUserByIdQuery, getItemBySellerIdAndItemNumberQuery, getSellerByIdQuery, getShoppingListByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery } from '../queries';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Seller } from '../models';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'http://localhost:7071/api/ExecuteSqlQuery';
 
 export const executeSqlQuery = async <T>(queryObject: Query): Promise<T[]> => {
   try {
-    const response = await axios.post(`${API_URL}/ExecuteSqlQuery`, {
-      query: queryObject.query,
-      params: queryObject.params
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(queryObject),
     });
-    return response.data;
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error('Error executing SQL query:', error);
     throw error;
