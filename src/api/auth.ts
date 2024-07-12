@@ -12,9 +12,9 @@ interface LoginResponse {
   export async function login(username: string, password: string): Promise<LoginResponse> {
     debugger;
     const user = await getUserByUserName(username);
-  
+    debugger
     if (user) {
-      const role = user.UserType === 'manager' ? 'manager' : 'customer';
+      const role = user.UserType === 'Seller' ? 'manager' : 'customer';
       sessionStorage.setItem('user', JSON.stringify(user));
       if (role === 'manager') {
         const seller = await getSellerById(user.UserID);

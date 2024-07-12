@@ -8,7 +8,7 @@ import OrderManagementScreen from '../screens/OrderManagementScreen';
 import PurchaseHistoryScreen from '../screens/PurchaseHistoryScreen';
 import ShoppingCartListScreen from '../screens/ShoppingCartListScreen';
 import SupermarketMapScreen from '../screens/SupermarketMapScreen';
-import AdminMapScreen from '../screens/AdminMapScreen';
+import ManagerMapEditor from '../screens/ManagerMapEditor';
 import { useUser } from '../context/UserContext';
 import { commonStyles } from '../styles/styles';
 import Button from '../components/Button';
@@ -21,7 +21,7 @@ export type RootStackParamList = {
   PurchaseHistory: undefined;
   ShoppingCartList: undefined;
   SupermarketMap: undefined;
-  AdminMap: undefined;
+  MapBuldier: undefined;
 };
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
@@ -34,7 +34,7 @@ const iconMap: { [key: string]: keyof typeof FontAwesome.glyphMap } = {
   PurchaseHistory: 'history',
   ShoppingCartList: 'list',
   SupermarketMap: 'map',
-  AdminMap: 'edit',
+  MapBuldier: 'edit',
 };
 
 const LogoutButton = () => {
@@ -76,7 +76,7 @@ function AppNavigator() {
           <>
             <Tab.Screen name="InventoryManagement" component={InventoryManagementScreen} />
             <Tab.Screen name="OrderManagement" component={OrderManagementScreen} />
-            <Tab.Screen name="AdminMap" component={AdminMapScreen} />
+            <Tab.Screen name="SupermarketMap" component={ManagerMapEditor} />
 
           </>
         )}
