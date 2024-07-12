@@ -10,7 +10,6 @@ interface LoginResponse {
   
   // פונקציה פשוטה לאימות משתמש
   export async function login(username: string, password: string): Promise<LoginResponse> {
-    debugger;
     const user = await getUserByUserName(username);
   
     if (user) {

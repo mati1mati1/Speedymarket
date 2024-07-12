@@ -17,7 +17,7 @@ export type RootStackParamList = {
   BarcodeScanner: undefined;
   ShoppingList: { cartId: string };
   InventoryManagement: undefined;
-  OrderManagement: undefined;
+  Orders: undefined;
   PurchaseHistory: undefined;
   ShoppingCartList: undefined;
   SupermarketMap: undefined;
@@ -30,7 +30,7 @@ const iconMap: { [key: string]: keyof typeof FontAwesome.glyphMap } = {
   BarcodeScanner: 'barcode',
   ShoppingList: 'shopping-cart',
   InventoryManagement: 'cubes',
-  OrderManagement: 'clipboard',
+  Orders: 'clipboard',
   PurchaseHistory: 'history',
   ShoppingCartList: 'list',
   SupermarketMap: 'map',
@@ -75,7 +75,7 @@ function AppNavigator() {
         {user.role === 'manager' && (
           <>
             <Tab.Screen name="InventoryManagement" component={InventoryManagementScreen} />
-            <Tab.Screen name="OrderManagement" component={OrderManagementScreen} />
+            <Tab.Screen name="Orders" component={OrderManagementScreen} />
             <Tab.Screen name="AdminMap" component={AdminMapScreen} />
 
           </>
