@@ -18,6 +18,13 @@ export const getUserByIdQuery = (userId: string): Query => ({
   ]
 });
 
+export const getUserByUserNameQuery = (userName: string): Query => ({
+  query: 'SELECT * FROM Users WHERE UserName = @userName',
+  params: [
+    { name: 'userName', type: 'NVarChar', value: userName }
+  ]
+});
+
 export const getItemBySellerIdAndItemNumberQuery = (sellerId: string, itemNumber: string): Query => ({
   query: 'SELECT * FROM ShopInventory WHERE SellerID = @sellerId AND ItemNumber = @itemNumber',
   params: [
@@ -33,7 +40,7 @@ export const getSellerByIdQuery = (sellerId: string): Query => ({
   ]
 });
 
-export const getShoppingListByBuyerIdQuery = (buyerId: string): Query => ({
+export const getShoppingListsByBuyerIdQuery = (buyerId: string): Query => ({
   query: 'SELECT * FROM ShoppingList WHERE BuyerID = @buyerId',
   params: [
     { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }

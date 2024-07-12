@@ -4,8 +4,11 @@ GO
 USE MySuperMarketDb;
 GO
 
+
+
 CREATE TABLE Users (
     UserID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserName NVARCHAR(100) UNIQUE, 
     FirstName NVARCHAR(100),
     LastName NVARCHAR(100),
     Email NVARCHAR(100),
@@ -26,6 +29,7 @@ CREATE TABLE BuyerOrders (
 
 CREATE TABLE ShoppingList (
     ListID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    ListName NVARCHAR(100) UNIQUE,
     BuyerID UNIQUEIDENTIFIER,
     Items NVARCHAR(MAX), -- JSON data
     FOREIGN KEY (BuyerID) REFERENCES Users(UserID)
@@ -50,12 +54,12 @@ CREATE TABLE ShopInventory (
 );
 
 -- Insert mock data into Users table
-INSERT INTO Users (FirstName, LastName, Email, PhoneNumber, UserType)
+INSERT INTO Users (UserName ,FirstName, LastName, Email, PhoneNumber, UserType)
 VALUES 
-('John', 'Doe', 'john.doe@example.com', '1234567890', 'Buyer'),
-('Jane', 'Smith', 'jane.smith@example.com', '0987654321', 'Seller'),
-('Mike', 'Johnson', 'mike.johnson@example.com', '1122334455', 'Buyer'),
-('Emily', 'Davis', 'emily.davis@example.com', '5566778899', 'Seller');
+('John','John', 'Doe', 'john.doe@example.com', '1234567890', 'Buyer'),
+('Jane','Jane', 'Smith', 'jane.smith@example.com', '0987654321', 'Seller'),
+('Mike','Mike', 'Johnson', 'mike.johnson@example.com', '1122334455', 'Buyer'),
+('Emily','Emily', 'Davis', 'emily.davis@example.com', '5566778899', 'Seller');
 
 -- Insert mock data into Sellers table using the UserID of sellers
 INSERT INTO Sellers (SellerID, BranchName, BranchAddress, BranchMap, Location)
@@ -72,11 +76,14 @@ VALUES
 ((SELECT SellerID FROM Sellers WHERE BranchName = 'Market Plaza'), 'B002', 80, 12.99, 1.29, 'Aisle 4');
 
 -- Insert mock data into ShoppingList
-INSERT INTO ShoppingList (BuyerID, Items)
+INSERT INTO ShoppingList (ListName, BuyerID, Items)
 VALUES 
-((SELECT UserID FROM Users WHERE Email = 'john.doe@example.com'), '[{"id": "A001", "name": "Product A1", "quantity": 2}, {"id": "A002", "name": "Product A2", "quantity": 1}]'),
-((SELECT UserID FROM Users WHERE Email = 'mike.johnson@example.com'), '[{"id": "B001", "name": "Product B1", "quantity": 3}, {"id": "B002", "name": "Product B2", "quantity": 1}]');
-
+('List1', (SELECT UserID FROM Users WHERE Email = 'john.doe@example.com'), '[{"id": "A001", "name": "Product A1", "quantity": 2}, {"id": "A002", "name": "Product A2", "quantity": 1}]'),
+('List2', (SELECT UserID FROM Users WHERE Email = 'mike.johnson@example.com'), '[{"id": "B001", "name": "Product B1", "quantity": 3}, {"id": "B002", "name": "Product B2", "quantity": 1}]'),
+('List3', (SELECT UserID FROM Users WHERE Email = 'john.doe@example.com'), '[{"id": "A001", "name": "Product A1", "quantity": 2}, {"id": "A002", "name": "Product A2", "quantity": 1}]'),
+('List4', (SELECT UserID FROM Users WHERE Email = 'mike.johnson@example.com'), '[{"id": "B001", "name": "Product B1", "quantity": 3}, {"id": "B002", "name": "Product B2", "quantity": 1}]'),
+('List5', (SELECT UserID FROM Users WHERE Email = 'mike.johnson@example.com'), '[{"id": "B001", "name": "Product B1", "quantity": 3}, {"id": "B002", "name": "Product B2", "quantity": 1}]'),
+('List6', (SELECT UserID FROM Users WHERE Email = 'mike.johnson@example.com'), '[{"id": "B001", "name": "Product B1", "quantity": 3}, {"id": "B002", "name": "Product B2", "quantity": 1}]');
 -- Insert mock data into BuyerOrders
 INSERT INTO BuyerOrders (BuyerID, Items, TotalAmount, SellerID)
 VALUES 

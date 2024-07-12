@@ -1,25 +1,16 @@
 import axios from 'axios';
-import { Query, getUserByIdQuery, getItemBySellerIdAndItemNumberQuery, getSellerByIdQuery, getShoppingListByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery } from '../queries';
+import { Query,getUserByUserNameQuery, getUserByIdQuery, getItemBySellerIdAndItemNumberQuery, getSellerByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery } from '../queries';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Seller } from '../models';
 
 const API_URL = 'http://localhost:7071/api/ExecuteSqlQuery';
 
 export const executeSqlQuery = async <T>(queryObject: Query): Promise<T[]> => {
   try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(queryObject),
+    const response = await axios.post(`${API_URL}`, {
+      query: queryObject.query,
+      params: queryObject.params
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
     console.error('Error executing SQL query:', error);
     throw error;
@@ -30,6 +21,16 @@ export const executeSqlQuery = async <T>(queryObject: Query): Promise<T[]> => {
 export const getUserById = async (userId: string): Promise<User[]> => {
   const queryObject = getUserByIdQuery(userId);
   return await executeSqlQuery<User>(queryObject);
+};
+export const getUserByUserName = async (userName: string): Promise<User | null> => {
+  const queryObject = getUserByUserNameQuery(userName);
+  const users = await executeSqlQuery<User>(queryObject);
+
+  if (users.length > 0) {
+    return users[0];
+  } else {
+    return null;
+  }
 };
 
 export const getItemBySellerIdAndItemNumber = async (sellerId: string, itemNumber: string): Promise<ShopInventory[]> => {
@@ -42,8 +43,8 @@ export const getSellerById = async (sellerId: string): Promise<Seller[]> => {
   return await executeSqlQuery<Seller>(queryObject);
 };
 
-export const getShoppingListByBuyerId = async (buyerId: string): Promise<ShoppingList[]> => {
-  const queryObject = getShoppingListByBuyerIdQuery(buyerId);
+export const getShoppingListsByBuyerId = async (buyerId: string): Promise<ShoppingList[]> => {
+  const queryObject = getShoppingListsByBuyerIdQuery(buyerId);
   return await executeSqlQuery<ShoppingList>(queryObject);
 };
 

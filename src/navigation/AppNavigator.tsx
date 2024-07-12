@@ -66,7 +66,7 @@ function AppNavigator() {
         {user.role === 'customer' && (
           <>
             <Tab.Screen name="BarcodeScanner" component={BarcodeScannerScreen} />
-            <Tab.Screen name="ShoppingList" component={ShoppingListScreen} />
+            {/* <Tab.Screen name="ShoppingList" component={ShoppingListScreen} /> */}
             <Tab.Screen name="PurchaseHistory" component={PurchaseHistoryScreen} />
             <Tab.Screen name="ShoppingCartList" component={ShoppingCartListScreen} />
             <Tab.Screen name="SupermarketMap" component={SupermarketMapScreen} />

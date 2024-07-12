@@ -1,3 +1,5 @@
+import { User } from '../models';
+import {getUserByUserName,getShoppingListsByBuyerId,getOrdersByBuyerId,getSellerById } from './api';
 interface LoginResponse {
     success: boolean;
     user: {
@@ -8,28 +10,37 @@ interface LoginResponse {
   
   // פונקציה פשוטה לאימות משתמש
   export async function login(username: string, password: string): Promise<LoginResponse> {
-    debugger
-    // נתונים לדוגמה של משתמשים
-    const users: { [key: string]: { role: 'customer' | 'manager'; username: string } } = {
-      user: { role: 'customer', username: 'user' },
-      admin: { role: 'manager', username: 'admin' },
-    };
+    debugger;
+    const user = await getUserByUserName(username);
   
-    // אימות המשתמש
-    if (username === 'user') {
+    if (user) {
+      const role = user.UserType === 'manager' ? 'manager' : 'customer';
+      sessionStorage.setItem('user', JSON.stringify(user));
+      if (role === 'manager') {
+        const seller = await getSellerById(user.UserID);
+        console.log(seller);
+        sessionStorage.setItem('seller', JSON.stringify(seller));
+      }
+      else if (role === 'customer') {
+        const ShoppingList = await getShoppingListsByBuyerId(user.UserID);
+        console.log(ShoppingList);
+        sessionStorage.setItem('ShoppingLists', JSON.stringify(ShoppingList));
+        const BuyerOrder = await getOrdersByBuyerId(user.UserID);
+        console.log(BuyerOrder);
+        sessionStorage.setItem('BuyerOrder', JSON.stringify(BuyerOrder)); 
+      }
+
       return {
         success: true,
-        user: users.user,
-      };
-    } else if (username === 'admin' ) {
-      return {
-        success: true,
-        user: users.admin,
+        user: {
+          role,
+          username: user.UserName,
+        },
       };
     } else {
       return {
         success: false,
-        user: { role: 'customer', username: '' }, // משתמש ריק במקרה של כישלון
+        user: { role: 'customer', username: '' }, // Return empty user on failure
       };
     }
   }
