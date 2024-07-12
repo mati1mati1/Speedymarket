@@ -24,6 +24,19 @@ export const getUserByUserNameQuery = (userName: string): Query => ({
     { name: 'userName', type: 'NVarChar', value: userName }
   ]
 });
+export const getMapBySellerIdQuery = (sellerId: string): Query => ({
+  query: 'SELECT * FROM Sellers WHERE SellerId = @sellerId',
+  params: [
+    { name: 'sellerId', type: 'NVarChar', value: sellerId }
+  ]
+});
+export const updateMapQuery = (sellerId: string, BranchMap: string): Query => ({
+  query: 'UPDATE Sellers SET BranchMap = @newMapData WHERE SellerID = @sellerId',
+  params: [
+    { name: 'sellerId', type: 'NVarChar', value: sellerId },
+    { name: 'BranchMap', type: 'NVarChar', value: BranchMap }
+  ]
+});
 
 export const getItemBySellerIdAndItemNumberQuery = (sellerId: string, itemNumber: string): Query => ({
   query: 'SELECT * FROM ShopInventory WHERE SellerID = @sellerId AND ItemNumber = @itemNumber',

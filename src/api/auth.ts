@@ -19,7 +19,8 @@ interface LoginResponse {
       if (role === 'manager') {
         const seller = await getSellerById(user.UserID);
         console.log(seller);
-        sessionStorage.setItem('seller', JSON.stringify(seller));
+        debugger
+        sessionStorage.setItem('seller', JSON.stringify(seller[0]));
       }
       else if (role === 'customer') {
         const ShoppingList = await getShoppingListsByBuyerId(user.UserID);

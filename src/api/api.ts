@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Query,getUserByUserNameQuery, getUserByIdQuery, getItemBySellerIdAndItemNumberQuery, getSellerByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery } from '../queries';
+import { Query,getUserByUserNameQuery, getUserByIdQuery,getMapBySellerIdQuery, updateMapQuery, getItemBySellerIdAndItemNumberQuery, getSellerByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery } from '../queries';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Seller } from '../models';
 
 const API_URL = 'http://localhost:7071/api/ExecuteSqlQuery';
@@ -36,6 +36,14 @@ export const getUserByUserName = async (userName: string): Promise<User | null> 
 export const getItemBySellerIdAndItemNumber = async (sellerId: string, itemNumber: string): Promise<ShopInventory[]> => {
   const queryObject = getItemBySellerIdAndItemNumberQuery(sellerId, itemNumber);
   return await executeSqlQuery<ShopInventory>(queryObject);
+};
+export const getMapBySellerId = async (sellerId: string): Promise<string[]> => {
+  const queryObject = getMapBySellerIdQuery(sellerId);
+  return await executeSqlQuery<string>(queryObject);
+};
+export const updateMap = async (sellerId: string, BranchMap: string): Promise<string[]> => {
+  const queryObject = updateMapQuery(sellerId,BranchMap);
+  return await executeSqlQuery<string>(queryObject);
 };
 
 export const getSellerById = async (sellerId: string): Promise<Seller[]> => {

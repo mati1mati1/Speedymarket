@@ -1,6 +1,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import LoginScreen from './screens/LoginScreen';
 import { AppNavigator } from './navigation/AppNavigator';
 import { UserProvider, useUser } from './context/UserContext';
@@ -26,7 +28,9 @@ const MainNavigator: React.FC = () => {
 const App: React.FC = () => {
   return (
     <UserProvider>
-      <MainNavigator />
+      <DndProvider backend={HTML5Backend}>
+        <MainNavigator />
+      </DndProvider>
     </UserProvider>
   );
 };
