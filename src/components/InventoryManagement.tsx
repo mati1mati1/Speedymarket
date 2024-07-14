@@ -3,14 +3,11 @@ import { View, Text, FlatList, StyleSheet } from 'react-native';
 
 export default function InventoryManagement() {
   const [inventory, setInventory] = useState<{ id: number; name: string; quantity: number }[]>([]);
+  const shopInventory = JSON.parse(sessionStorage.getItem('ShopInventory') || '{}');
 
   useEffect(() => {
-    // לוגיקה לטעינת מלאי ממקור נתונים
-    setInventory([
-      { id: 1, name: 'Item 1', quantity: 10 },
-      { id: 2, name: 'Item 2', quantity: 5 },
-      // פריטים נוספים...
-    ]);
+    debugger
+    setInventory([shopInventory]);
   }, []);
 
   return (

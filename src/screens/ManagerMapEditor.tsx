@@ -23,6 +23,8 @@ const ManagerMapEditor: React.FC = () => {
         const branchMap = JSON.parse(seller.BranchMap);
         setSections(branchMap.sections || []);
         setEntrance(branchMap.entrance || null);
+        debugger
+        setShelfCounter(branchMap.sections.length + 1);
   }, []);
 
   const [, drop] = useDrop({

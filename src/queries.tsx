@@ -11,6 +11,13 @@ export interface Query {
   params: QueryParam[];
 }
 
+export const getShopInventoryQuery = (sellerId: string): Query => ({
+  query: 'SELECT * FROM ShopInventory WHERE SellerId = @sellerId',
+  params: [
+    { name: 'sellerId', type: 'UniqueIdentifier', value: sellerId }
+  ]
+});
+
 export const getUserByIdQuery = (userId: string): Query => ({
   query: 'SELECT * FROM Users WHERE UserID = @userId',
   params: [
@@ -54,7 +61,7 @@ export const getSellerByIdQuery = (sellerId: string): Query => ({
 });
 
 export const getShoppingListsByBuyerIdQuery = (buyerId: string): Query => ({
-  query: 'SELECT * FROM ShoppingList WHERE BuyerID = @buyerId',
+  query: 'SELECT * FROM ShoppingList WHERE SellerID = @buyerId',
   params: [
     { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }
   ]

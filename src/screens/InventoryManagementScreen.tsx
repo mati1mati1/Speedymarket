@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { ShopInventory } from '../models';
 
 export default function InventoryManagementScreen() {
-  const [inventory, setInventory] = useState<{ id: number; name: string; quantity: number }[]>([]);
+  const [inventory, setInventory] = useState<ShopInventory[]>([]);
+
+  const shopInventory = JSON.parse(sessionStorage.getItem('ShopInventory') || '{}');
 
   useEffect(() => {
-    // לוגיקה לטעינת מלאי ממקור נתונים
-    setInventory([
-      { id: 1, name: 'Item 1', quantity: 10 },
-      { id: 2, name: 'Item 2', quantity: 5 },
-      // פריטים נוספים...
-    ]);
+    debugger
+    setInventory([shopInventory]);
   }, []);
+
 
   return (
     <View style={styles.container}>
@@ -20,10 +20,10 @@ export default function InventoryManagementScreen() {
         data={inventory}
         renderItem={({ item }) => (
           <Text style={styles.item}>
-            {item.name} - Quantity: {item.quantity}
+            {item.ItemNumber} - Quantity: {item.Quantity}
           </Text>
         )}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.Quantity.toString()}
       />
     </View>
   );

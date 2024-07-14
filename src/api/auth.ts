@@ -1,5 +1,5 @@
 import { User } from '../models';
-import {getUserByUserName,getShoppingListsByBuyerId,getOrdersByBuyerId,getSellerById } from './api';
+import {getUserByUserName,getShoppingListsByBuyerId,getOrdersByBuyerId,getSellerById, getShopInventory } from './api';
 interface LoginResponse {
     success: boolean;
     user: {
@@ -21,6 +21,9 @@ interface LoginResponse {
         console.log(seller);
         debugger
         sessionStorage.setItem('seller', JSON.stringify(seller[0]));
+        const ShopInventory = await getShopInventory(user.UserID);
+        console.log('ShopInventory: ' + ShopInventory);
+        sessionStorage.setItem('ShopInventory', JSON.stringify(ShopInventory));
       }
       else if (role === 'customer') {
         const ShoppingList = await getShoppingListsByBuyerId(user.UserID);
