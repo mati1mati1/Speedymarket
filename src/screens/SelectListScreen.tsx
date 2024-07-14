@@ -12,14 +12,28 @@ const SelectListScreen = () => {
   const navigation = useNavigation<SelectListScreenNavigationProp>();
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
+  const [isDataFetched, setIsDataFetched] = useState(false);
 
   useEffect(() => {
-    const storedShoppingLists = sessionStorage.getItem('ShoppingLists');
-    if (storedShoppingLists) {
-      const parsedShoppingLists: ShoppingList[] = JSON.parse(storedShoppingLists);
-      setShoppingLists(parsedShoppingLists);
+    const fetchData = async () => {
+      try {
+        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        if (user && user.UserID) {
+          const fetchedShoppingLists = await getShoppingListsByBuyerId(user.UserID);
+          if (fetchedShoppingLists) {
+            setShoppingLists(fetchedShoppingLists);
+            sessionStorage.setItem('ShoppingLists', JSON.stringify(fetchedShoppingLists));
+          }
+        }
+        setIsDataFetched(true);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
     };
+
+    fetchData();
   }, []);
+
 
   const handleSelectList = (list: ShoppingList) => {
     setSelectedList(list);

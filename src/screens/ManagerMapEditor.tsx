@@ -3,6 +3,7 @@ import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
 import Section from '../components/Section';
 import Entrance from '../components/Entrance';
 import '../styles/MapEditor.css';
+import { fetchSupermarketByUserId } from '../dataFetchers/dataFetchers';
 
 const ItemTypes = {
   SECTION: 'section',
@@ -14,17 +15,33 @@ const ManagerMapEditor: React.FC = () => {
   const [entrance, setEntrance] = useState<{ left: number; top: number } | null>(null);
   const [shelfCounter, setShelfCounter] = useState(1);
   const [currentOffset, setCurrentOffset] = useState<{ x: number; y: number } | null>(null);
+  const [supermarket, setSupermarket] = useState<any | null>(null);
+  const [isDataFetched, setIsDataFetched] = useState(false);
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapWidth = 800;
   const mapHeight = 600;
-  const supermarket = JSON.parse(sessionStorage.getItem('supermarket') || '{}');
-  debugger
+
   useEffect(() => {
-        const branchMap = JSON.parse(supermarket.BranchMap);
-        setSections(branchMap.sections || []);
-        setEntrance(branchMap.entrance || null);
-        debugger
-        setShelfCounter(branchMap.sections.length + 1);
+    const fetchData = async () => {
+      try {
+        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        if (user && user.UserID) {
+          const fetchedSupermarket = await fetchSupermarketByUserId(user.UserID);
+          if (fetchedSupermarket) {
+            setSupermarket(fetchedSupermarket);
+            const branchMap = JSON.parse(fetchedSupermarket.BranchMap);
+            setSections(branchMap.sections || []);
+            setEntrance(branchMap.entrance || null);
+            setShelfCounter(branchMap.sections.length + 1);
+          }
+        }
+        setIsDataFetched(true);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const [, drop] = useDrop({
@@ -69,7 +86,6 @@ const ManagerMapEditor: React.FC = () => {
       ...sections,
       { id: shelfCounter, name: `מדף`, left: adjustedPosition.left, top: adjustedPosition.top, rotation: rotation, width: 80, height: 40 }
     ]);
-    console.log(`Section ${shelfCounter} added at position: ${adjustedPosition.left}, ${adjustedPosition.top}`);
     setShelfCounter(shelfCounter + 1);
   };
 
@@ -127,7 +143,6 @@ const ManagerMapEditor: React.FC = () => {
         section.id === id ? { ...section, rotation: (section.rotation + 90) % 360 } : section
       )
     );
-    console.log(`Section ${id} rotated`);
   };
 
   const moveSection = (id: number, left: number, top: number, rotation: number) => {
@@ -137,14 +152,12 @@ const ManagerMapEditor: React.FC = () => {
         section.id === id ? { ...section, left: Math.max(0, Math.min(adjustedPosition.left, mapWidth - (rotation % 180 === 0 ? 80 : 40))), top: Math.max(0, Math.min(adjustedPosition.top, mapHeight - (rotation % 180 === 0 ? 40 : 80))) } : section
       )
     );
-    console.log(`Section ${id} moved to new position: ${adjustedPosition.left}, ${adjustedPosition.top}`);
   };
 
   const moveEntrance = (left: number, top: number) => {
     const adjustedLeft = Math.max(0, Math.min(left, mapWidth - 50));
     const adjustedTop = (adjustedLeft === 0 || adjustedLeft === mapWidth - 50) ? Math.max(0, Math.min(top, mapHeight - 50)) : (top <= 25 || top >= mapHeight - 25 ? top : (top < mapHeight / 2 ? 0 : mapHeight - 50));
     setEntrance({ left: adjustedLeft, top: adjustedTop });
-    console.log(`Entrance moved to new position: ${adjustedLeft}, ${adjustedTop}`);
   };
 
   const saveMapToDB = async () => {
@@ -155,7 +168,7 @@ const ManagerMapEditor: React.FC = () => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ supermarketId: supermarket.id, mapData })
+      body: JSON.stringify({ supermarketId: supermarket.SupermarketID, mapData })
     });
 
     if (response.ok) {
