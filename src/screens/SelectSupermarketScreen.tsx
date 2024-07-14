@@ -4,7 +4,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { getSupermarkets } from '../api/api';
-import { Seller } from '../models';
+import { Supermarket } from '../models';
 
 type SelectSupermarketScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SelectSupermarket'>;
 type SelectSupermarketScreenRouteProp = RouteProp<RootStackParamList, 'SelectSupermarket'>;
@@ -13,8 +13,8 @@ const SelectSupermarketScreen = () => {
   const navigation = useNavigation<SelectSupermarketScreenNavigationProp>();
   const route = useRoute<SelectSupermarketScreenRouteProp>();
   const { listId } = route.params;
-  const [supermarkets, setSupermarkets] = useState<Seller[]>([]);
-  const [selectedSupermarket, setSelectedSupermarket] = useState<Seller | null>(null);
+  const [supermarkets, setSupermarkets] = useState<Supermarket[]>([]);
+  const [selectedSupermarket, setSelectedSupermarket] = useState<Supermarket | null>(null);
 
   useEffect(() => {
     const fetchSupermarkets = async () => {
@@ -25,14 +25,14 @@ const SelectSupermarketScreen = () => {
     fetchSupermarkets();
   }, []);
 
-  const handleSelectSupermarket = (supermarket: Seller) => {
+  const handleSelectSupermarket = (supermarket: Supermarket) => {
     setSelectedSupermarket(supermarket);
   };
 
   const handleConfirmSelection = () => {
     if (selectedSupermarket) {
       // Navigate to CustomerMapViewer with the selected supermarket and listId
-      navigation.navigate('CustomerMapViewer', { supermarketId: selectedSupermarket.SellerID, listId });
+      navigation.navigate('CustomerMapViewer', { supermarketId: selectedSupermarket.SupermarketID, listId });
     }
   };
 
@@ -46,13 +46,13 @@ const SelectSupermarketScreen = () => {
       <Text style={styles.title}>Select Supermarket</Text>
       <FlatList
         data={supermarkets}
-        keyExtractor={(item) => item.SellerID}
+        keyExtractor={(item) => item.SupermarketID}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.item}
             onPress={() => handleSelectSupermarket(item)}
           >
-            <Text style={selectedSupermarket?.SellerID === item.SellerID ? styles.selectedItem : styles.itemText}>
+            <Text style={selectedSupermarket?.SupermarketID === item.SupermarketID ? styles.selectedItem : styles.itemText}>
               {item.BranchName}
             </Text>
           </TouchableOpacity>

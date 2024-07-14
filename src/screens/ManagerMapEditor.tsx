@@ -17,10 +17,10 @@ const ManagerMapEditor: React.FC = () => {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapWidth = 800;
   const mapHeight = 600;
-  const seller = JSON.parse(sessionStorage.getItem('seller') || '{}');
-
+  const supermarket = JSON.parse(sessionStorage.getItem('supermarket') || '{}');
+  debugger
   useEffect(() => {
-        const branchMap = JSON.parse(seller.BranchMap);
+        const branchMap = JSON.parse(supermarket.BranchMap);
         setSections(branchMap.sections || []);
         setEntrance(branchMap.entrance || null);
         debugger
@@ -155,7 +155,7 @@ const ManagerMapEditor: React.FC = () => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ supermarketId: seller.id, mapData })
+      body: JSON.stringify({ supermarketId: supermarket.id, mapData })
     });
 
     if (response.ok) {
