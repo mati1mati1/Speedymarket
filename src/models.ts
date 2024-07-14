@@ -19,8 +19,9 @@ export interface User {
   
   export interface ShoppingList {
     ListID: string;
+    ListName: string;
     BuyerID: string;
-    Items: string; // JSON data
+    Items: string;
   }
   
   export interface ShopInventory {

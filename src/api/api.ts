@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Query,getUserByUserNameQuery, getUserByIdQuery,getMapBySellerIdQuery, updateMapQuery, getItemBySellerIdAndItemNumberQuery, getSellerByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery } from '../queries';
+import { Query,getUserByUserNameQuery, getUserByIdQuery,getMapBySellerIdQuery, updateMapQuery, getItemBySellerIdAndItemNumberQuery, getSellerByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery } from '../queries';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Seller } from '../models';
 
 const API_URL = 'http://localhost:7071/api/ExecuteSqlQuery';
@@ -65,3 +65,9 @@ export const getOrdersByBuyerId = async (buyerId: string): Promise<BuyerOrder[]>
   const queryObject = getOrdersByBuyerIdQuery(buyerId);
   return await executeSqlQuery<BuyerOrder>(queryObject);
 };
+
+export const getSupermarkets = async (): Promise<Seller[]> => {
+  const queryObject = getSupermarketsQuery();
+  return await executeSqlQuery<Seller>(queryObject);
+};
+

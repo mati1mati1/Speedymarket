@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import Section from '../components/Section';
 import Entrance from '../components/Entrance';
-import './MapEditor.css';
+import '../styles/MapEditor.css';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
 interface SectionType {
   id: number;
@@ -20,7 +22,11 @@ interface EntranceType {
   top: number;
 }
 
+type CustomerMapViewerRouteProp = RouteProp<RootStackParamList, 'CustomerMapViewer'>;
+
 const CustomerMapViewer: React.FC = () => {
+  const route = useRoute<CustomerMapViewerRouteProp>();
+  const { supermarketId, listId } = route.params;
   const [sections, setSections] = useState<SectionType[]>([]);
   const [entrance, setEntrance] = useState<EntranceType | null>(null);
   const [path, setPath] = useState<number[][]>([]);
@@ -29,7 +35,7 @@ const CustomerMapViewer: React.FC = () => {
   const mapWidth = 800;
   const mapHeight = 600;
 
-  const loadMapAndPath = async (supermarketId: string, listId: string) => {
+  const loadMapAndPath = async (supermarketId: string, listId: string | null) => {
     const response = await fetch('http://localhost:7071/api/calculatePath', {
       method: 'POST',
       headers: {
@@ -50,8 +56,8 @@ const CustomerMapViewer: React.FC = () => {
 
   useEffect(() => {
     // Load initial map and path data if needed
-    loadMapAndPath('a59198a6-ab66-4d6d-85a2-147be52d856c', 'd9de2f38-0b74-484a-bfcf-0dead19b4e25');
-  }, []);
+    loadMapAndPath(supermarketId, listId);
+  }, [supermarketId, listId]);
 
   const drawPath = () => (
     <svg style={{ position: 'absolute', top: 0, left: 0, width: mapWidth, height: mapHeight }}>
@@ -89,7 +95,7 @@ const CustomerMapViewer: React.FC = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div>
-        <button onClick={() => loadMapAndPath('a59198a6-ab66-4d6d-85a2-147be52d856c', 'd9de2f38-0b74-484a-bfcf-0dead19b4e25')}>
+        <button onClick={() => loadMapAndPath(supermarketId, listId)}>
           Start Shopping
         </button>
         <div ref={mapRef} className="map-editor" style={{ position: 'relative', width: `${mapWidth}px`, height: `${mapHeight}px`, border: '1px solid black' }}>

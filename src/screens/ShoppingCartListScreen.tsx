@@ -25,7 +25,6 @@ const ShoppingCartListScreen = () => {
   const navigation = useNavigation<ShoppingCartListScreenNavigationProp>();
 
   useEffect(() => {
-    debugger
     const storedShoppingLists = sessionStorage.getItem('ShoppingLists');
     if (storedShoppingLists) {
       const parsedShoppingLists: ShoppingList[] = JSON.parse(storedShoppingLists);
@@ -34,7 +33,11 @@ const ShoppingCartListScreen = () => {
   }, []);
 
   const handleAddCart = () => {
-    // Implement the logic to add a new cart
+    navigation.navigate('EditList', { cartId: null });
+  };
+
+  const handleEditCart = (cartId: string) => {
+    navigation.navigate('EditList', { cartId });
   };
 
   return (
@@ -46,7 +49,7 @@ const ShoppingCartListScreen = () => {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.item}
-            onPress={() => navigation.navigate('ShoppingList', { cartId: item.ListID })}
+            onPress={() => handleEditCart(item.ListID)}
           >
             <Text>{item.ListName}</Text>
           </TouchableOpacity>

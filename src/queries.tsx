@@ -78,3 +78,9 @@ export const getOrdersByBuyerIdQuery = (buyerId: string): Query => ({
     { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }
   ]
 });
+export const getSupermarketsQuery = (): Query => ({
+  query: 'SELECT * FROM Sellers',
+  params: [
+    
+  ]
+});
