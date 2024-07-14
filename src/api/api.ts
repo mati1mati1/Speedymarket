@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { Query,getUserByUserNameQuery, getUserByIdQuery, getItemBySellerIdAndItemNumberQuery, getSellerByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery } from '../queries';
-import { User, BuyerOrder, ShoppingList, ShopInventory, Seller } from '../models';
+import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNumberQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery } from '../queries';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket } from '../models';
 
 const API_URL = 'http://localhost:7071/api/ExecuteSqlQuery';
 
@@ -22,6 +22,7 @@ export const getUserById = async (userId: string): Promise<User[]> => {
   const queryObject = getUserByIdQuery(userId);
   return await executeSqlQuery<User>(queryObject);
 };
+
 export const getUserByUserName = async (userName: string): Promise<User | null> => {
   const queryObject = getUserByUserNameQuery(userName);
   const users = await executeSqlQuery<User>(queryObject);
@@ -33,19 +34,43 @@ export const getUserByUserName = async (userName: string): Promise<User | null> 
   }
 };
 
-export const getItemBySellerIdAndItemNumber = async (sellerId: string, itemNumber: string): Promise<ShopInventory[]> => {
-  const queryObject = getItemBySellerIdAndItemNumberQuery(sellerId, itemNumber);
+export const getItemBySupermarketIdAndItemNumber = async (supermarketId: string, itemNumber: string): Promise<ShopInventory[]> => {
+  const queryObject = getItemBySupermarketIdAndItemNumberQuery(supermarketId, itemNumber);
   return await executeSqlQuery<ShopInventory>(queryObject);
 };
 
-export const getSellerById = async (sellerId: string): Promise<Seller[]> => {
-  const queryObject = getSellerByIdQuery(sellerId);
-  return await executeSqlQuery<Seller>(queryObject);
+export const getItemBySupermarketIdAndBarcode = async (supermarketId: string, barcode: string): Promise<ShopInventory[]> => {
+  const queryObject = getItemBySupermarketIdAndBarcodeQuery(supermarketId, barcode);
+  return await executeSqlQuery<ShopInventory>(queryObject);
+};
+
+export const getMapBySupermarketId = async (supermarketId: string): Promise<string[]> => {
+  const queryObject = getMapBySupermarketIdQuery(supermarketId);
+  return await executeSqlQuery<string>(queryObject);
+};
+
+export const updateMap = async (supermarketId: string, BranchMap: string): Promise<string[]> => {
+  const queryObject = updateMapQuery(supermarketId, BranchMap);
+  return await executeSqlQuery<string>(queryObject);
+};
+
+export const getSupermarketById = async (supermarketId: string): Promise<Supermarket[]> => {
+  const queryObject = getSupermarketByIdQuery(supermarketId);
+  return await executeSqlQuery<Supermarket>(queryObject);
+};
+export const getSupermarketByUserId = async (userId: string): Promise<Supermarket[]> => {
+  const queryObject = getSupermarketByUserIdQuery(userId);
+  return await executeSqlQuery<Supermarket>(queryObject);
 };
 
 export const getShoppingListsByBuyerId = async (buyerId: string): Promise<ShoppingList[]> => {
   const queryObject = getShoppingListsByBuyerIdQuery(buyerId);
   return await executeSqlQuery<ShoppingList>(queryObject);
+};
+
+export const getShopInventory = async (supermarketId: string): Promise<ShopInventory[]> => {
+  const queryObject = getShopInventoryQuery(supermarketId);
+  return await executeSqlQuery<ShopInventory>(queryObject);
 };
 
 export const addOrUpdateShoppingListByBuyerId = async (listId: string, buyerId: string, items: string): Promise<void> => {
@@ -56,4 +81,9 @@ export const addOrUpdateShoppingListByBuyerId = async (listId: string, buyerId: 
 export const getOrdersByBuyerId = async (buyerId: string): Promise<BuyerOrder[]> => {
   const queryObject = getOrdersByBuyerIdQuery(buyerId);
   return await executeSqlQuery<BuyerOrder>(queryObject);
+};
+
+export const getSupermarkets = async (): Promise<Supermarket[]> => {
+  const queryObject = getSupermarketsQuery();
+  return await executeSqlQuery<Supermarket>(queryObject);
 };

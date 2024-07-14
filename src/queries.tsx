@@ -1,4 +1,4 @@
-import { User, BuyerOrder, ShoppingList, ShopInventory, Seller } from './models';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket } from './models';
 
 export interface QueryParam {
   name: string;
@@ -11,32 +11,53 @@ export interface Query {
   params: QueryParam[];
 }
 
+export const getShopInventoryQuery = (supermarketId: string): Query => ({
+  query: 'SELECT * FROM ShopInventory WHERE SupermarketID = @supermarketId',
+  params: [
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
+  ]
+});
+
 export const getUserByIdQuery = (userId: string): Query => ({
-  query: 'SELECT * FROM Users WHERE UserID = @userId',
+  query: 'SELECT * FROM [User] WHERE UserID = @userId',
   params: [
     { name: 'userId', type: 'UniqueIdentifier', value: userId }
   ]
 });
 
 export const getUserByUserNameQuery = (userName: string): Query => ({
-  query: 'SELECT * FROM Users WHERE UserName = @userName',
+  query: 'SELECT * FROM [User] WHERE UserName = @userName',
   params: [
     { name: 'userName', type: 'NVarChar', value: userName }
   ]
 });
 
-export const getItemBySellerIdAndItemNumberQuery = (sellerId: string, itemNumber: string): Query => ({
-  query: 'SELECT * FROM ShopInventory WHERE SellerID = @sellerId AND ItemNumber = @itemNumber',
+export const getMapBySupermarketIdQuery = (supermarketId: string): Query => ({
+  query: 'SELECT * FROM Supermarket WHERE SupermarketID = @supermarketId',
   params: [
-    { name: 'sellerId', type: 'UniqueIdentifier', value: sellerId },
-    { name: 'itemNumber', type: 'NVarChar', value: itemNumber }
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
   ]
 });
 
-export const getSellerByIdQuery = (sellerId: string): Query => ({
-  query: 'SELECT * FROM Sellers WHERE SellerID = @sellerId',
+export const updateMapQuery = (supermarketId: string, BranchMap: string): Query => ({
+  query: 'UPDATE Supermarket SET BranchMap = @BranchMap WHERE SupermarketID = @supermarketId',
   params: [
-    { name: 'sellerId', type: 'UniqueIdentifier', value: sellerId }
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId },
+    { name: 'BranchMap', type: 'NVarChar', value: BranchMap }
+  ]
+});
+
+export const getSupermarketByIdQuery = (supermarketId: string): Query => ({
+  query: 'SELECT * FROM Supermarket WHERE SupermarketID = @supermarketId',
+  params: [
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
+  ]
+});
+
+export const getSupermarketByUserIdQuery = (userId: string): Query => ({
+  query: 'SELECT * FROM Supermarket WHERE UserId = @supermarketId',
+  params: [
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: userId }
   ]
 });
 
@@ -60,8 +81,48 @@ export const addOrUpdateShoppingListByBuyerIdQuery = (listId: string, buyerId: s
 });
 
 export const getOrdersByBuyerIdQuery = (buyerId: string): Query => ({
-  query: 'SELECT * FROM BuyerOrders WHERE BuyerID = @buyerId',
+  query: 'SELECT * FROM BuyerOrder WHERE BuyerID = @buyerId',
   params: [
     { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }
+  ]
+});
+
+export const getSupermarketsQuery = (): Query => ({
+  query: 'SELECT * FROM Supermarket',
+  params: []
+});
+export const getItemBySupermarketIdAndItemNumberQuery = (supermarketId: string, itemNumber: string): Query => ({
+  query: 'SELECT * FROM ShopInventory WHERE SupermarketID = @supermarketId AND ItemNumber = @itemNumber',
+  params: [
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId },
+    { name: 'itemNumber', type: 'NVarChar', value: itemNumber }
+  ]
+});
+
+export const addOrUpdateShopInventoryQuery = (inventory: ShopInventory): Query => ({
+  query: `IF EXISTS (SELECT * FROM ShopInventory WHERE InventoryID = @inventoryId)
+            UPDATE ShopInventory
+            SET SupermarketID = @supermarketId, ItemNumber = @itemNumber, Quantity = @quantity, Price = @price, Discount = @discount, Location = @location, Barcode = @barcode
+            WHERE InventoryID = @inventoryId
+          ELSE
+            INSERT INTO ShopInventory (InventoryID, SupermarketID, ItemNumber, Quantity, Price, Discount, Location, Barcode)
+            VALUES (@inventoryId, @supermarketId, @itemNumber, @quantity, @price, @discount, @location, @barcode)`,
+  params: [
+    { name: 'inventoryId', type: 'UniqueIdentifier', value: inventory.InventoryID },
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: inventory.SupermarketID },
+    { name: 'itemNumber', type: 'NVarChar', value: inventory.ItemNumber },
+    { name: 'quantity', type: 'Int', value: inventory.Quantity },
+    { name: 'price', type: 'Decimal', value: inventory.Price },
+    { name: 'discount', type: 'Decimal', value: inventory.Discount },
+    { name: 'location', type: 'Int', value: inventory.Location },
+    { name: 'barcode', type: 'NVarChar', value: inventory.Barcode }
+  ]
+});
+
+export const getItemBySupermarketIdAndBarcodeQuery = (supermarketId: string, barcode: string): Query => ({
+  query: 'SELECT * FROM ShopInventory WHERE SupermarketID = @supermarketId AND Barcode = @barcode',
+  params: [
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId },
+    { name: 'barcode', type: 'NVarChar', value: barcode }
   ]
 });
