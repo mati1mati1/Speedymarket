@@ -9,6 +9,7 @@
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
     "@azure/functions": "^4.0.0",
+    "fastpriorityqueue": "^0.7.5",
     "mssql": "^11.0.1"
   },
   "devDependencies": {

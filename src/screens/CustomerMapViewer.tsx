@@ -1,12 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import Section from '../components/Section';
 import Entrance from '../components/Entrance';
-import '../styles/MapEditor.css';
-
-const ItemTypes = {
-  SECTION: 'section',
-  ENTRANCE: 'entrance'
-};
+import './MapEditor.css';
 
 interface SectionType {
   id: number;
@@ -27,6 +24,7 @@ const CustomerMapViewer: React.FC = () => {
   const [sections, setSections] = useState<SectionType[]>([]);
   const [entrance, setEntrance] = useState<EntranceType | null>(null);
   const [path, setPath] = useState<number[][]>([]);
+  const [currentOffset, setCurrentOffset] = useState<{ x: number; y: number } | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapWidth = 800;
   const mapHeight = 600;
@@ -46,58 +44,73 @@ const CustomerMapViewer: React.FC = () => {
       setEntrance(data.map.entrance || null);
       setPath(data.path || []);
     } else {
-      alert('שגיאה בטעינת המפה והמסלול');
+      alert('Error loading map and path');
     }
   };
 
-  const drawPath = () => {
-    return (
-      <svg style={{ position: 'absolute', top: 0, left: 0, width: mapWidth, height: mapHeight }}>
-        {path.slice(1).map((point, index) => {
-          const prevPoint = path[index];
-          return (
-            <line
-              key={index}
-              x1={prevPoint[0]}
-              y1={prevPoint[1]}
-              x2={point[0]}
-              y2={point[1]}
-              stroke="red"
-              strokeWidth="2"
-              markerEnd="url(#arrow)"
-            />
-          );
-        })}
-        <defs>
-          <marker
-            id="arrow"
-            markerWidth="10"
-            markerHeight="10"
-            refX="6"
-            refY="3"
-            orient="auto"
-            markerUnits="strokeWidth"
-          >
-            <path d="M0,0 L0,6 L9,3 z" fill="#f00" />
-          </marker>
-        </defs>
-      </svg>
-    );
-  };
+  useEffect(() => {
+    // Load initial map and path data if needed
+    loadMapAndPath('a59198a6-ab66-4d6d-85a2-147be52d856c', 'd9de2f38-0b74-484a-bfcf-0dead19b4e25');
+  }, []);
+
+  const drawPath = () => (
+    <svg style={{ position: 'absolute', top: 0, left: 0, width: mapWidth, height: mapHeight }}>
+      {path.slice(1).map((point, index) => {
+        const prevPoint = path[index];
+        return (
+          <line
+            key={index}
+            x1={prevPoint[1]}
+            y1={prevPoint[0]}
+            x2={point[1]}
+            y2={point[0]}
+            stroke="red"
+            strokeWidth="2"
+            markerEnd="url(#arrow)"
+          />
+        );
+      })}
+      <defs>
+        <marker
+          id="arrow"
+          markerWidth="10"
+          markerHeight="10"
+          refX="6"
+          refY="3"
+          orient="auto"
+          markerUnits="strokeWidth"
+        >
+          <path d="M0,0 L0,6 L9,3 z" fill="#f00" />
+        </marker>
+      </defs>
+    </svg>
+  );
 
   return (
-    <div>
-      <button onClick={() => loadMapAndPath('a59198a6-ab66-4d6d-85a2-147be52d856c', 'd9de2f38-0b74-484a-bfcf-0dead19b4e25')}>התחל קנייה</button>
-      <div ref={mapRef} className="map-editor" style={{ position: 'relative', width: `${mapWidth}px`, height: `${mapHeight}px`, border: '1px solid black' }}>
-        {sections.map(({ id, name, left, top, rotation, width, height }) => (
-          <div key={`section-${id}`}>
-            <Section id={id} name={name} left={left} top={top} rotation={rotation} currentOffset={null} />
-          </div>
-        ))}
-        {entrance && <Entrance left={entrance.left} top={entrance.top} />}
-        {drawPath()}
+    <DndProvider backend={HTML5Backend}>
+      <div>
+        <button onClick={() => loadMapAndPath('a59198a6-ab66-4d6d-85a2-147be52d856c', 'd9de2f38-0b74-484a-bfcf-0dead19b4e25')}>
+          Start Shopping
+        </button>
+        <div ref={mapRef} className="map-editor" style={{ position: 'relative', width: `${mapWidth}px`, height: `${mapHeight}px`, border: '1px solid black' }}>
+          {sections.map(({ id, name, left, top, rotation, width, height }) => (
+            <Section
+              key={id}
+              id={id}
+              name={name}
+              left={left}
+              top={top}
+              rotation={rotation}
+              currentOffset={currentOffset}
+            />
+          ))}
+          {entrance && (
+            <Entrance left={entrance.left} top={entrance.top} />
+          )}
+          {drawPath()}
+        </div>
       </div>
-    </div>
+    </DndProvider>
   );
 };
 
