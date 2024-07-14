@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TextInput, Button, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
-import { ShopInventory } from '../models';
-import { fetchShopInventory } from '../dataFetchers/dataFetchers';
+import { ShopInventory } from '../../src/models';
+import { fetchShopInventory } from '../../src/dataFetchers/dataFetchers';
 
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);

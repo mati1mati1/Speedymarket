@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useRoute, RouteProp } from '@react-navigation/native';
-import Section from '../components/Section';
-import Entrance from '../components/Entrance';
-import '../styles/MapEditor.css';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import Section from '../../src/components/Section';
+import Entrance from '../../src/components/Entrance';
+import '../../src/styles/MapEditor.css';
+import { RootStackParamList } from '../AppNavigator';
 
 interface SectionType {
   id: number;

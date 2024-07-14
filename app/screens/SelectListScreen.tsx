@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
-import { getShoppingListsByBuyerId } from '../api/api';
-import { ShoppingList } from '../models';
+import { RootStackParamList } from '../AppNavigator';
+import { getShoppingListsByBuyerId } from '../../src/api/api';
+import { ShoppingList } from '../../src/models';
 
 type SelectListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SelectList'>;
 

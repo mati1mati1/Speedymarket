@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '../navigation/AppNavigator';
-import { addOrUpdateShoppingListByBuyerId } from '../api/api';
+import { RootStackParamList } from '../AppNavigator';
+import { addOrUpdateShoppingListByBuyerId } from '../../src/api/api';
 
 type EditListScreenRouteProp = RouteProp<RootStackParamList, 'EditList'>;
 

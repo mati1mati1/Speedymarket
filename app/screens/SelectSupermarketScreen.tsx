@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
-import { getSupermarkets } from '../api/api';
-import { Supermarket } from '../models';
+import { RootStackParamList } from '../AppNavigator';
+import { getSupermarkets } from '../../src/api/api';
+import { Supermarket } from '../../src/models';
 
 type SelectSupermarketScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SelectSupermarket'>;
 type SelectSupermarketScreenRouteProp = RouteProp<RootStackParamList, 'SelectSupermarket'>;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { RootStackParamList } from '../AppNavigator';
 
 type ShoppingListScreenRouteProp = RouteProp<RootStackParamList, 'ShoppingList'>;
 

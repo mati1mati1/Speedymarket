@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { View, Text } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { login } from '../api/auth';
-import { useUser } from '../context/UserContext';
-import { commonStyles } from '../styles/styles';
-import Button from '../components/Button';
-import Input from '../components/Input';
-import { getUserById } from '../api/api';
+import { login } from '../../src/api/auth';
+import { useUser } from '../../src/context/UserContext';
+import { commonStyles } from '../../src/styles/styles';
+import Button from '../../src/components/Button';
+import Input from '../../src/components/Input';
+import { getUserById } from '../../src/api/api';
 interface LoginScreenProps {
   navigation: StackNavigationProp<any>;
   route: RouteProp<any, any>;

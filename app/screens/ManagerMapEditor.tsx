@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
-import Section from '../components/Section';
-import Entrance from '../components/Entrance';
-import '../styles/MapEditor.css';
-import { fetchSupermarketByUserId } from '../dataFetchers/dataFetchers';
+import Section from '../../src/components/Section';
+import Entrance from '../../src/components/Entrance';
+import '../../src/styles/MapEditor.css';
+import { fetchSupermarketByUserId } from '../../src/dataFetchers/dataFetchers';
 
 const ItemTypes = {
   SECTION: 'section',

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
-import Button from '../components/Button';
+import { RootStackParamList } from '../AppNavigator';
+import Button from '../../src/components/Button';
 
 type ShoppingCartListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'ShoppingCartList'>;
 

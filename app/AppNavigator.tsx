@@ -1,22 +1,22 @@
+// app/AppNavigator.tsx
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
-import BarcodeScannerScreen from '../screens/BarcodeScannerScreen';
-import ShoppingListScreen from '../screens/ShoppingListScreen';
-import InventoryManagementScreen from '../screens/InventoryManagementScreen';
-import OrderManagementScreen from '../screens/OrderManagementScreen';
-import PurchaseHistoryScreen from '../screens/PurchaseHistoryScreen';
-import ShoppingCartListScreen from '../screens/ShoppingCartListScreen';
-import SupermarketMapScreen from '../screens/SupermarketMapScreen';
-import ManagerMapEditor from '../screens/ManagerMapEditor';
-import EditListScreen from '../screens/EditListScreen';
-import StartShoppingScreen from '../screens/StartShoppingScreen';
-import SelectListScreen from '../screens/SelectListScreen';
-import SelectSupermarketScreen from '../screens/SelectSupermarketScreen';
-import CustomerMapViewer from '../screens/CustomerMapViewer';
-import { useUser } from '../context/UserContext';
-import { commonStyles } from '../styles/styles';
-import Button from '../components/Button';
+import BarcodeScannerScreen from './screens/BarcodeScannerScreen';
+import ShoppingListScreen from './screens/ShoppingListScreen';
+import InventoryManagementScreen from './screens/InventoryManagementScreen';
+import OrderManagementScreen from './screens/OrderManagementScreen';
+import PurchaseHistoryScreen from './screens/PurchaseHistoryScreen';
+import ShoppingCartListScreen from './screens/ShoppingCartListScreen';
+import SupermarketMapScreen from './screens/SupermarketMapScreen';
+import ManagerMapEditor from './screens/ManagerMapEditor';
+import EditListScreen from './screens/EditListScreen';
+import StartShoppingScreen from './screens/StartShoppingScreen';
+import SelectListScreen from './screens/SelectListScreen';
+import SelectSupermarketScreen from './screens/SelectSupermarketScreen';
+import CustomerMapViewer from './screens/CustomerMapViewer';
+import { useUser } from '../src/context/UserContext';
+import Button from '../src/components/Button';
 
 export type RootStackParamList = {
   BarcodeScanner: undefined;
@@ -78,12 +78,9 @@ function AppNavigator() {
       >
         {user.role === 'customer' && (
           <>
-            {/* <Tab.Screen name="BarcodeScanner" component={BarcodeScannerScreen} /> */}
-            {/* <Tab.Screen name="ShoppingList" component={ShoppingListScreen} /> */}
             <Tab.Screen name="PurchaseHistory" component={PurchaseHistoryScreen} />
             <Tab.Screen name="ShoppingCartList" component={ShoppingCartListScreen} />
             <Tab.Screen name="StartShopping" component={StartShoppingScreen} />
-            {/* <Tab.Screen name="SupermarketMap" component={SupermarketMapScreen} /> */}
           </>
         )}
         {user.role === 'manager' && (
