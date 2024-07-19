@@ -8,7 +8,12 @@ import OrderManagementScreen from '../screens/OrderManagementScreen';
 import PurchaseHistoryScreen from '../screens/PurchaseHistoryScreen';
 import ShoppingCartListScreen from '../screens/ShoppingCartListScreen';
 import SupermarketMapScreen from '../screens/SupermarketMapScreen';
-import AdminMapScreen from '../screens/AdminMapScreen';
+import ManagerMapEditor from '../screens/ManagerMapEditor';
+import EditListScreen from '../screens/EditListScreen';
+import StartShoppingScreen from '../screens/StartShoppingScreen';
+import SelectListScreen from '../screens/SelectListScreen';
+import SelectSupermarketScreen from '../screens/SelectSupermarketScreen';
+import CustomerMapViewer from '../screens/CustomerMapViewer';
 import { useUser } from '../context/UserContext';
 import { commonStyles } from '../styles/styles';
 import Button from '../components/Button';
@@ -16,12 +21,18 @@ import Button from '../components/Button';
 export type RootStackParamList = {
   BarcodeScanner: undefined;
   ShoppingList: { cartId: string };
+  EditList: { cartId: string | null };
   InventoryManagement: undefined;
   Orders: undefined;
   PurchaseHistory: undefined;
   ShoppingCartList: undefined;
-  SupermarketMap: undefined;
-  AdminMap: undefined;
+  SupermarketMap: { listId?: string | null };
+  MapBuldier: undefined;
+  StartShopping: undefined;
+  SelectList: undefined;
+  SelectSupermarket: { listId: string | null };
+  CustomerMapViewer: { supermarketId: string; listId: string | null };
+  OrderManagement: undefined; 
 };
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
@@ -34,7 +45,10 @@ const iconMap: { [key: string]: keyof typeof FontAwesome.glyphMap } = {
   PurchaseHistory: 'history',
   ShoppingCartList: 'list',
   SupermarketMap: 'map',
-  AdminMap: 'edit',
+  MapBuldier: 'edit',
+  StartShopping: 'shopping-bag',
+  SelectList: 'list-ul',
+  SelectSupermarket: 'shopping-cart',
 };
 
 const LogoutButton = () => {
@@ -65,21 +79,53 @@ function AppNavigator() {
       >
         {user.role === 'customer' && (
           <>
-            <Tab.Screen name="BarcodeScanner" component={BarcodeScannerScreen} />
+            {/* <Tab.Screen name="BarcodeScanner" component={BarcodeScannerScreen} /> */}
             {/* <Tab.Screen name="ShoppingList" component={ShoppingListScreen} /> */}
             <Tab.Screen name="PurchaseHistory" component={PurchaseHistoryScreen} />
             <Tab.Screen name="ShoppingCartList" component={ShoppingCartListScreen} />
-            <Tab.Screen name="SupermarketMap" component={SupermarketMapScreen} />
+            <Tab.Screen name="StartShopping" component={StartShoppingScreen} />
+            {/* <Tab.Screen name="SupermarketMap" component={SupermarketMapScreen} /> */}
           </>
         )}
         {user.role === 'manager' && (
           <>
             <Tab.Screen name="InventoryManagement" component={InventoryManagementScreen} />
-            <Tab.Screen name="Orders" component={OrderManagementScreen} />
-            <Tab.Screen name="AdminMap" component={AdminMapScreen} />
-
+            <Tab.Screen name="OrderManagement" component={OrderManagementScreen} />
+            <Tab.Screen name="SupermarketMap" component={ManagerMapEditor} />
           </>
         )}
+        <Tab.Screen
+          name="EditList"
+          component={EditListScreen}
+          options={{
+            tabBarButton: () => null,
+            tabBarStyle: { display: 'none' },
+          }}
+        />
+        <Tab.Screen
+          name="SelectList"
+          component={SelectListScreen}
+          options={{
+            tabBarButton: () => null,
+            tabBarStyle: { display: 'none' },
+          }}
+        />
+        <Tab.Screen
+          name="SelectSupermarket"
+          component={SelectSupermarketScreen}
+          options={{
+            tabBarButton: () => null,
+            tabBarStyle: { display: 'none' },
+          }}
+        />
+        <Tab.Screen
+          name="CustomerMapViewer"
+          component={CustomerMapViewer}
+          options={{
+            tabBarButton: () => null,
+            tabBarStyle: { display: 'none' },
+          }}
+        />
       </Tab.Navigator>
       <LogoutButton />
     </>

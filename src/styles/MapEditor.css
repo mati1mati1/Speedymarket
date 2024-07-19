@@ -1,0 +1,57 @@
+.map-editor {
+    width: 800px;
+    height: 600px;
+    border: 1px solid black;
+    position: relative;
+    margin: 20px auto;
+    background-color: #f0f0f0;
+  }
+  
+  .sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 20px;
+    background: #ddd;
+    height: 100%;
+  }
+  
+  .section {
+    width: 100px;
+    height: 50px;
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    line-height: 50px;
+    border: 1px solid #0056b3;
+    position: relative;
+  }
+  
+  .arrow {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid white;
+    position: absolute;
+    top: -10px;
+    left: 45px;
+  }
+  
+  .entrance {
+    width: 100px;
+    height: 50px;
+    background-color: green;
+    color: white;
+    text-align: center;
+    line-height: 50px;
+    border: 1px solid #004d00;
+  }
+  
+  .aisle {
+    background-color: yellow;
+    border: 1px solid #cccc00;
+    position: absolute;
+    cursor: pointer;
+  }
+  
