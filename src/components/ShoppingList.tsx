@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, Pressable } from 'react-native';
 
 export default function ShoppingList() {
   const [items, setItems] = useState<string[]>([]);
@@ -19,7 +19,7 @@ export default function ShoppingList() {
         onChangeText={setNewItem}
         placeholder="Enter item"
       />
-      <Button title="Add" onPress={addItem} />
+      <Pressable onPress={addItem}>Add</Pressable>
       <FlatList
         data={items}
         renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}

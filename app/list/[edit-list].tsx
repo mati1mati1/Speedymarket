@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet } from 'react-native';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '../navigation/AppNavigator';
-import { addOrUpdateShoppingListByBuyerId } from '../api/api';
+import { View, Text, TextInput, FlatList, StyleSheet, Pressable } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { addOrUpdateShoppingListByBuyerId } from '../../src/api/api';
 
-type EditListScreenRouteProp = RouteProp<RootStackParamList, 'EditList'>;
-
-const EditListScreen = () => {
-  const route = useRoute<EditListScreenRouteProp>();
-  const navigation = useNavigation();
-  const { cartId } = route.params;
+export default function Route() {
+  debugger
+  const { cartId } = useLocalSearchParams<{ cartId: string | ''}>();
   const [items, setItems] = useState<string[]>([]);
   const [newItem, setNewItem] = useState('');
-
   useEffect(() => {
     if (cartId) {
       // Load existing list from database or state
@@ -21,41 +16,46 @@ const EditListScreen = () => {
   }, [cartId]);
 
   const addItem = () => {
-    setItems([...items, newItem]);
-    setNewItem('');
+    if (newItem.trim() !== '') {
+      setItems([...items, newItem]);
+      setNewItem('');
+    }
   };
 
   const saveList = async () => {
     const listId = cartId || 'newId'; // Generate a new ID if creating a new list
     const buyerId = 'currentBuyerId'; // Replace with actual buyer ID
     await addOrUpdateShoppingListByBuyerId(listId, buyerId, JSON.stringify(items));
-    // Navigate back or show success message
-  };
-
-  const handleBackPress = () => {
-    navigation.goBack();
+    // You need to implement a way to navigate back or show a success message.
+    // This can be router.back(), a callback prop, or anything else.
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Edit Shopping List</Text>
-      <Button title="Back to Shopping List" onPress={handleBackPress} />
       <TextInput
         style={styles.input}
         value={newItem}
         onChangeText={setNewItem}
         placeholder="Enter item"
       />
-      <Button title="Add" onPress={addItem} />
+      <Pressable style={styles.button} onPress={addItem}>
+        <Text style={styles.buttonText}>Add</Text>
+      </Pressable>
       <FlatList
         data={items}
         renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
         keyExtractor={(item, index) => index.toString()}
       />
-      <Button title="Save List" onPress={saveList} />
+      <Pressable style={styles.button} onPress={saveList}>
+        <Text style={styles.buttonText}>Save List</Text>
+      </Pressable>
+      <Pressable style={styles.button} onPress={() => { /* Add navigation logic here */ }}>
+        <Text style={styles.buttonText}>Back to Shopping List</Text>
+      </Pressable>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -80,6 +80,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     height: 44,
   },
+  button: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    marginVertical: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
 });
-
-export default EditListScreen;

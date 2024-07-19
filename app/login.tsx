@@ -1,34 +1,3 @@
-// import React, { useEffect, useState } from 'react';
-// import { useUser } from '../src/context/UserContext';
-// import { useRouter } from 'expo-router';
-
-// const Index: React.FC = () => {
-//   const { user } = useUser();
-//   const router = useRouter();
-//   const [mounted, setMounted] = useState(false);
-
-//   useEffect(() => {
-//     setMounted(true);
-//   }, []);
-
-//   useEffect(() => {
-//     if (mounted) {
-//       if (!user || !user.username) {
-//         router.push('/login');
-//       } else if (user.role === 'manager') {
-//         router.push('/manager');
-//       } else if (user.role === 'customer') {
-//         router.push('/customer');
-//       } else {
-//         router.push('/error'); // Redirect to an error page or handle invalid role
-//       }
-//     }
-//   }, [user, router, mounted]);
-
-//   return null; // Return null since redirection happens before rendering
-// };
-
-// export default Index;
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';

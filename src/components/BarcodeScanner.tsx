@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Pressable } from 'react-native';
 
 export default function BarcodeScannerScreen() {
   const [barcode, setBarcode] = useState('');
@@ -17,7 +17,9 @@ export default function BarcodeScannerScreen() {
         onChangeText={setBarcode}
         placeholder="Scan barcode here"
       />
-      <Button title="Scan" onPress={handleScan} />
+      <Pressable onPress={handleScan}>
+        <Text>Scan</Text>
+      </Pressable>
     </View>
   );
 }

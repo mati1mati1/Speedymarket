@@ -20,8 +20,8 @@
     "src",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-,   "src/App.tsx",
-     "app/index.tsx"  ],
+,   "src/App.tsx"
+, "app/customer/purchaseHistoryScreen.tsx", "app/customer/shoppingCartListScreen.tsx", "app/customer/startShoppingScreen.tsx", "app/map-viewer/[customerMapViewer].tsx"  ],
   "exclude": [
     "node_modules"
   ],

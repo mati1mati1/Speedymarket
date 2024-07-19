@@ -1,4 +1,3 @@
-// src/context/UserContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface User {
@@ -17,7 +16,10 @@ const UserContext = createContext<UserContextProps | undefined>(undefined);
 export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  const logout = () => setUser(null);
+  const logout = () => {
+    setUser(null);
+    sessionStorage.removeItem('user');
+  }
 
   return (
     <UserContext.Provider value={{ user, setUser, logout }}>
@@ -27,9 +29,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 };
 
 export const useUser = (): UserContextProps => {
+  debugger;
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error('useUser must be used within a UserProvider');
+    return { user: null, setUser: () => {}, logout: () => {} };
   }
   return context;
 };

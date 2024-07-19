@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
-import { getShoppingListsByBuyerId } from '../api/api';
-import { ShoppingList } from '../models';
-
-type SelectListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SelectList'>;
+import { View, Text, Button, FlatList, Pressable, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
+import { getShoppingListsByBuyerId } from '../src/api/api';
+import { ShoppingList } from '../src/models';
 
 const SelectListScreen = () => {
-  const navigation = useNavigation<SelectListScreenNavigationProp>();
+  const router = useRouter();
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
   const [isDataFetched, setIsDataFetched] = useState(false);
@@ -34,7 +30,6 @@ const SelectListScreen = () => {
     fetchData();
   }, []);
 
-
   const handleSelectList = (list: ShoppingList) => {
     setSelectedList(list);
   };
@@ -42,7 +37,10 @@ const SelectListScreen = () => {
   const handleConfirmSelection = () => {
     if (selectedList) {
       // Navigate to the SelectSupermarketScreen with the selected list
-      navigation.navigate('SelectSupermarket', { listId: selectedList.ListID });
+      router.push({
+        pathname: '/select-supermarket',
+        params: { listId: selectedList.ListID }
+      });
     }
   };
 
@@ -53,17 +51,19 @@ const SelectListScreen = () => {
         data={shoppingLists}
         keyExtractor={(item) => item.ListID}
         renderItem={({ item }) => (
-          <TouchableOpacity
+          <Pressable
             style={styles.item}
             onPress={() => handleSelectList(item)}
           >
             <Text style={selectedList?.ListID === item.ListID ? styles.selectedItem : styles.itemText}>
               {item.ListName}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       />
-      <Button title="Select List" onPress={handleConfirmSelection} disabled={!selectedList} />
+      <Pressable onPress={handleConfirmSelection} disabled={!selectedList} style={styles.button}>
+        <Text>Select List</Text>
+      </Pressable>
     </View>
   );
 };
@@ -91,6 +91,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: 'blue',
+  },
+  button: {
+    // Add your button styles here
   },
 });
 
