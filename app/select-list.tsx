@@ -3,22 +3,22 @@ import { View, Text, Button, FlatList, Pressable, StyleSheet } from 'react-nativ
 import { useRouter } from 'expo-router';
 import { getShoppingListsByBuyerId } from '../src/api/api';
 import { ShoppingList } from '../src/models';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Add this line
 
 const SelectListScreen = () => {
   const router = useRouter();
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
   const [isDataFetched, setIsDataFetched] = useState(false);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        const user = JSON.parse(await AsyncStorage.getItem('user') || '{}');
         if (user && user.UserID) {
           const fetchedShoppingLists = await getShoppingListsByBuyerId(user.UserID);
           if (fetchedShoppingLists) {
             setShoppingLists(fetchedShoppingLists);
-            sessionStorage.setItem('ShoppingLists', JSON.stringify(fetchedShoppingLists));
+            AsyncStorage.setItem('ShoppingLists', JSON.stringify(fetchedShoppingLists));
           }
         }
         setIsDataFetched(true);

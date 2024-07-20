@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import EditCard from '../../src/components/EditCard';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 interface ShoppingItem {
   id: string;
@@ -23,11 +24,15 @@ const ShoppingCartListScreen = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const storedShoppingLists = sessionStorage.getItem('ShoppingLists');
-    if (storedShoppingLists) {
-      const parsedShoppingLists: ShoppingList[] = JSON.parse(storedShoppingLists);
-      setShoppingLists(parsedShoppingLists);
-    }
+    const fetchData = async () => {
+      const storedShoppingLists = await AsyncStorage.getItem('ShoppingLists');
+      if (storedShoppingLists) {
+        const parsedShoppingLists: ShoppingList[] = JSON.parse(storedShoppingLists);
+        setShoppingLists(parsedShoppingLists);
+      }
+    };
+  
+    fetchData();
   }, []);
 
   const handleAddCart = () => {

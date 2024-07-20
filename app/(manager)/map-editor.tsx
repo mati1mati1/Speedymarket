@@ -4,6 +4,7 @@ import Section from '../../src/components/Section';
 import Entrance from '../../src/components/Entrance';
 import '../../src/styles/MapEditor.css';
 import { fetchSupermarketByUserId } from '../../src/dataFetchers/dataFetchers';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 const ItemTypes = {
   SECTION: 'section',
@@ -24,7 +25,7 @@ const ManagerMapEditor: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        const user = JSON.parse(await AsyncStorage.getItem('user') || '{}');
         if (user && user.UserID) {
           const fetchedSupermarket = await fetchSupermarketByUserId(user.UserID);
           if (fetchedSupermarket) {

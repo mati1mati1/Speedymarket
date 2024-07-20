@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { login } from '../src/api/auth';
 import { useUser } from '../src/context/UserContext';
-import Button from '../src/components/Button';
 import Input from '../src/components/Input';
 
 export default function LoginScreen() {
@@ -15,31 +14,34 @@ export default function LoginScreen() {
   useEffect(() => {
     if (user) {
       if (user.role === 'manager') {
-        router.replace('/manager');
+        router.replace('/(manager)/inventory');
       } else {
-        router.replace('/customer');
+        router.replace('/(customer)/shoppingCartList');
       }
     }
-  }, [user]);
+  }, [user, router]);
 
   const handleLogin = async () => {
-    console.log("handleLogin called");
+    console.log("handleLogin called with:", username, password); // Debugging
+
     try {
       if (username === "achinoam") {
         setUser({ username: "achinoam", role: "manager" });
-        router.replace('/manager');
+        router.replace('/(manager)/inventory');
       } else {
         const data = await login(username, password);
+        console.log("Login response:", data); // Debugging
+
         if (data.success) {
           setUser(data.user);
-          router.replace('/customer');
+          router.replace('/(customer)/shoppingCartList');
         } else {
-          alert('Login failed');
+          Alert.alert('Login failed', 'Please check your username and password.');
         }
       }
     } catch (error) {
       console.error('An error occurred during login', error);
-      alert('An error occurred during login');
+      Alert.alert('An error occurred during login', error.message);
     }
   };
 
@@ -59,8 +61,8 @@ export default function LoginScreen() {
           placeholder="Password"
           secureTextEntry
         />
-        <Pressable onPress={handleLogin}>
-          <Text>Login</Text>
+        <Pressable onPress={handleLogin} style={styles.button}>
+          <Text style={styles.buttonText}>Login</Text>
         </Pressable>
       </View>
       <View style={styles.imageContainer}>
@@ -90,6 +92,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'center',
     marginBottom: 20,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
   },
   imageContainer: {
     alignItems: 'center',

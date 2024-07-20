@@ -1,25 +1,24 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, FC } from 'react';
 
 interface User {
-  role: 'customer' | 'manager';
   username: string;
+  role: string;
 }
 
-interface UserContextProps {
+interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
   logout: () => void;
 }
 
-const UserContext = createContext<UserContextProps | undefined>(undefined);
+const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
   const logout = () => {
     setUser(null);
-    sessionStorage.removeItem('user');
-  }
+  };
 
   return (
     <UserContext.Provider value={{ user, setUser, logout }}>
@@ -28,13 +27,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-export const useUser = (): UserContextProps => {
-  debugger;
+export const useUser = (): UserContextType => {
   const context = useContext(UserContext);
   if (!context) {
-    return { user: null, setUser: () => {}, logout: () => {} };
+    throw new Error('useUser must be used within a UserProvider');
   }
   return context;
 };
-
-export { UserContext };

@@ -1,9 +1,11 @@
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
+
 export const fetchAndStoreData = async (key: string, fetchFunction: () => Promise<any>) => {
     try {
-      let data = JSON.parse(sessionStorage.getItem(key) || 'null');
+      let data = JSON.parse(await AsyncStorage.getItem(key) || 'null');
       if (data === null) {
         data = await fetchFunction();
-        sessionStorage.setItem(key, JSON.stringify(data));
+        AsyncStorage.setItem(key, JSON.stringify(data));
       }
       return data;
     } catch (error) {

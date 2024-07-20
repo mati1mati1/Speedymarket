@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Modal, Pressable } from 'react-native';
 import { getShoppingListsByBuyerId } from '../api/api';
 import { ShoppingList } from '../models';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 
 interface SelectListModalProps {
@@ -17,12 +18,12 @@ const SelectListModal: React.FC<SelectListModalProps> = ({ visible, closeModal }
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        const user = JSON.parse(await AsyncStorage.getItem('user') || '{}');
         if (user && user.UserID) {
           const fetchedShoppingLists = await getShoppingListsByBuyerId(user.UserID);
           if (fetchedShoppingLists) {
             setShoppingLists(fetchedShoppingLists);
-            sessionStorage.setItem('ShoppingLists', JSON.stringify(fetchedShoppingLists));
+            AsyncStorage.setItem('ShoppingLists', JSON.stringify(fetchedShoppingLists));
           }
         }
         setIsDataFetched(true);

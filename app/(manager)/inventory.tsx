@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TextInput, Button, StyleSheet, Modal, Alert } from 'react-native';
 import { ShopInventory } from '../../src/models';
 import { fetchShopInventory } from '../../src/dataFetchers/dataFetchers';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);
@@ -14,7 +15,7 @@ export default function InventoryManagementScreen() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        const user = JSON.parse(await AsyncStorage.getItem('user') || '{}');
         if (user && user.UserID) {
           const shopInventory = await fetchShopInventory(user.UserID);
           if (shopInventory) {
@@ -61,7 +62,7 @@ export default function InventoryManagementScreen() {
     };
 
     setInventory([...inventory, newItem]);
-    sessionStorage.setItem('ShopInventory', JSON.stringify([...inventory, newItem]));
+    AsyncStorage.setItem('ShopInventory', JSON.stringify([...inventory, newItem]));
     setForm({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
     setModalVisible(false);
   };
@@ -76,7 +77,7 @@ export default function InventoryManagementScreen() {
       );
 
       setInventory(updatedInventory);
-      sessionStorage.setItem('ShopInventory', JSON.stringify(updatedInventory));
+      AsyncStorage.setItem('ShopInventory', JSON.stringify(updatedInventory));
       setCurrentItem(null);
       setForm({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
       setModalVisible(false);

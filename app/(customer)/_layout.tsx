@@ -1,9 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
-import purchaseHistoryScreen from './purchaseHistoryScreen';
-import shoppingCartListScreen from './shoppingCartListScreen';
-import startShoppingScreen from './startShoppingScreen';
+import purchaseHistoryScreen from './purchaseHistory';
+import shoppingCartListScreen from './shoppingCartList';
+import startShoppingScreen from './startShopping';
 import LogoutButton from '../../src/components/LogoutButton';
 const Tab = createBottomTabNavigator();
 
