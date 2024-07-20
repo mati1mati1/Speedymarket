@@ -56,10 +56,11 @@ function RootLayoutNav() {
     <DndProvider backend={HTML5Backend}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
-          <Stack.Screen name="login" options={{ presentation: 'modal', headerShown: false }} />
-          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="(manager)" options={{ headerShown: false }} />
           <Stack.Screen name="(customer)" options={{ headerShown: false }} />
+          <Stack.Screen name="error" options={{ presentation: 'modal', headerShown: false }} />
+          <Stack.Screen name="register" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
     </DndProvider>

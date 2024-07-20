@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { login } from '../src/api/auth';
 import { useUser } from '../src/context/UserContext';
@@ -14,7 +14,11 @@ export default function LoginScreen() {
   useEffect(() => {
     if (user) {
       if (user.role === 'manager') {
-        router.replace('/(manager)/inventory');
+        if (Platform.OS !== 'web') {
+          router.replace('/error');
+        } else {
+          router.replace('/(manager)/inventory');
+        }
       } else {
         router.replace('/(customer)/shoppingCartList');
       }
@@ -27,7 +31,11 @@ export default function LoginScreen() {
     try {
       if (username === "achinoam") {
         setUser({ username: "achinoam", role: "manager" });
-        router.replace('/(manager)/inventory');
+        if (Platform.OS !== 'web') {
+          router.replace('/error');
+        } else {
+          router.replace('/(manager)/inventory');
+        }
       } else {
         const data = await login(username, password);
         console.log("Login response:", data); // Debugging

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, FlatList, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, Text, TextInput, FlatList, StyleSheet, Pressable } from 'react-native';
 import { addOrUpdateShoppingListByBuyerId } from '../api/api';
 
 interface EditCardScreenProps {
@@ -56,13 +56,12 @@ const EditCard: React.FC<EditCardScreenProps> = ({ closeModal, cartId }) => {
       <Pressable style={styles.button} onPress={addItem}>
         <Text style={styles.buttonText}>Add</Text>
       </Pressable>
-      <ScrollView style={styles.scrollView}>
-        <FlatList
-          data={items}
-          renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </ScrollView>
+      <FlatList
+        data={items}
+        renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
+        keyExtractor={(item, index) => index.toString()}
+        style={styles.list}
+      />
       <Pressable style={styles.button} onPress={saveList}>
         <Text style={styles.buttonText}>Save List</Text>
       </Pressable>
@@ -107,7 +106,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
   },
-  scrollView: {
+  list: {
     marginBottom: 20,
   },
   item: {

@@ -7,7 +7,7 @@ const purchases = [
   { id: '3', date: '2023-08-01', total: 200.0 },
 ];
 
-const purchaseHistoryScreen = () => {
+const PurchaseHistoryScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Purchase History</Text>
@@ -43,4 +43,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default purchaseHistoryScreen;
+export default PurchaseHistoryScreen;

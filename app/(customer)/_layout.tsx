@@ -1,9 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
-import purchaseHistoryScreen from './purchaseHistory';
-import shoppingCartListScreen from './shoppingCartList';
-import startShoppingScreen from './startShopping';
+import PurchaseHistoryScreen from './purchaseHistory';
+import ShoppingCartListScreen from './shoppingCartList';
+import StartShoppingScreen from './startShopping';
 import LogoutButton from '../../src/components/LogoutButton';
 const Tab = createBottomTabNavigator();
 
@@ -26,9 +26,9 @@ export default function CustomerLayout() {
           },
         })}
       >
-        <Tab.Screen name="PurchaseHistory" component={purchaseHistoryScreen} />
-        <Tab.Screen name="ShoppingCartList" component={shoppingCartListScreen} />
-        <Tab.Screen name="StartShopping" component={startShoppingScreen} />
+        <Tab.Screen name="PurchaseHistory" component={PurchaseHistoryScreen} />
+        <Tab.Screen name="ShoppingCartList" component={ShoppingCartListScreen} />
+        <Tab.Screen name="StartShopping" component={StartShoppingScreen} />
       </Tab.Navigator>
       <LogoutButton />
     </>
