@@ -50,11 +50,10 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+  //const colorScheme = useColorScheme();
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="(manager)" options={{ headerShown: false }} />
@@ -62,7 +61,6 @@ function RootLayoutNav() {
           <Stack.Screen name="error" options={{ presentation: 'modal', headerShown: false }} />
           <Stack.Screen name="register" options={{ headerShown: false }} />
         </Stack>
-      </ThemeProvider>
     </DndProvider>
   );
 }
