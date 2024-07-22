@@ -1,4 +1,4 @@
-import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket } from './models';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ESP32Info } from './models';
 
 export interface QueryParam {
   name: string;
@@ -68,6 +68,8 @@ export const getShoppingListsByBuyerIdQuery = (buyerId: string): Query => ({
   ]
 });
 
+
+
 export const addOrUpdateShoppingListByBuyerIdQuery = (listId: string, buyerId: string, items: string): Query => ({
   query: `IF EXISTS (SELECT * FROM ShoppingList WHERE ListID = @listId)
             UPDATE ShoppingList SET Items = @items WHERE ListID = @listId
@@ -91,26 +93,26 @@ export const getSupermarketsQuery = (): Query => ({
   query: 'SELECT * FROM Supermarket',
   params: []
 });
-export const getItemBySupermarketIdAndItemNumberQuery = (supermarketId: string, itemNumber: string): Query => ({
-  query: 'SELECT * FROM ShopInventory WHERE SupermarketID = @supermarketId AND ItemNumber = @itemNumber',
+export const getItemBySupermarketIdAndItemNameQuery = (supermarketId: string, ItemName: string): Query => ({
+  query: 'SELECT * FROM ShopInventory WHERE SupermarketID = @supermarketId AND ItemName = @ItemName',
   params: [
     { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId },
-    { name: 'itemNumber', type: 'NVarChar', value: itemNumber }
+    { name: 'ItemName', type: 'NVarChar', value: ItemName }
   ]
 });
 
 export const addOrUpdateShopInventoryQuery = (inventory: ShopInventory): Query => ({
   query: `IF EXISTS (SELECT * FROM ShopInventory WHERE InventoryID = @inventoryId)
             UPDATE ShopInventory
-            SET SupermarketID = @supermarketId, ItemNumber = @itemNumber, Quantity = @quantity, Price = @price, Discount = @discount, Location = @location, Barcode = @barcode
+            SET SupermarketID = @supermarketId, ItemName = @ItemName, Quantity = @quantity, Price = @price, Discount = @discount, Location = @location, Barcode = @barcode
             WHERE InventoryID = @inventoryId
           ELSE
-            INSERT INTO ShopInventory (InventoryID, SupermarketID, ItemNumber, Quantity, Price, Discount, Location, Barcode)
-            VALUES (@inventoryId, @supermarketId, @itemNumber, @quantity, @price, @discount, @location, @barcode)`,
+            INSERT INTO ShopInventory (InventoryID, SupermarketID, ItemName, Quantity, Price, Discount, Location, Barcode)
+            VALUES (@inventoryId, @supermarketId, @ItemName, @quantity, @price, @discount, @location, @barcode)`,
   params: [
     { name: 'inventoryId', type: 'UniqueIdentifier', value: inventory.InventoryID },
     { name: 'supermarketId', type: 'UniqueIdentifier', value: inventory.SupermarketID },
-    { name: 'itemNumber', type: 'NVarChar', value: inventory.ItemNumber },
+    { name: 'ItemName', type: 'NVarChar', value: inventory.ItemName },
     { name: 'quantity', type: 'Int', value: inventory.Quantity },
     { name: 'price', type: 'Decimal', value: inventory.Price },
     { name: 'discount', type: 'Decimal', value: inventory.Discount },
@@ -124,5 +126,28 @@ export const getItemBySupermarketIdAndBarcodeQuery = (supermarketId: string, bar
   params: [
     { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId },
     { name: 'barcode', type: 'NVarChar', value: barcode }
+  ]
+});
+
+export const getESP32DataQuery = (supermarketId: string): Query => ({
+  query: 'SELECT * FROM ESP32Info WHERE SupermarketID = @supermarketId',
+  params: [
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
+  ]
+});
+
+export const addOrUpdateESP32DataQuery = (esp32Data: ESP32Info,supermarketId: string): Query => ({
+  query: `IF EXISTS (SELECT * FROM ESP32Info WHERE ESP32ID = @esp32Id)
+            UPDATE ESP32Info
+            SET SupermarketID = @supermarketId, SSID = @ssid, Location = @location
+            WHERE ESP32ID = @esp32Id
+          ELSE
+            INSERT INTO ESP32Info (ESP32ID, SupermarketID, SSID, Location)
+            VALUES (@esp32Id, @supermarketId, @ssid, @location)`,
+  params: [
+    { name: 'esp32Id', type: 'UniqueIdentifier', value: esp32Data.Esp32Id },
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId},
+    { name: 'ssid', type: 'NVarChar', value: esp32Data.Ssid },
+    { name: 'location', type: 'NVarChar', value: JSON.stringify(esp32Data.Location) }
   ]
 });

@@ -42,7 +42,7 @@ export interface ShoppingListItem {
 export interface ShopInventory {
   InventoryID: string;
   SupermarketID: string;
-  ItemNumber: string;
+  ItemName: string;
   Quantity: number;
   Price: number;
   Discount: number;
@@ -58,4 +58,15 @@ export interface Supermarket {
   BranchAddress: string;
   BranchMap: string;
   Location: string;
+  WiFiPassword : string;
+}
+export interface Location {
+  x: number;
+  y: number;
+}
+
+export interface ESP32Info {
+  Esp32Id: string;
+  Ssid: string;
+  Location: Location;
 }

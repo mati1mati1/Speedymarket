@@ -3,14 +3,16 @@ import { View, Text, FlatList, TextInput, Button, StyleSheet, Modal, Alert } fro
 import { ShopInventory } from '../../src/models';
 import { fetchShopInventory } from '../../src/dataFetchers/dataFetchers';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import BarcodeScannerComponent from '../../src/components/BarcodeScannerComponent';
 
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);
   const [currentItem, setCurrentItem] = useState<ShopInventory | null>(null);
-  const [form, setForm] = useState({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+  const [form, setForm] = useState({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isScannerVisible, setIsScannerVisible] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,8 +38,8 @@ export default function InventoryManagementScreen() {
   };
 
   const validateForm = () => {
-    const { ItemNumber, Quantity, Price, Discount, Location, Barcode } = form;
-    if (!ItemNumber || !Quantity || !Price || !Discount || !Location || !Barcode) {
+    const { ItemName, Quantity, Price, Discount, Location, Barcode } = form;
+    if (!ItemName || !Quantity || !Price || !Discount || !Location || !Barcode) {
       Alert.alert('Validation Error', 'All fields are required');
       return false;
     }
@@ -52,7 +54,7 @@ export default function InventoryManagementScreen() {
     if (!validateForm()) return;
     const newItem: ShopInventory = {
       InventoryID: Math.random().toString(),
-      ItemNumber: form.ItemNumber,
+      ItemName: form.ItemName,
       Quantity: parseInt(form.Quantity),
       Price: parseFloat(form.Price),
       Discount: parseFloat(form.Discount),
@@ -63,7 +65,7 @@ export default function InventoryManagementScreen() {
 
     setInventory([...inventory, newItem]);
     AsyncStorage.setItem('ShopInventory', JSON.stringify([...inventory, newItem]));
-    setForm({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+    setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
     setModalVisible(false);
   };
 
@@ -79,7 +81,7 @@ export default function InventoryManagementScreen() {
       setInventory(updatedInventory);
       AsyncStorage.setItem('ShopInventory', JSON.stringify(updatedInventory));
       setCurrentItem(null);
-      setForm({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+      setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
       setModalVisible(false);
     }
   };
@@ -87,7 +89,7 @@ export default function InventoryManagementScreen() {
   const handleEditClick = (item: ShopInventory) => {
     setCurrentItem(item);
     setForm({ 
-      ItemNumber: item.ItemNumber, 
+      ItemName: item.ItemName, 
       Quantity: item.Quantity.toString(), 
       Price: item.Price.toString(), 
       Discount: item.Discount.toString(), 
@@ -99,9 +101,14 @@ export default function InventoryManagementScreen() {
   };
 
   const openAddItemModal = () => {
-    setForm({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+    setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
     setIsEditing(false);
     setModalVisible(true);
+  };
+
+  const handleBarCodeScanned = (barcode: string) => {
+    setForm((form) => ({ ...form, Barcode: barcode }));
+    setIsScannerVisible(false);
   };
 
   return (
@@ -114,7 +121,7 @@ export default function InventoryManagementScreen() {
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
             <Text style={styles.item}>
-              {item.ItemNumber} - Quantity: {item.Quantity} - Price: {item.Price} - Discount: {item.Discount} - Location: {item.Location} - Barcode: {item.Barcode}
+              {item.ItemName} - Quantity: {item.Quantity} - Price: {item.Price} - Discount: {item.Discount} - Location: {item.Location} - Barcode: {item.Barcode}
             </Text>
             <Button title="Edit" onPress={() => handleEditClick(item)} />
           </View>
@@ -132,9 +139,9 @@ export default function InventoryManagementScreen() {
       >
         <View style={styles.modalView}>
           <TextInput 
-            placeholder="Item Number" 
-            value={form.ItemNumber} 
-            onChangeText={(value) => handleFormChange('ItemNumber', value)} 
+            placeholder="Item Name" 
+            value={form.ItemName} 
+            onChangeText={(value) => handleFormChange('ItemName', value)} 
             style={styles.input} 
           />
           <TextInput 
@@ -170,7 +177,10 @@ export default function InventoryManagementScreen() {
             onChangeText={(value) => handleFormChange('Barcode', value)} 
             style={styles.input} 
           />
-
+          <Button 
+            title="Scan Barcode" 
+            onPress={() => setIsScannerVisible(true)} 
+          />
           <Button 
             title={isEditing ? "Update Item" : "Add Item"} 
             onPress={isEditing ? handleEditItem : handleAddItem} 
@@ -181,6 +191,21 @@ export default function InventoryManagementScreen() {
               setModalVisible(false);
               setCurrentItem(null);
             }}
+          />
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isScannerVisible}
+        onRequestClose={() => {
+          setIsScannerVisible(false);
+        }}
+      >
+        <View style={styles.scannerContainer}>
+          <BarcodeScannerComponent
+            onBarCodeScanned={handleBarCodeScanned}
           />
         </View>
       </Modal>
@@ -229,5 +254,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+  },
+  scannerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

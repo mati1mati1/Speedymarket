@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, Button, Alert } from 'react-native';
+import { View, Text, StyleSheet} from 'react-native';
 import { Link, useRouter } from 'expo-router';
 
 export default function Index() {

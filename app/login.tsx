@@ -14,11 +14,11 @@ export default function LoginScreen() {
   useEffect(() => {
     if (user) {
       if (user.role === 'manager') {
-        if (Platform.OS !== 'web') {
-          router.replace('/error');
-        } else {
+        // if (Platform.OS !== 'web') {
+        //   router.replace('/error');
+        // } else {
           router.replace('/(manager)/inventory');
-        }
+
       } else {
         router.replace('/(customer)/shoppingCartList');
       }
@@ -42,7 +42,16 @@ export default function LoginScreen() {
 
         if (data.success) {
           setUser(data.user);
-          router.replace('/(customer)/shoppingCartList');
+          if(data.user.role === 'manager') {
+            // if (Platform.OS !== 'web') {
+            //   router.replace('/error');
+            // } else {
+              router.replace('/(manager)/inventory');
+            // }
+          }
+          else{
+            router.replace('/(customer)/shoppingCartList');
+          }
         } else {
           Alert.alert('Login failed', 'Please check your username and password.');
         }

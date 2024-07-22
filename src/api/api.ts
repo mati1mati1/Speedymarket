@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNumberQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery } from '../queries';
-import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket } from '../models';
+import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNameQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery, addOrUpdateESP32DataQuery, getESP32DataQuery } from '../queries';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ESP32Info } from '../models';
 
 const API_URL = 'http://localhost:7071/api/ExecuteSqlQuery';
 
@@ -34,8 +34,8 @@ export const getUserByUserName = async (userName: string): Promise<User | null> 
   }
 };
 
-export const getItemBySupermarketIdAndItemNumber = async (supermarketId: string, itemNumber: string): Promise<ShopInventory[]> => {
-  const queryObject = getItemBySupermarketIdAndItemNumberQuery(supermarketId, itemNumber);
+export const getItemBySupermarketIdAndItemName = async (supermarketId: string, ItemName: string): Promise<ShopInventory[]> => {
+  const queryObject = getItemBySupermarketIdAndItemNameQuery(supermarketId, ItemName);
   return await executeSqlQuery<ShopInventory>(queryObject);
 };
 
@@ -86,4 +86,13 @@ export const getOrdersByBuyerId = async (buyerId: string): Promise<BuyerOrder[]>
 export const getSupermarkets = async (): Promise<Supermarket[]> => {
   const queryObject = getSupermarketsQuery();
   return await executeSqlQuery<Supermarket>(queryObject);
+};
+export const getESP32Data = async (supermarketId: string): Promise<ESP32Info[]> => {
+  const queryObject = getESP32DataQuery(supermarketId);
+  return await executeSqlQuery<ESP32Info>(queryObject);
+};
+
+export const addOrUpdateESP32Data = async (esp32Data: ESP32Info, supermarketId: string): Promise<void> => {
+  const queryObject = addOrUpdateESP32DataQuery(esp32Data, supermarketId);
+  await executeSqlQuery<void>(queryObject);
 };

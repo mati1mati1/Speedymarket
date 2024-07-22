@@ -4,7 +4,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React from 'react';
-import { useEffect } from 'react';
+import * as react from 'react';
 import { useColorScheme } from 'react-native';
 import 'react-native-reanimated';
 import { DndProvider } from 'react-dnd';
@@ -28,11 +28,11 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
-  useEffect(() => {
+  react.useEffect(() => {
     if (error) throw error;
   }, [error]);
 
-  useEffect(() => {
+  react.useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
     }
@@ -50,19 +50,16 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="login" options={{ headerShown: false }} />
-          <Stack.Screen name="(manager)" options={{ headerShown: false }} />
-          <Stack.Screen name="(customer)" options={{ headerShown: false }} />
-          <Stack.Screen name="error" options={{ presentation: 'modal', headerShown: false }} />
-          <Stack.Screen name="register" options={{ headerShown: false }} />
-        </Stack>
-      </ThemeProvider>
+      <Stack>
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="(manager)" options={{ headerShown: false }} />
+        <Stack.Screen name="(customer)" options={{ headerShown: false }} />
+        {/* <Stack.Screen name="error" options={{ presentation: 'modal', headerShown: false }} /> */}
+        <Stack.Screen name="register" options={{ headerShown: false }} />
+      </Stack>
     </DndProvider>
   );
 }
