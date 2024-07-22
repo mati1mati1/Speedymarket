@@ -106,7 +106,6 @@ export default function InventoryManagementScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Inventory Management</Text>
       <Button title="Add Item" onPress={openAddItemModal} />
 
       <FlatList

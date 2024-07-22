@@ -27,7 +27,7 @@ export default function ManagerScreen() {
   return (
     <>
       <Tab.Navigator
-        initialRouteName="InventoryManagement"
+        initialRouteName="Inventory Management"
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color, size }) => {
             const iconName = iconMap[route.name] as keyof typeof FontAwesome.glyphMap;
@@ -35,7 +35,7 @@ export default function ManagerScreen() {
           },
         })}
       >
-        <Tab.Screen name="InventoryManagement" component={InventoryManagementScreen} />
+        <Tab.Screen name="Inventory Management" component={InventoryManagementScreen} />
         <Tab.Screen name="OrderManagement" component={OrderManagementScreen} />
         <Tab.Screen name="SupermarketMap" component={ManagerMapEditor} />
       </Tab.Navigator>
