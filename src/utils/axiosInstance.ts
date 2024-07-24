@@ -9,6 +9,7 @@ const axiosInstance: AxiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    debugger;
     const token = Cookies.get('token'); // Retrieve the token from cookies
     if (token && config.headers) {
       config.headers['Authorization'] = `Bearer ${token}`;

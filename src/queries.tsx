@@ -77,7 +77,7 @@ export const getShoppingListsByBuyerIdQuery = (buyerId: string): Query => ({
   ]
 });
 export const getShoppingListItemsByListIdQuery = (listId: string): Query => ({
-  query: 'SELECT ItemID,ItemName,Quantity FROM ShoppingList WHERE ListID = @listId',
+  query: 'SELECT ItemID,ItemName,Quantity FROM ShoppingListItem WHERE ListID = @listId',
   params: [
     { name: 'listId', type: 'UniqueIdentifier', value: listId }
   ]

@@ -7,7 +7,7 @@ import 'react-native-reanimated';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import { TokenProvider } from '../src/context/TokenContext'; // Update import statement
+import { TokenProvider } from '../src/context/TokenContext';
 
 export {
   ErrorBoundary,
@@ -47,16 +47,18 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  // const colorScheme = useColorScheme();
-
   return (
     <DndProvider backend={HTML5Backend}>
       <Stack>
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="(manager)" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false,  headerTitleAlign: 'center'}} />
+        <Stack.Screen name="(manager)" options={{ headerShown: false , headerTitleAlign: 'center'}} />
+        <Stack.Screen name="(customer)/shoppingList" options={{ headerShown: false , headerTitleAlign: 'center'}} />
         <Stack.Screen name="(customer)" options={{ headerShown: false }} />
-        <Stack.Screen name="error" options={{ presentation: 'modal', headerShown: false }} />
-        <Stack.Screen name="register" options={{ headerShown: false }} />
+        <Stack.Screen name="error" options={{ presentation: 'modal', headerShown: false , headerTitleAlign: 'center'}} />
+        <Stack.Screen name="register" options={{ headerShown: false , headerTitleAlign: 'center'}} />
+        <Stack.Screen name="index" options={{ headerShown: false ,
+          headerTitle: 'SpeedyMarket',
+        }} />
       </Stack>
     </DndProvider>
   );

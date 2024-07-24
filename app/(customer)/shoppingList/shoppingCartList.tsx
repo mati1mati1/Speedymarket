@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, Modal } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from 'react-native';
+
+import { useRouter } from 'expo-router';
 import { getShoppingListsByBuyerId } from '../../../src/api/api';
 import { ShoppingList } from '../../../src/models';
-import { useRouter } from 'expo-router';
-import { useToken } from '../../../src/context/TokenContext';
 import useAuth from '../../../src/hooks/useAuth';
 
 const ShoppingCartListScreen = () => {
   const router = useRouter();
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
+  const [loading, setLoading] = useState(true);
   const token = useAuth();
-  debugger;
-
   useEffect(() => {
     const fetchData = async () => {
-      const storedShoppingLists = await getShoppingListsByBuyerId(token);
-      console.log(storedShoppingLists);
-      if (storedShoppingLists) {
-        setShoppingLists(storedShoppingLists);
+      try {
+        const storedShoppingLists = await getShoppingListsByBuyerId(token);
+        if (storedShoppingLists) {
+          setShoppingLists(storedShoppingLists);
+        }
+      } catch (error) {
+        console.error('Error fetching shopping lists:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -26,13 +30,24 @@ const ShoppingCartListScreen = () => {
 
   const handleAddCart = () => {
     const url = `/shoppingList/0`;
-    router.push(url);  };
-
-  const handleEditCart = (cartId: string) => {
-    debugger;
-    const url = `/shoppingList/${cartId}`;
     router.push(url);
   };
+
+  const handleEditCart = (cartId: string, listName: string) => {
+    console.log(cartId, listName);
+    router.push({
+      pathname: '/shoppingList/[edit-list]',
+      params: { cardId : cartId, ListName : listName }}
+    );
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#007bff" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -43,7 +58,7 @@ const ShoppingCartListScreen = () => {
         renderItem={({ item }) => (
           <Pressable
             style={styles.item}
-            onPress={() => handleEditCart(item.ListID)}
+            onPress={() => handleEditCart(item.ListID, item.ListName)}
           >
             <Text>{item.ListName}</Text>
           </Pressable>
