@@ -2,10 +2,11 @@
   "expo": {
     "name": "iot-supermarket",
     "slug": "iot-supermarket",
+    "main": "expo-router/entry",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "SpeedyMarket",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/splash.png",

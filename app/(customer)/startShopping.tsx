@@ -31,7 +31,6 @@ const StartShoppingScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Start Shopping</Text>
       <Pressable style={styles.button} onPress={handleSelectList}>
         <Text style={styles.buttonText}>Select List</Text>
       </Pressable>

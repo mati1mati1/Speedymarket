@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 
@@ -8,9 +9,9 @@ const axiosInstance: AxiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  async (config: InternalAxiosRequestConfig) => {
     debugger;
-    const token = Cookies.get('token'); // Retrieve the token from cookies
+    const token = await AsyncStorage.getItem('token'); 
     if (token && config.headers) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }

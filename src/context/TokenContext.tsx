@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 import React, { createContext, useContext, useState, ReactNode, FC } from 'react';
 
 interface TokenContextType {
@@ -13,7 +14,7 @@ export const TokenProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const logout = () => {
     setToken(null);
-    sessionStorage.removeItem('token');
+    Cookies.remove('token');
   };
 
   return (

@@ -51,7 +51,6 @@ const ShoppingCartListScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Shopping Cart Lists</Text>
       <FlatList
         data={shoppingLists}
         keyExtractor={(item) => item.ListID}

@@ -10,7 +10,6 @@ const purchases = [
 const PurchaseHistoryScreen = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Purchase History</Text>
       <FlatList
         data={purchases}
         keyExtractor={(item) => item.id}

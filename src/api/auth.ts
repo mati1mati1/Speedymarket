@@ -1,7 +1,8 @@
-import Cookies from 'js-cookie';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const saveToken = (token: string) => {
-  Cookies.set('token', token, { secure: true, sameSite: 'strict' });
+export const saveToken = async (token: string) => {
+  debugger;
+  await AsyncStorage.setItem('token', token);
 };
 interface LoginResponse {
   success: boolean;
