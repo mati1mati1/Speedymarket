@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, Pressable } from 'react-native';
 import { addOrUpdateShoppingListByBuyerId } from '../api/api';
+import { useToken } from '../context/TokenContext';
+import useAuth from '../hooks/useAuth';
 
 interface EditCardScreenProps {
   closeModal: () => void;
@@ -8,20 +10,21 @@ interface EditCardScreenProps {
 }
 
 const EditCard: React.FC<EditCardScreenProps> = ({ closeModal, cartId }) => {
-  const [items, setItems] = useState<string[]>([]);
+  const [items, setItemAsyncs] = useState<string[]>([]);
   const [newItem, setNewItem] = useState('');
   const [listName, setListName] = useState('');
-
+  const token = useAuth();
+  
   useEffect(() => {
     if (cartId) {
       // Load existing list from database or state
-      // setItems(existingListItems);
+      // setItemAsyncs(existingListItems);
     }
   }, [cartId]);
 
   const addItem = () => {
     if (newItem.trim() !== '') {
-      setItems([...items, newItem]);
+      setItemAsyncs([...items, newItem]);
       setNewItem('');
     }
   };
@@ -29,7 +32,7 @@ const EditCard: React.FC<EditCardScreenProps> = ({ closeModal, cartId }) => {
   const saveList = async () => {
     const listId = cartId || 'newId'; // Generate a new ID if creating a new list
     const buyerId = 'currentBuyerId'; // Replace with actual buyer ID
-    await addOrUpdateShoppingListByBuyerId(listId, buyerId, JSON.stringify(items));
+    await addOrUpdateShoppingListByBuyerId(listId, JSON.stringify(items),token);
     closeModal();
   };
 
@@ -127,4 +130,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditCard;
+

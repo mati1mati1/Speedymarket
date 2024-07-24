@@ -1,8 +1,18 @@
 const sql = require('mssql');
+const jwt = require('jsonwebtoken');
 
 module.exports = async function (context, req) {
+    const token = req.headers.authorization?.split(' ')[1];
     const query = req.body.query;
     const params = req.body.params;
+
+    if (!token) {
+        context.res = {
+            status: 401,
+            body: "Authorization token is required"
+        };
+        return;
+    }
 
     if (!query || !params) {
         context.res = {
@@ -12,30 +22,29 @@ module.exports = async function (context, req) {
         return;
     }
 
-    const config = {
-        user: 'SA',
-        password: 'Aa123456',
-        server: 'localhost',
-        port: 1433,
-        database: 'MySuperMarketDb',
-        options: {
-          encrypt: false // Disable SSL for local development
-        }
-    };
-
     try {
-        // Connect to the database
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const config = {
+            user: 'SA',
+            password: 'Aa123456',
+            server: 'localhost',
+            port: 1433,
+            database: 'MySuperMarketDb',
+            options: {
+                encrypt: false 
+            }
+        };
+
         await sql.connect(config);
         const request = new sql.Request();
 
-        // Add parameters to the request
         for (const param of params) {
             request.input(param.name, sql[param.type], param.value);
         }
 
         const result = await request.query(query);
-        
-        // Log the result data
+
         context.log('SQL Query Result:', result.recordset);
 
         context.res = {
@@ -43,15 +52,22 @@ module.exports = async function (context, req) {
             body: result.recordset
         };
     } catch (err) {
-        // Log the error
-        context.log('Error executing SQL query:', err);
+        if (err.name === 'JsonWebTokenError') {
+            context.log('JWT Error:', err);
 
-        context.res = {
-            status: 500,
-            body: `Error: ${err.message}`
-        };
+            context.res = {
+                status: 401,
+                body: `JWT Error: ${err.message}`
+            };
+        } else {
+            context.log('Error executing SQL query:', err);
+
+            context.res = {
+                status: 500,
+                body: `Error: ${err.message}`
+            };
+        }
     } finally {
-        // Close the database connection
         sql.close();
     }
 };

@@ -1,52 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, Modal } from 'react-native';
+import { getShoppingListsByBuyerId } from '../../../src/api/api';
+import { ShoppingList } from '../../../src/models';
 import { useRouter } from 'expo-router';
-import EditCard from '../../src/components/EditCard';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
-
-interface ShoppingItem {
-  id: string;
-  name: string;
-  quantity: number;
-}
-
-interface ShoppingList {
-  ListID: string;
-  ListName: string;
-  BuyerID: string;
-  Items: string; // This will be JSON string
-}
+import { useToken } from '../../../src/context/TokenContext';
+import useAuth from '../../../src/hooks/useAuth';
 
 const ShoppingCartListScreen = () => {
-  const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedCartId, setSelectedCartId] = useState<string | null>(null);
   const router = useRouter();
+  const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
+  const token = useAuth();
+  debugger;
 
   useEffect(() => {
     const fetchData = async () => {
-      const storedShoppingLists = await AsyncStorage.getItem('ShoppingLists');
+      const storedShoppingLists = await getShoppingListsByBuyerId(token);
+      console.log(storedShoppingLists);
       if (storedShoppingLists) {
-        const parsedShoppingLists: ShoppingList[] = JSON.parse(storedShoppingLists);
-        setShoppingLists(parsedShoppingLists);
+        setShoppingLists(storedShoppingLists);
       }
     };
-  
+
     fetchData();
   }, []);
 
   const handleAddCart = () => {
-    setSelectedCartId(null);
-    setModalVisible(true);
-  };
+    const url = `/shoppingList/0`;
+    router.push(url);  };
 
   const handleEditCart = (cartId: string) => {
-    setSelectedCartId(cartId);
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
+    debugger;
+    const url = `/shoppingList/${cartId}`;
+    router.push(url);
   };
 
   return (
@@ -67,18 +52,6 @@ const ShoppingCartListScreen = () => {
       <Pressable style={styles.button} onPress={handleAddCart}>
         <Text style={styles.buttonText}>Add Shopping Cart</Text>
       </Pressable>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <EditCard closeModal={closeModal} cartId={selectedCartId} />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
@@ -109,18 +82,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
   },
 });
 

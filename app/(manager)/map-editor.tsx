@@ -3,8 +3,9 @@ import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
 import Section from '../../src/components/Section';
 import Entrance from '../../src/components/Entrance';
 import '../../src/styles/MapEditor.css';
-import { fetchSupermarketByUserId } from '../../src/dataFetchers/dataFetchers';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { getSupermarketByUserId, updateMap } from '../../src/api/api';
+import { useToken } from '../../src/context/TokenContext';
+import useAuth from '../../src/hooks/useAuth';
 
 const ItemTypes = {
   SECTION: 'section',
@@ -19,22 +20,20 @@ const ManagerMapEditor: React.FC = () => {
   const [supermarket, setSupermarket] = useState<any | null>(null);
   const [isDataFetched, setIsDataFetched] = useState(false);
   const mapRef = useRef<HTMLDivElement | null>(null);
+  const token = useAuth();
   const mapWidth = 800;
   const mapHeight = 600;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = JSON.parse(await AsyncStorage.getItem('user') || '{}');
-        if (user && user.UserID) {
-          const fetchedSupermarket = await fetchSupermarketByUserId(user.UserID);
-          if (fetchedSupermarket) {
-            setSupermarket(fetchedSupermarket);
-            const branchMap = JSON.parse(fetchedSupermarket.BranchMap);
-            setSections(branchMap.sections || []);
-            setEntrance(branchMap.entrance || null);
-            setShelfCounter(branchMap.sections.length + 1);
-          }
+        const fetchedSupermarket = await getSupermarketByUserId(token)[0];
+        if (fetchedSupermarket) {
+          setSupermarket(fetchedSupermarket);
+          const branchMap = JSON.parse(fetchedSupermarket.BranchMap);
+          setSections(branchMap.sections || []);
+          setEntrance(branchMap.entrance || null);
+          setShelfCounter(branchMap.sections.length + 1);
         }
         setIsDataFetched(true);
       } catch (error) {
@@ -163,20 +162,7 @@ const ManagerMapEditor: React.FC = () => {
 
   const saveMapToDB = async () => {
     const mapData = { sections, entrance, mapWidth, mapHeight };
-
-    const response = await fetch('http://localhost:7071/api/SaveMap', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ supermarketId: supermarket.SupermarketID, mapData })
-    });
-
-    if (response.ok) {
-      alert('המפה נשמרה בהצלחה');
-    } else {
-      alert('שגיאה בשמירת המפה');
-    }
+    await updateMap(supermarket.SupermarketID, JSON.stringify(mapData));
   };
 
   return (

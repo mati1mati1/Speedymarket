@@ -2,50 +2,69 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { login } from '../src/api/auth';
-import { useUser } from '../src/context/UserContext';
+import { useToken } from '../src/context/TokenContext';
+import { jwtDecode } from 'jwt-decode';
 import Input from '../src/components/Input';
+import { decodedToken } from '../src/utils/authUtils';
+
+interface DecodedToken {
+  username: string;
+  role: string;
+  exp: number;
+}
 
 export default function LoginScreen() {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const { user, setUser } = useUser();
+  const { token, setToken } = useToken();
   const router = useRouter();
 
   useEffect(() => {
-    if (user) {
-      if (user.role === 'manager') {
+    if (token) {
+      const role = decodedToken(token)?.role;
+      if (role === 'manager') {
         if (Platform.OS !== 'web') {
           router.replace('/error');
         } else {
           router.replace('/(manager)/inventory');
         }
       } else {
-        router.replace('/(customer)/shoppingCartList');
+        router.replace('/(customer)/purchaseHistory');
       }
     }
-  }, [user, router]);
+  }, [token, router]);
 
   const handleLogin = async () => {
     console.log("handleLogin called with:", username, password); // Debugging
 
     try {
-      if (username === "achinoam") {
-        setUser({ username: "achinoam", role: "manager" });
-        if (Platform.OS !== 'web') {
-          router.replace('/error');
+      // if (username === "achinoam") {
+      //   const mockToken = jwt.sign({ username: "achinoam", role: "manager" }, 'mock_secret', { expiresIn: '1h' });
+      //   setToken(mockToken);
+      //   sessionStorage.setItem('token', mockToken);
+      //   if (Platform.OS !== 'web') {
+      //     router.replace('/error');
+      //   } else {
+      //     router.replace('/(manager)/inventory');
+      //   }
+      // } else {
+      const data = await login(username, password);
+      console.log("Login response:", data);
+
+      if (data && data.success && data.token) {
+        setToken(data.token);
+        const decoded: DecodedToken = jwtDecode(data.token);
+        if (decoded.role === 'manager') {
+          if (Platform.OS !== 'web') {
+            router.replace('/error');
+          } else {
+            router.replace('/(manager)/inventory');
+          }
         } else {
-          router.replace('/(manager)/inventory');
+          router.replace('/(customer)/purchaseHistory');
         }
       } else {
-        const data = await login(username, password);
-        console.log("Login response:", data); // Debugging
-
-        if (data.success) {
-          setUser(data.user);
-          router.replace('/(customer)/shoppingCartList');
-        } else {
-          Alert.alert('Login failed', 'Please check your username and password.');
-        }
+        Alert.alert('Login failed', 'Please check your username and password.');
       }
     } catch (error) {
       console.error('An error occurred during login', error);

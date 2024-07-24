@@ -1,11 +1,11 @@
-// app/error.tsx
 import { Link } from 'expo-router';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useUser } from '../src/context/UserContext';
+import { useToken } from '../src/context/TokenContext';
 
 export default function ErrorScreen() {
-    const { user, logout } = useUser();
+  const { logout } = useToken();
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Access Denied</Text>

@@ -1,24 +1,19 @@
+// app/(customer)/_layout.tsx
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Tabs } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
-import PurchaseHistoryScreen from './purchaseHistory';
-import ShoppingCartListScreen from './shoppingCartList';
-import StartShoppingScreen from './startShopping';
 import LogoutButton from '../../src/components/LogoutButton';
-const Tab = createBottomTabNavigator();
 
 const iconMap = {
-  PurchaseHistory: 'history',
-  ShoppingCartList: 'list',
-  StartShopping: 'shopping-bag',
+  purchaseHistory: 'history',
+  shoppingList: 'list',
+  startShopping: 'shopping-bag',
 };
-
 
 export default function CustomerLayout() {
   return (
     <>
-      <Tab.Navigator
-        initialRouteName="StartShopping"
+      <Tabs
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color, size }) => {
             const iconName = iconMap[route.name] as keyof typeof FontAwesome.glyphMap;
@@ -26,10 +21,10 @@ export default function CustomerLayout() {
           },
         })}
       >
-        <Tab.Screen name="PurchaseHistory" component={PurchaseHistoryScreen} />
-        <Tab.Screen name="ShoppingCartList" component={ShoppingCartListScreen} />
-        <Tab.Screen name="StartShopping" component={StartShoppingScreen} />
-      </Tab.Navigator>
+        <Tabs.Screen name="purchaseHistory"/>
+        <Tabs.Screen name="shoppingList"/>
+        <Tabs.Screen name="startShopping" />
+      </Tabs>
       <LogoutButton />
     </>
   );

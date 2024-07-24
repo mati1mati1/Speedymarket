@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, FlatList, StyleSheet, Pressable } from 'react-native';
 
 export default function ShoppingList() {
-  const [items, setItems] = useState<string[]>([]);
+  const [items, setItemAsyncs] = useState<string[]>([]);
   const [newItem, setNewItem] = useState('');
 
   const addItem = () => {
-    setItems([...items, newItem]);
+    setItemAsyncs([...items, newItem]);
     setNewItem('');
   };
 

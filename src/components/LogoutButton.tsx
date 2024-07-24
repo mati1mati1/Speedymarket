@@ -1,10 +1,10 @@
 import React from 'react';
-import { useUser } from '../context/UserContext';
+import { useToken } from '../context/TokenContext';
 import { useRouter } from 'expo-router';
 import { Pressable, Text } from 'react-native';
 
 const LogoutButton = () => {
-  const { logout } = useUser();
+  const { logout } = useToken();
   const router = useRouter();
 
   const handleLogout = () => {

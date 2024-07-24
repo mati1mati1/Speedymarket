@@ -21,7 +21,7 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
 ,   "src/App.tsx"
-, "app/(customer)/purchaseHistory.tsx", "app/(customer)/shoppingCartList.tsx", "app/(customer)/startShopping.tsx", "app/map-viewer/[customerMapViewer].tsx"  ],
+, "app/(customer)/purchaseHistory.tsx", "app/(customer)/shoppingList/shoppingCartList.tsx", "app/(customer)/startShopping.tsx", "app/map-viewer/[customerMapViewer].tsx"  ],
   "exclude": [
     "node_modules"
   ],

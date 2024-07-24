@@ -1,33 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, Pressable } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useLocalSearchParams } from 'expo-router';
-import { addOrUpdateShoppingListByBuyerId } from '../../src/api/api';
+import useAuth from '../../../src/hooks/useAuth';
+import { ShoppingListItem } from '../../../src/models';
+import { addOrUpdateShoppingListByBuyerId, getShoppingListItemByCardId } from '../../../src/api/api';
+
 
 export default function Route() {
-  debugger
-  const { cartId } = useLocalSearchParams<{ cartId: string | ''}>();
-  const [items, setItems] = useState<string[]>([]);
+  debugger;
+  const route = useRoute();
+  const navigation = useNavigation();
+  const { cartId } = useLocalSearchParams<{ cartId: string}>();
+  const token = useAuth();
+  const [items, setItems] = useState<ShoppingListItem[]>([]);
   const [newItem, setNewItem] = useState('');
+
   useEffect(() => {
-    if (cartId) {
-      // Load existing list from database or state
-      // setItems(existingListItems);
-    }
+    const fetchData = async () => {
+      if (cartId !== '0') {
+        const items = await getShoppingListItemByCardId(cartId || '');
+        setItems(items);
+      }
+    };
+    fetchData();
   }, [cartId]);
 
   const addItem = () => {
     if (newItem.trim() !== '') {
-      setItems([...items, newItem]);
+      setItems([...items, {
+        ItemID: Date.now().toString(), ItemName: newItem, Quantity: 1,
+        ListItemID: '',
+        ListID: ''
+      }]);
       setNewItem('');
     }
   };
 
   const saveList = async () => {
-    const listId = cartId || 'newId'; // Generate a new ID if creating a new list
-    const buyerId = 'currentBuyerId'; // Replace with actual buyer ID
-    await addOrUpdateShoppingListByBuyerId(listId, buyerId, JSON.stringify(items));
-    // You need to implement a way to navigate back or show a success message.
-    // This can be router.back(), a callback prop, or anything else.
+    const listId = cartId || Date.now().toString();
+    await addOrUpdateShoppingListByBuyerId(listId , JSON.stringify(items),token);
+    navigation.goBack();
   };
 
   return (
@@ -44,13 +57,13 @@ export default function Route() {
       </Pressable>
       <FlatList
         data={items}
-        renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
-        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => <Text style={styles.item}>{item.ItemName}</Text>}
+        keyExtractor={(item) => item.ItemID}
       />
       <Pressable style={styles.button} onPress={saveList}>
         <Text style={styles.buttonText}>Save List</Text>
       </Pressable>
-      <Pressable style={styles.button} onPress={() => { /* Add navigation logic here */ }}>
+      <Pressable style={styles.button} onPress={() => navigation.goBack()}>
         <Text style={styles.buttonText}>Back to Shopping List</Text>
       </Pressable>
     </View>

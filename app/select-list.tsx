@@ -1,25 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, Pressable, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { getShoppingListsByBuyerId } from '../src/api/api';
 import { ShoppingList } from '../src/models';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Add this line
+import { useToken } from '../src/context/TokenContext';
+import useAuth from '../src/hooks/useAuth';
 
 const SelectListScreen = () => {
   const router = useRouter();
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
   const [isDataFetched, setIsDataFetched] = useState(false);
+  const token = useAuth();
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = JSON.parse(await AsyncStorage.getItem('user') || '{}');
-        if (user && user.UserID) {
-          const fetchedShoppingLists = await getShoppingListsByBuyerId(user.UserID);
-          if (fetchedShoppingLists) {
-            setShoppingLists(fetchedShoppingLists);
-            AsyncStorage.setItem('ShoppingLists', JSON.stringify(fetchedShoppingLists));
-          }
+        const fetchedShoppingLists = await getShoppingListsByBuyerId(token);
+        if (fetchedShoppingLists) {
+          setShoppingLists(fetchedShoppingLists);
         }
         setIsDataFetched(true);
       } catch (error) {

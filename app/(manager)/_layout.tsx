@@ -1,11 +1,12 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
-import { useUser } from '../../src/context/UserContext';
-import { Pressable } from 'react-native';
+import { useToken } from '../../src/context/TokenContext';
+import { Pressable, Text, StyleSheet } from 'react-native';
 import InventoryManagementScreen from './inventory';
 import OrderManagementScreen from './orders';
 import ManagerMapEditor from './map-editor';
+import { Tabs } from 'expo-router';
 
 const Tab = createBottomTabNavigator();
 
@@ -16,10 +17,12 @@ const iconMap = {
 };
 
 const LogoutButton = () => {
-  const { logout } = useUser();
+  const { logout } = useToken();
 
   return (
-    <Pressable onPress={logout} />
+    <Pressable onPress={logout} style={styles.logoutButton}>
+      <Text style={styles.logoutButtonText}>Logout</Text>
+    </Pressable>
   );
 };
 
@@ -43,3 +46,18 @@ export default function ManagerScreen() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  logoutButton: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+  },
+  logoutButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+});

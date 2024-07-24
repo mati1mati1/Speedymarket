@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Modal, Pressable } from 'react-native';
 import { getShoppingListsByBuyerId } from '../api/api';
 import { ShoppingList } from '../models';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import useAuth from '../hooks/useAuth';
 
 
 interface SelectListModalProps {
@@ -13,20 +13,15 @@ interface SelectListModalProps {
 const SelectListModal: React.FC<SelectListModalProps> = ({ visible, closeModal }) => {
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
-  const [isDataFetched, setIsDataFetched] = useState(false);
+  const token = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = JSON.parse(await AsyncStorage.getItem('user') || '{}');
-        if (user && user.UserID) {
-          const fetchedShoppingLists = await getShoppingListsByBuyerId(user.UserID);
+          const fetchedShoppingLists = await getShoppingListsByBuyerId(token);
           if (fetchedShoppingLists) {
             setShoppingLists(fetchedShoppingLists);
-            AsyncStorage.setItem('ShoppingLists', JSON.stringify(fetchedShoppingLists));
-          }
         }
-        setIsDataFetched(true);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       }
