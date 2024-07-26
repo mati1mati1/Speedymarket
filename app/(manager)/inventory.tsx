@@ -8,7 +8,7 @@ import useAuth from '../../src/hooks/useAuth';
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);
   const [currentItem, setCurrentItem] = useState<ShopInventory | null>(null);
-  const [form, setForm] = useState({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+  const [form, setForm] = useState({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -35,8 +35,8 @@ export default function InventoryManagementScreen() {
   };
 
   const validateForm = () => {
-    const { ItemNumber, Quantity, Price, Discount, Location, Barcode } = form;
-    if (!ItemNumber || !Quantity || !Price || !Discount || !Location || !Barcode) {
+    const { ItemName, Quantity, Price, Discount, Location, Barcode } = form;
+    if (!ItemName || !Quantity || !Price || !Discount || !Location || !Barcode) {
       Alert.alert('Validation Error', 'All fields are required');
       return false;
     }
@@ -51,7 +51,7 @@ export default function InventoryManagementScreen() {
     if (!validateForm()) return;
     const newItem: ShopInventory = {
       InventoryID: Math.random().toString(),
-      ItemNumber: form.ItemNumber,
+      ItemName: form.ItemName,
       Quantity: parseInt(form.Quantity),
       Price: parseFloat(form.Price),
       Discount: parseFloat(form.Discount),
@@ -61,7 +61,7 @@ export default function InventoryManagementScreen() {
     };
 
     setInventory([...inventory, newItem]);
-    setForm({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+    setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
     setModalVisible(false);
   };
 
@@ -76,7 +76,7 @@ export default function InventoryManagementScreen() {
 
       setInventory(updatedInventory);
       setCurrentItem(null);
-      setForm({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+      setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
       setModalVisible(false);
     }
   };
@@ -84,7 +84,7 @@ export default function InventoryManagementScreen() {
   const handleEditClick = (item: ShopInventory) => {
     setCurrentItem(item);
     setForm({ 
-      ItemNumber: item.ItemNumber, 
+      ItemName: item.ItemName, 
       Quantity: item.Quantity.toString(), 
       Price: item.Price.toString(), 
       Discount: item.Discount.toString(), 
@@ -96,7 +96,7 @@ export default function InventoryManagementScreen() {
   };
 
   const openAddItemModal = () => {
-    setForm({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+    setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
     setIsEditing(false);
     setModalVisible(true);
   };
@@ -110,7 +110,7 @@ export default function InventoryManagementScreen() {
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
             <Text style={styles.item}>
-              {item.ItemNumber} - Quantity: {item.Quantity} - Price: {item.Price} - Discount: {item.Discount} - Location: {item.Location} - Barcode: {item.Barcode}
+              {item.ItemName} - Quantity: {item.Quantity} - Price: {item.Price} - Discount: {item.Discount} - Location: {item.Location} - Barcode: {item.Barcode}
             </Text>
             <Button title="Edit" onPress={() => handleEditClick(item)} />
           </View>
@@ -129,8 +129,8 @@ export default function InventoryManagementScreen() {
         <View style={styles.modalView}>
           <TextInput 
             placeholder="Item Number" 
-            value={form.ItemNumber} 
-            onChangeText={(value) => handleFormChange('ItemNumber', value)} 
+            value={form.ItemName} 
+            onChangeText={(value) => handleFormChange('ItemName', value)} 
             style={styles.input} 
           />
           <TextInput 

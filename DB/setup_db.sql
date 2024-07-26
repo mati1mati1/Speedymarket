@@ -42,7 +42,7 @@ CREATE TABLE Sellers (
 
 CREATE TABLE ShopInventory (
     SellerID   UNIQUEIDENTIFIER NULL,
-    ItemNumber NVARCHAR (50)    NULL,
+    ItemName NVARCHAR (50)    NULL,
     Quantity   INT              NULL,
     Price      DECIMAL (18, 2)  NULL,
     Discount   DECIMAL (18, 2)  NULL,

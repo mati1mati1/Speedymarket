@@ -1,4 +1,4 @@
-import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNumberQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery, getShoppingListItemsByListIdQuery } from '../queries';
+import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNameQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery, getShoppingListItemsByListIdQuery } from '../queries';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem } from '../models';
 import { decodedToken } from '../utils/authUtils';
 import axiosInstance from '../utils/axiosInstance';
@@ -37,8 +37,8 @@ export const getUserByUserName = async (userName: string): Promise<User | null> 
   }
 };
 
-export const getItemBySupermarketIdAndItemNumber = async (supermarketId: string, itemNumber: string): Promise<ShopInventory[]> => {
-  const queryObject = getItemBySupermarketIdAndItemNumberQuery(supermarketId, itemNumber);
+export const getItemBySupermarketIdAndItemName = async (supermarketId: string, ItemName: string): Promise<ShopInventory[]> => {
+  const queryObject = getItemBySupermarketIdAndItemNameQuery(supermarketId, ItemName);
   return await executeSqlQuery<ShopInventory>(queryObject);
 };
 
@@ -64,6 +64,10 @@ export const getSupermarketByUserId = async (token : string ): Promise<Supermark
     throw new Error('User ID not found in token');
   }
   const queryObject = getSupermarketByUserIdQuery(userId);
+  return await executeSqlQuery<Supermarket>(queryObject);
+};
+export const getSupermarketBySupermarketID = async (supermarketID : string ): Promise<Supermarket[]> => {
+  const queryObject = getSupermarketByUserIdQuery(supermarketID);
   return await executeSqlQuery<Supermarket>(queryObject);
 };
 

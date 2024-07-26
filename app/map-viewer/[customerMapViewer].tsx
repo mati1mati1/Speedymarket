@@ -6,55 +6,64 @@ import Entrance from '../../src/components/Entrance';
 import '../../src/styles/MapEditor.css';
 import { Pressable } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import { fetchCurrentLocation } from '../../src/services/locationService';
+import { connectToWifi } from '../../src/services/wifiService';
+import { EntranceType, loadMapAndPath, SectionType } from '../../src/services/mapService';
+import { getSupermarketBySupermarketID } from '../../src/api/api';
 
-interface SectionType {
-  id: number;
-  name: string;
-  left: number;
-  top: number;
-  rotation: number;
-  width: number;
-  height: number;
-}
 
-interface EntranceType {
-  left: number;
-  top: number;
-}
-
-const customerMapViewer: React.FC = () => {
+const CustomerMapViewer: React.FC = () => {
   const { supermarketId, listId } = useLocalSearchParams<{ supermarketId: string; listId?: string }>();
   const [sections, setSections] = useState<SectionType[]>([]);
   const [entrance, setEntrance] = useState<EntranceType | null>(null);
   const [path, setPath] = useState<number[][]>([]);
   const [currentOffset, setCurrentOffset] = useState<{ x: number; y: number } | null>(null);
+  const [userLocation, setUserLocation] = useState<{ x: number; y: number } | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapWidth = 800;
   const mapHeight = 600;
 
-  const loadMapAndPath = async (supermarketId: string = '', listId: string | null = '') => {
-    const response = await fetch('http://localhost:7071/api/calculatePath', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ supermarketId: supermarketId.toString(), listId: listId?.toString() })
-    });
-  
-    if (response.ok) {
-      const data = await response.json();
-      setSections(data.map.sections || []);
-      setEntrance(data.map.entrance || null);
-      setPath(data.path || []);
-    } else {
-      alert('Error loading map and path');
+  useEffect(() => {
+    const fetchMapAndPath = async () => {
+      try {
+        const data = await loadMapAndPath(supermarketId || '', listId || '');
+        setSections(data.map.sections || []);
+        setEntrance(data.map.entrance || null);
+        setPath(data.path || []);
+      } catch (error: any) {
+        alert(error.message);
+      }
+    };
+
+    fetchMapAndPath();
+  }, [supermarketId, listId]);
+
+  useEffect(() => {
+    const updateLocation = async () => {
+      try {
+        const location = await fetchCurrentLocation(supermarketId || '');
+        setUserLocation(location);
+      } catch (error: any) {
+        console.error('Error fetching location:', error);
+      }
+    };
+
+    const interval = setInterval(updateLocation, 5000); // Update every 5 seconds
+    return () => clearInterval(interval); // Cleanup interval on component unmount
+  }, [supermarketId]);
+
+  const handleLoadMapAndPath = async () => {
+    try {
+      const supermarket = await getSupermarketBySupermarketID(supermarketId || '');
+      const ssid = 'Supermarket_WiFi_SSID'; // Replace with actual SSID if necessary
+      const password = supermarket[0]?.WiFiPassword || '';
+
+      await connectToWifi(ssid, password);
+      await loadMapAndPath(supermarketId || '', listId || '');
+    } catch (error: any) {
+      alert(error.message);
     }
   };
-  
-  useEffect(() => {
-    // Load initial map and path data if needed
-    loadMapAndPath(supermarketId, listId);
-  }, [supermarketId, listId]);
 
   const drawPath = () => (
     <svg style={{ position: 'absolute', top: 0, left: 0, width: mapWidth, height: mapHeight }}>
@@ -89,10 +98,26 @@ const customerMapViewer: React.FC = () => {
     </svg>
   );
 
+  const drawUserLocation = () => (
+    userLocation && (
+      <div
+        style={{
+          position: 'absolute',
+          left: `${userLocation.x}px`,
+          top: `${userLocation.y}px`,
+          width: '10px',
+          height: '10px',
+          backgroundColor: 'blue',
+          borderRadius: '50%',
+        }}
+      />
+    )
+  );
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div>
-        <Pressable onPress={() => loadMapAndPath(supermarketId, listId)}>
+        <Pressable onPress={handleLoadMapAndPath}>
           Start Shopping
         </Pressable>
         <div ref={mapRef} className="map-editor" style={{ position: 'relative', width: `${mapWidth}px`, height: `${mapHeight}px`, border: '1px solid black' }}>
@@ -111,10 +136,11 @@ const customerMapViewer: React.FC = () => {
             <Entrance left={entrance.left} top={entrance.top} />
           )}
           {drawPath()}
+          {drawUserLocation()}
         </div>
       </div>
     </DndProvider>
   );
 };
 
-export default customerMapViewer;
+export default CustomerMapViewer;
