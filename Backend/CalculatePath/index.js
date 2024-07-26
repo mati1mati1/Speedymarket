@@ -202,12 +202,10 @@ function findShortestPath(matrix, entrance) {
     }
     keyPointsPath.push(fullPath[fullPath.length - 1]);
 
-    // Ensure the path is circular by connecting end to start if not already connected
     if (keyPointsPath[keyPointsPath.length - 1].toString() !== [entrance.top, entrance.left].toString()) {
         keyPointsPath.push([entrance.top, entrance.left]);
     }
 
-    // Update the matrix with the path
     fullPath.forEach(([r, c]) => {
         if (matrix[r][c] === 0 || matrix[r][c] === 2) {
             matrix[r][c] = 3; // Using 3 to indicate the path
@@ -231,6 +229,24 @@ function mapToGridPoint(point, mapWidth, mapHeight, gridWidth, gridHeight) {
 
 module.exports = async function (context, req) {
     const { supermarketId, listId } = req.body;
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        context.res = {
+            status: 401,
+            body: "Authorization token is required"
+        };
+        return;
+    }
+    try {
+        jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+        context.res = {
+            status: 401,
+            body: "Invalid token"
+        };
+        return;
+    }
 
     if (!supermarketId || !listId) {
         context.res = {

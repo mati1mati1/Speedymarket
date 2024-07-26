@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TextInput, Button, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
-import { ShopInventory } from '../models';
-import { fetchShopInventory } from '../dataFetchers/dataFetchers';
+import { View, Text, FlatList, TextInput, Button, StyleSheet, Modal, Alert } from 'react-native';
+import { ShopInventory } from '../../src/models';
+import { getShopInventory } from '../../src/api/api';
+import { useToken } from '../../src/context/TokenContext';
+import useAuth from '../../src/hooks/useAuth';
 
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);
@@ -10,16 +12,14 @@ export default function InventoryManagementScreen() {
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-
+  const token = useAuth();
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-        if (user && user.UserID) {
-          const shopInventory = await fetchShopInventory(user.UserID);
-          if (shopInventory) {
-            setInventory(shopInventory);
-          }
+        const shopInventory = await getShopInventory(token);
+        if (shopInventory) {
+          setInventory(shopInventory);
         }
         setIsDataFetched(true);
       } catch (error) {
@@ -61,7 +61,6 @@ export default function InventoryManagementScreen() {
     };
 
     setInventory([...inventory, newItem]);
-    sessionStorage.setItem('ShopInventory', JSON.stringify([...inventory, newItem]));
     setForm({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
     setModalVisible(false);
   };
@@ -76,7 +75,6 @@ export default function InventoryManagementScreen() {
       );
 
       setInventory(updatedInventory);
-      sessionStorage.setItem('ShopInventory', JSON.stringify(updatedInventory));
       setCurrentItem(null);
       setForm({ ItemNumber: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
       setModalVisible(false);
@@ -105,7 +103,6 @@ export default function InventoryManagementScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Inventory Management</Text>
       <Button title="Add Item" onPress={openAddItemModal} />
 
       <FlatList
@@ -230,4 +227,3 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
-

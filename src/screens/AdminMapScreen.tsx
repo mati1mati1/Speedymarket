@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Text, Dimensions, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, Dimensions, Pressable } from 'react-native';
 import { GestureEvent, PanGestureHandler, PanGestureHandlerEventPayload } from 'react-native-gesture-handler';
 import Svg, { Line, Polyline, Defs, Marker, Path } from 'react-native-svg';
 
@@ -46,15 +46,15 @@ const AdminMapScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.toolbar}>
-        <TouchableOpacity style={styles.button} onPress={() => addElement('shelf')}>
+        <Pressable style={styles.button} onPress={() => addElement('shelf')}>
           <Text style={styles.buttonText}>Add Shelf</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => addElement('aisle')}>
+        </Pressable>
+        <Pressable style={styles.button} onPress={() => addElement('aisle')}>
           <Text style={styles.buttonText}>Add Aisle</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => addElement('number')}>
+        </Pressable>
+        <Pressable style={styles.button} onPress={() => addElement('number')}>
           <Text style={styles.buttonText}>Add Number</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
       <View style={styles.mapContainer}>
         <Svg height="100%" width="100%" viewBox={`0 0 ${screenWidth} ${screenHeight}`}>

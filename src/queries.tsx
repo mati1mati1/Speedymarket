@@ -11,10 +11,15 @@ export interface Query {
   params: QueryParam[];
 }
 
-export const getShopInventoryQuery = (supermarketId: string): Query => ({
-  query: 'SELECT * FROM ShopInventory WHERE SupermarketID = @supermarketId',
+export const getShopInventoryQuery = (userId: string): Query => ({
+  query: `
+    SELECT si.* 
+    FROM ShopInventory si
+    JOIN Supermarket sm ON si.SupermarketID = sm.SupermarketID
+    WHERE sm.UserID = @userId
+  `,
   params: [
-    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
+    { name: 'userId', type: 'UniqueIdentifier', value: userId }
   ]
 });
 
@@ -47,10 +52,14 @@ export const updateMapQuery = (supermarketId: string, BranchMap: string): Query 
   ]
 });
 
-export const getSupermarketByIdQuery = (supermarketId: string): Query => ({
-  query: 'SELECT * FROM Supermarket WHERE SupermarketID = @supermarketId',
+export const getSupermarketByIdQuery = (userId: string): Query => ({
+  query: `
+    SELECT sm.*
+    FROM Supermarket sm
+    WHERE sm.UserID = @userId
+  `,
   params: [
-    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
+    { name: 'userId', type: 'UniqueIdentifier', value: userId }
   ]
 });
 
@@ -65,6 +74,12 @@ export const getShoppingListsByBuyerIdQuery = (buyerId: string): Query => ({
   query: 'SELECT * FROM ShoppingList WHERE BuyerID = @buyerId',
   params: [
     { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }
+  ]
+});
+export const getShoppingListItemsByListIdQuery = (listId: string): Query => ({
+  query: 'SELECT ItemID,ItemName,Quantity FROM ShoppingListItem WHERE ListID = @listId',
+  params: [
+    { name: 'listId', type: 'UniqueIdentifier', value: listId }
   ]
 });
 
