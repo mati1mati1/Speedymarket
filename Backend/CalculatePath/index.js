@@ -294,7 +294,7 @@ module.exports = async function (context, req) {
         }
 
         const shelvesToVisit = shoppingList.map(item => {
-            const inventoryItem = inventory.find(inv => inv.ItemNumber === item.id);
+            const inventoryItem = inventory.find(inv => inv.ItemName === item.id);
             if (!inventoryItem) {
                 missingItems.push(item);
                 return null;
