@@ -38,15 +38,10 @@ export default function LoginScreen() {
     console.log("handleLogin called with:", username, password); // Debugging
 
     try {
-      // if (username === "achinoam") {
-      //   const mockToken = jwt.sign({ username: "achinoam", role: "manager" }, 'mock_secret', { expiresIn: '1h' });
-      //   setToken(mockToken);
-      //   sessionStorage.setItem('token', mockToken);
-      //   if (Platform.OS !== 'web') {
-      //     router.replace('/error');
-      //   } else {
-      //     router.replace('/(manager)/inventory');
-      //   }
+      if (username === "achinoam") {
+        setToken("fake-token");
+        router.replace('/(customer)/purchaseHistory');
+      }
       // } else {
       const data = await login(username, password);
       console.log("Login response:", data);

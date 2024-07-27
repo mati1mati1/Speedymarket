@@ -6,6 +6,7 @@ export default function ShoppingListLayout() {
     <Stack>
       <Stack.Screen name="shoppingCartList" options={{ headerShown: false }}/>
       <Stack.Screen name="[edit-list]" options={{ headerShown: false }}/>
+      <Stack.Screen name="newList" options={{ headerShown: false }}/>
     </Stack>
     
   );

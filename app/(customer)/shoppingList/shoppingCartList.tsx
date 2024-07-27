@@ -29,7 +29,8 @@ const ShoppingCartListScreen = () => {
   }, []);
 
   const handleAddCart = () => {
-    const url = `/shoppingList/0`;
+    console.log('Add new cart');
+    const url = `/shoppingList/newList`;
     router.push(url);
   };
 
@@ -64,7 +65,7 @@ const ShoppingCartListScreen = () => {
         )}
       />
       <Pressable style={styles.button} onPress={handleAddCart}>
-        <Text style={styles.buttonText}>Add Shopping Cart</Text>
+        <Text style={styles.buttonText}>+ New List</Text>
       </Pressable>
     </View>
   );

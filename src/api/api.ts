@@ -115,3 +115,33 @@ export const getSupermarkets = async (): Promise<Supermarket[]> => {
   const queryObject = getSupermarketsQuery();
   return await executeSqlQuery<Supermarket>(queryObject);
 };
+
+  
+interface ImgResponse {
+  success: boolean;
+  list: string[];
+}
+export const uploadGroceryListImage = async (imageFile: string): Promise<ImgResponse> => {
+  console.log("this is the image file", imageFile);
+  const response = await fetch('https://readimage.azurewebsites.net/api/readImage?', {
+    method: 'POST',
+    // headers: {
+    //   'Content-Type': 'application/json',
+    // },
+    body: imageFile,
+  });
+  const data = await response.json();
+  if (data) {
+    const lines = data.readResult.blocks[0].lines
+    const textLines = lines.map((line: { text: any; }) => line.text)
+    return {
+      success: true,
+      list: textLines,
+    };
+  } else {
+    return {
+      success: false,
+      list: JSON.parse(""),
+    };
+  }
+}
