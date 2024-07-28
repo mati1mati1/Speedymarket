@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import Section from '../../src/components/Section';
-import Entrance from '../../src/components/Entrance';
-import '../../src/styles/MapEditor.css';
-import { Pressable } from 'react-native';
+import Section from '../../../src/components/Section';
+import Entrance from '../../../src/components/Entrance';
+import '../../../src/styles/MapEditor.css';
+import { PermissionsAndroid, Platform, Pressable } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { fetchCurrentLocation } from '../../src/services/locationService';
-import { connectToWifi } from '../../src/services/wifiService';
-import { EntranceType, loadMapAndPath, SectionType } from '../../src/services/mapService';
-import { getSupermarketBySupermarketID } from '../../src/api/api';
+import { fetchCurrentLocation } from '../../../src/services/locationService';
+import { connectToWifi } from '../../../src/services/wifiService';
+import { EntranceType, loadMapAndPath, SectionType } from '../../../src/services/mapService';
+import { getSupermarketBySupermarketID } from '../../../src/api/api';
 
 
 const CustomerMapViewer: React.FC = () => {
@@ -26,6 +26,8 @@ const CustomerMapViewer: React.FC = () => {
   useEffect(() => {
     const fetchMapAndPath = async () => {
       try {
+        console.log('supermarketId:', supermarketId);
+        console.log('listId:', listId);
         const data = await loadMapAndPath(supermarketId || '', listId || '');
         setSections(data.map.sections || []);
         setEntrance(data.map.entrance || null);
@@ -41,8 +43,13 @@ const CustomerMapViewer: React.FC = () => {
   useEffect(() => {
     const updateLocation = async () => {
       try {
+        if (Platform.OS === 'web') {
+          return;
+        }
         const location = await fetchCurrentLocation(supermarketId || '');
-        setUserLocation(location);
+        if(location){
+          setUserLocation(location);
+        }
       } catch (error: any) {
         console.error('Error fetching location:', error);
       }
@@ -55,10 +62,11 @@ const CustomerMapViewer: React.FC = () => {
   const handleLoadMapAndPath = async () => {
     try {
       const supermarket = await getSupermarketBySupermarketID(supermarketId || '');
-      const ssid = 'Supermarket_WiFi_SSID'; // Replace with actual SSID if necessary
+      const ssid = supermarket[0]?.WiFiSSID || ''; 
       const password = supermarket[0]?.WiFiPassword || '';
-
-      await connectToWifi(ssid, password);
+      if(Platform.OS !== 'web'){
+        await connectToWifi(ssid, password);
+      }
       await loadMapAndPath(supermarketId || '', listId || '');
     } catch (error: any) {
       alert(error.message);
@@ -117,9 +125,6 @@ const CustomerMapViewer: React.FC = () => {
   return (
     <DndProvider backend={HTML5Backend}>
       <div>
-        <Pressable onPress={handleLoadMapAndPath}>
-          Start Shopping
-        </Pressable>
         <div ref={mapRef} className="map-editor" style={{ position: 'relative', width: `${mapWidth}px`, height: `${mapHeight}px`, border: '1px solid black' }}>
           {sections.map(({ id, name, left, top, rotation, width, height }) => (
             <Section

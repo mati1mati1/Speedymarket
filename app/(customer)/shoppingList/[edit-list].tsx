@@ -7,7 +7,8 @@ import { ShoppingListItem } from '../../../src/models';
 import { addOrUpdateShoppingListByBuyerId, getShoppingListItemByCardId } from '../../../src/api/api';
 
 export default function EditListScreen() {
-  const { cardId,ListName} = useLocalSearchParams<{ cardId: string; ListName?: string }>();  const token = useAuth();
+  const { cardId,ListName} = useLocalSearchParams<{ cardId: string; ListName?: string }>();  
+  const token = useAuth();
   const navigation = useNavigation();
   const [items, setItems] = useState<ShoppingListItem[]>([]);
   const [newItem, setNewItem] = useState('');

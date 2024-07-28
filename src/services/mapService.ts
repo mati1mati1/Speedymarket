@@ -1,3 +1,5 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export interface SectionType {
     id: number;
     name: string;
@@ -22,10 +24,12 @@ export interface SectionType {
   }
 
   export const loadMapAndPath = async (supermarketId: string, listId: string): Promise<PathData> => {
+    const token = await AsyncStorage.getItem('token'); 
     const response = await fetch('http://localhost:7071/api/calculatePath', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({ supermarketId, listId })
     });

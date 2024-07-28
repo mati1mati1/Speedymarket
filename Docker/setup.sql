@@ -67,7 +67,6 @@ GO
 CREATE TABLE ShoppingListItem (
     ListItemID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     ListID UNIQUEIDENTIFIER NOT NULL,
-    ItemID NVARCHAR(50) NOT NULL,
     ItemName NVARCHAR(255) NOT NULL,
     Quantity INT NOT NULL,
     FOREIGN KEY (ListID) REFERENCES ShoppingList(ListID)
@@ -109,7 +108,7 @@ VALUES
 GO
 
 -- Insert mock data into Supermarket table using the UserID of sellers
-INSERT INTO Supermarket (UserID, BranchName, BranchAddress, BranchMap, Location, WiFiPassword)
+INSERT INTO Supermarket (UserID, BranchName, BranchAddress, BranchMap, Location, WiFiPassword, WiFiSSID)
 VALUES 
 ((SELECT UserID FROM [User] WHERE Email = 'jane.smith@example.com'), 'Main Street Store', '123 Main St', '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"name":"מדף","left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"name":"מדף","left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"name":"מדף","left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"name":"מדף","left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"name":"מדף","left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"name":"מדף","left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"name":"מדף","left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"name":"מדף","left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"name":"מדף","left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"name":"מדף","left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"name":"מדף","left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"name":"מדף","left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"name":"מדף","left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"name":"מדף","left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 'Los Angeles', 'supermarket_password','supermarket_ssid'),
 ((SELECT UserID FROM [User] WHERE Email = 'emily.davis@example.com'), 'Market Plaza', '456 Market St', '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 'San Francisco', 'market_password','supermarket_ssid');
@@ -152,20 +151,20 @@ VALUES
 GO
 
 -- Insert mock data into ShoppingListItem
-INSERT INTO ShoppingListItem (ListID, ItemID, ItemName, Quantity)
+INSERT INTO ShoppingListItem (ListID, ItemName, Quantity)
 VALUES 
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List1'), 'item-001', 'Product A1', 2),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List1'), 'item-002', 'Product A2', 1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List2'), 'item-006', 'Product B1', 3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List2'), 'item-007', 'Product B2', 1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List3'), 'item-001', 'Product A1', 2),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List3'), 'item-002', 'Product A2', 1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List4'), 'item-006', 'Product B1', 3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List4'), 'item-007', 'Product B2', 1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List5'), 'item-006', 'Product B1', 3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List5'), 'item-007', 'Product B2', 1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List6'), 'item-006', 'Product B1', 3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List6'), 'item-007', 'Product B2', 1);
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List1'), 'item-001',  2),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List1'), 'item-002',  1),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List2'), 'item-006',  3),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List2'), 'item-007',  1),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List3'), 'item-001',  2),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List3'), 'item-002',  1),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List4'), 'item-006',  3),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List4'), 'item-007',  1),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List5'), 'item-006',  3),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List5'), 'item-007',  1),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List6'), 'item-006',  3),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List6'), 'item-007',  1);
 GO
 
 -- Insert mock data into BuyerOrder and BuyerOrderItem

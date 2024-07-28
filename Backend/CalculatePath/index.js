@@ -231,22 +231,22 @@ module.exports = async function (context, req) {
     const { supermarketId, listId } = req.body;
     const token = req.headers.authorization?.split(' ')[1];
 
-    if (!token) {
-        context.res = {
-            status: 401,
-            body: "Authorization token is required"
-        };
-        return;
-    }
-    try {
-        jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-        context.res = {
-            status: 401,
-            body: "Invalid token"
-        };
-        return;
-    }
+    // if (!token) {
+    //     context.res = {
+    //         status: 401,
+    //         body: "Authorization token is required"
+    //     };
+    //     return;
+    // }
+    // try {
+    //     jwt.verify(token, process.env.JWT_SECRET);
+    // } catch (err) {
+    //     context.res = {
+    //         status: 401,
+    //         body: "Invalid token"
+    //     };
+    //     return;
+    // }
 
     if (!supermarketId || !listId) {
         context.res = {
@@ -262,7 +262,7 @@ module.exports = async function (context, req) {
         await sql.connect(config);
 
         try {
-            const mapQuery = `SELECT * FROM Sellers WHERE SellerID = @supermarketId`;
+            const mapQuery = `SELECT * FROM Supermarket WHERE SupermarketID = @supermarketId`;
             const mapRequest = new sql.Request();
             mapRequest.input('supermarketId', sql.UniqueIdentifier, supermarketId);
             const mapResult = await mapRequest.query(mapQuery);
@@ -273,18 +273,19 @@ module.exports = async function (context, req) {
         }
 
         try {
-            const listQuery = `SELECT * FROM ShoppingList WHERE ListID = @listId`;
+            const listQuery = `SELECT * FROM ShoppingListItem WHERE ListID = @listId`;
             const listRequest = new sql.Request();
             listRequest.input('listId', sql.UniqueIdentifier, listId);
             const listResult = await listRequest.query(listQuery);
-            if (listResult.recordset.length === 0) throw new Error('No shopping list data found for given listId');
-            shoppingList = JSON.parse(listResult.recordset[0].Items);
+            if (listResult.length === 0) throw new Error('No shopping list data found for given listId');
+            shoppingList = listResult.recordset;
+            context.log('Shopping list:', shoppingList);
         } catch (err) {
             throw new Error(`Error fetching shopping list data: ${err.message}`);
         }
 
         try {
-            const inventoryQuery = `SELECT * FROM ShopInventory WHERE SellerID = @supermarketId`;
+            const inventoryQuery = `SELECT * FROM ShopInventory WHERE SupermarketID = @supermarketId`;
             const inventoryRequest = new sql.Request();
             inventoryRequest.input('supermarketId', sql.UniqueIdentifier, supermarketId);
             const inventoryResult = await inventoryRequest.query(inventoryQuery);
@@ -292,22 +293,22 @@ module.exports = async function (context, req) {
         } catch (err) {
             throw new Error(`Error fetching inventory data: ${err.message}`);
         }
-
+        context.log('Inventory:', inventory);
         const shelvesToVisit = shoppingList.map(item => {
-            const inventoryItem = inventory.find(inv => inv.ItemName === item.id);
-            if (!inventoryItem) {
-                missingItems.push(item);
-                return null;
-            }
-            itemsWithLocations.push({ ...item, location: inventoryItem.Location });
-            return parseInt(inventoryItem.Location, 10);
-        }).filter(Boolean);
+        const inventoryItem = inventory.find(inv => inv.ItemName === item.ItemName);
+        if (!inventoryItem) {
+            missingItems.push(item);
+            return null;
+        }
+        itemsWithLocations.push({ ...item, location: inventoryItem.Location });
+        return parseInt(inventoryItem.Location, 10);
+                }).filter(Boolean);
 
         context.log('Shelves to visit:', shelvesToVisit);
 
         const grid = createGrid(branchMap.sections, branchMap.mapWidth, branchMap.mapHeight, shelvesToVisit);
         context.log('Grid created:');
-        context.log(grid.map(row => row.join(' ')).join('\n'));
+        //context.log(grid.map(row => row.join(' ')).join('\n'));
 
         let { keyPointsPath, matrixWithPath } = findShortestPath(grid, branchMap.entrance);
         context.log('Key points path found:', keyPointsPath);
