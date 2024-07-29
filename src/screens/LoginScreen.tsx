@@ -3,11 +3,11 @@ import { View, Text } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { login } from '../api/auth';
-import { useUser } from '../context/UserContext';
 import { commonStyles } from '../styles/styles';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import { getUserById } from '../api/api';
+import { useToken } from 'src/context/TokenContext';
 interface LoginScreenProps {
   navigation: StackNavigationProp<any>;
   route: RouteProp<any, any>;
@@ -16,14 +16,13 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const { setUser } = useUser();
+  const { setToken } = useToken();
 
   const handleLogin = async () => {
     try {
       const data = await login(username, password);
-      debugger
       if (data.success) {
-        setUser(data.user);
+        setToken(data.token);
         const userId = "fc34dc92-f3ec-419b-91b8-10d409432cca"; // Replace with an actual user ID from your database
         const result = await getUserById(userId);
         navigation.navigate('AppNavigator');

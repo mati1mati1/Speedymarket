@@ -60,7 +60,7 @@ export interface SectionType {
 
   export const loadMapAndPath = async (supermarketId: string, listId: string): Promise<Data> => {
     const token = await AsyncStorage.getItem('token'); 
-    const response = await fetch('http://localhost:7071/api/calculatePath', {
+    const response = await fetch('http://10.100.102.7:7071/api/calculatePath', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

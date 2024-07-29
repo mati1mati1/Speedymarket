@@ -27,7 +27,6 @@ export default function EditListScreen() {
         }
         console.log("cardId:", cardId);
         if (ListName !== '') {
-          debugger
           setListName(ListName || '');
         }
       } catch (error) {

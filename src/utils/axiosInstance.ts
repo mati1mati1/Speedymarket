@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 
-const API_URL = 'http://localhost:7071/api/ExecuteSqlQuery';
+const API_URL = 'http://10.100.102.7:7071/api/ExecuteSqlQuery';
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_URL,
@@ -10,7 +10,6 @@ const axiosInstance: AxiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    debugger;
     const token = await AsyncStorage.getItem('token'); 
     if (token && config.headers) {
       config.headers['Authorization'] = `Bearer ${token}`;

@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, Platform, ActivityIndicator, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Button, ActivityIndicator, ScrollView, Pressable } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { getItemBySupermarketIdAndBarcode } from '../api/api';
+import { ShopInventory } from 'src/models';
 
-//the handle data will be the funciton u call after recieving the data from the server when scanning the barcode
-export default function ScanItem({ handleData, supermarketId}) {
+interface ScanItemProps {
+  handleData: (data: any) => void;
+  supermarketId: string;
+}
+
+const ScanItem: React.FC<ScanItemProps> = ({ handleData, supermarketId }) => {
   const [scanned, setScanned] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(false);
-  const [hasPermission, setHasPermission] = useState(null);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -25,25 +30,25 @@ export default function ScanItem({ handleData, supermarketId}) {
     return (
       <View style={styles.container}>
         <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Button onPress={() => BarCodeScanner.requestPermissionsAsync()} title="Grant Permission" />
+        <Pressable onPress={() => BarCodeScanner.requestPermissionsAsync()}>
+          <Text>Grant Permission</Text>
+        </Pressable>
       </View>
     );
   }
 
-
-  const handleBarCodeScanned = async ({ type, data }) => {
+  const handleBarCodeScanned = async ({ type, data }: { type: string; data: string }) => {
     setScanned(true);
     console.log(`barcode detected: ${data}`);
     try {
-      const response =  await getItemBySupermarketIdAndBarcode(supermarketId, data);
+      const response: ShopInventory[] = await getItemBySupermarketIdAndBarcode(supermarketId, data);
       console.log(response);
-      if (response?.status){
+      if (response?.length > 0) {
         console.log('Item found');
-        //the handle data will show the data in the shopping cart list
-        handleData(response.data);
-      } else { //indicate that the item was not found
+        handleData(response[0]);
+      } else {
         console.log('Item not found');
-        handleData(null); 
+        handleData(null);
       }
     } catch (error) {
       console.error('Invalid QR code data:', error);
@@ -53,18 +58,16 @@ export default function ScanItem({ handleData, supermarketId}) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.buttonContainer}>
-        {/* <Button title="DEBUG Add Hardcoded Medicines" onPress={addHardcodedMedicines} disabled={loading} /> */}
         <Button title="Scan Barcode" onPress={() => { setScanned(false); setCameraVisible(true); }} disabled={loading} />
       </View>
       {cameraVisible && !scanned && (
         <View>
           <BarCodeScanner
-          onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-          style={StyleSheet.absoluteFillObject}
-        />
+            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+            style={StyleSheet.absoluteFillObject}
+          />
           <Button title="Back" onPress={() => setCameraVisible(false)} />
         </View>
-        
       )}
       {loading && (
         <View style={styles.loadingOverlay}>
@@ -73,15 +76,15 @@ export default function ScanItem({ handleData, supermarketId}) {
       )}
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    // flexGrow: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // backgroundColor: '#fff',
-    // paddingVertical: 20,
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingVertical: 20,
   },
   statusText: {
     fontSize: 18,
@@ -112,3 +115,5 @@ const styles = StyleSheet.create({
     margin: 10,
   },
 });
+
+export default ScanItem;

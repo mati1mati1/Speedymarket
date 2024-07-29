@@ -12,7 +12,7 @@ export const fetchCurrentLocation = async (supermarketId: string): Promise<{ x: 
     rssi: network.level,
   }));
 
-  const response = await axios.post('http://localhost:7071/api/calculateLocation', {
+  const response = await axios.post('http://10.100.102.7:7071/api/calculateLocation', {
     supermarketId,
     wifiData
   });

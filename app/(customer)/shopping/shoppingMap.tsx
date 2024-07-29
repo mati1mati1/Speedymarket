@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Modal, TouchableOpacity, Text, Platform } from 'react-native';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import Section from '../../../src/components/Section';
 import Entrance from '../../../src/components/Entrance';
-import '../../../src/styles/MapEditor.css';
-import { PermissionsAndroid, Platform, Pressable } from 'react-native';
+import Svg, { Line, Defs, Marker, Path } from 'react-native-svg';
 import { useLocalSearchParams } from 'expo-router';
 import { fetchCurrentLocation } from '../../../src/services/locationService';
 import { connectToWifi } from '../../../src/services/wifiService';
@@ -15,7 +15,7 @@ import MissingItemsModal from '../../../src/components/MissingItemsModal';
 import FoundItemsModal from '../../../src/components/FoundItemsModal';
 import Payments from '../../../src/components/Payments';
 import ShoppingCart from '../../../src/components/ShoppingCart';
-import '../../../src/styles/MapEditor.css'; // Import CSS file for styling
+import ScanItem from '../../../src/components/Scanner';
 
 const CustomerMapViewer: React.FC = () => {
   const { supermarketId, listId } = useLocalSearchParams<{ supermarketId: string; listId?: string }>();
@@ -29,19 +29,18 @@ const CustomerMapViewer: React.FC = () => {
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
   const [shoppingCart, setShoppingCart] = useState<ShopInventory[]>([]);
   const [isFoundItemsModalOpen, setIsFoundItemsModalOpen] = useState(false);
+  const [isScannedDataOpen, setScannedDataModalOpen] = useState(false);
   const [isMissingItemsModalOpen, setIsMissingItemsModalOpen] = useState(false);
   const [isShoppingCartOpen, setIsShoppingCartOpen] = useState(false);
   const [isPaymentState, setIsPaymentState] = useState(false);
+  const [scannedData, setScannedData] = useState<any>(null);
 
-  const mapRef = useRef<HTMLDivElement>(null);
   const mapWidth = 800;
   const mapHeight = 600;
 
   useEffect(() => {
     const fetchMapAndPath = async () => {
       try {
-        console.log('supermarketId:', supermarketId);
-        console.log('listId:', listId);
         const data = await loadMapAndPath(supermarketId || '', listId || '');
         setSections(data.map.sections || []);
         setEntrance(data.map.entrance || null);
@@ -62,22 +61,22 @@ const CustomerMapViewer: React.FC = () => {
   }, [supermarketId, listId]);
 
   useEffect(() => {
-    const updateLocation = async () => {
-      try {
-        if (Platform.OS === 'web') {
-          return;
-        }
-        const location = await fetchCurrentLocation(supermarketId || '');
-        if(location){
-          setUserLocation(location);
-        }
-      } catch (error: any) {
-        console.error('Error fetching location:', error);
-      }
-    };
+    // const updateLocation = async () => {
+    //   try {
+    //     if (Platform.OS === 'web') {
+    //       return;
+    //     }
+    //     const location = await fetchCurrentLocation(supermarketId || '');
+    //     if(location){
+    //       setUserLocation(location);
+    //     }
+    //   } catch (error: any) {
+    //     console.error('Error fetching location:', error);
+    //   }
+    // };
 
-    const interval = setInterval(updateLocation, 5000); // Update every 5 seconds
-    return () => clearInterval(interval); // Cleanup interval on component unmount
+    // const interval = setInterval(updateLocation, 5000); // Update every 5 seconds
+    // return () => clearInterval(interval); // Cleanup interval on component unmount
   }, [supermarketId]);
 
   const handleLoadMapAndPath = async () => {
@@ -85,7 +84,7 @@ const CustomerMapViewer: React.FC = () => {
       const supermarket = await getSupermarketBySupermarketID(supermarketId || '');
       const ssid = supermarket[0]?.WiFiSSID || '';
       const password = supermarket[0]?.WiFiPassword || '';
-      if(Platform.OS !== 'web'){
+      if (Platform.OS !== 'web') {
         await connectToWifi(ssid, password);
       }
       await loadMapAndPath(supermarketId || '', listId || '');
@@ -101,12 +100,16 @@ const CustomerMapViewer: React.FC = () => {
     }));
   };
 
-  const handleAddToCart = (item: ItemWithLocation) => {
+  const handleAddToCart = (item: ShopInventory) => {
     setShoppingCart(prevCart => [...prevCart, item]);
   };
 
   const toggleFoundItemsModal = () => {
     setIsFoundItemsModalOpen(!isFoundItemsModalOpen);
+  };
+
+  const toggleIsScannedDataOpen = () => {
+    setScannedDataModalOpen(!isScannedDataOpen);
   };
 
   const toggleMissingItemsModal = () => {
@@ -116,17 +119,17 @@ const CustomerMapViewer: React.FC = () => {
   const toggleShoppingCart = () => {
     setIsShoppingCartOpen(!isShoppingCartOpen);
   };
+
   const togglePayment = () => {
     setIsPaymentState(!isPaymentState);
   };
 
-
   const drawPath = () => (
-    <svg style={{ position: 'absolute', top: 0, left: 0, width: mapWidth, height: mapHeight }}>
+    <Svg style={{ position: 'absolute', top: 0, left: 0, width: mapWidth, height: mapHeight }}>
       {path.slice(1).map((point, index) => {
         const prevPoint = path[index];
         return (
-          <line
+          <Line
             key={index}
             x1={prevPoint[1]}
             y1={prevPoint[0]}
@@ -138,8 +141,8 @@ const CustomerMapViewer: React.FC = () => {
           />
         );
       })}
-      <defs>
-        <marker
+      <Defs>
+        <Marker
           id="arrow"
           markerWidth="10"
           markerHeight="10"
@@ -148,105 +151,253 @@ const CustomerMapViewer: React.FC = () => {
           orient="auto"
           markerUnits="strokeWidth"
         >
-          <path d="M0,0 L0,6 L9,3 z" fill="#f00" />
-        </marker>
-      </defs>
-    </svg>
+          <Path d="M0,0 L0,6 L9,3 z" fill="#f00" />
+        </Marker>
+      </Defs>
+    </Svg>
   );
 
   const drawUserLocation = () => (
     userLocation && (
-      <div
+      <View
         style={{
           position: 'absolute',
-          left: `${userLocation.x}px`,
-          top: `${userLocation.y}px`,
-          width: '10px',
-          height: '10px',
+          left: userLocation.x,
+          top: userLocation.y,
+          width: 10,
+          height: 10,
           backgroundColor: 'blue',
-          borderRadius: '50%',
+          borderRadius: 5,
         }}
       />
     )
   );
 
+  const MapContent = (
+    <View style={[styles.mapEditor, { width: mapWidth, height: mapHeight }]}>
+      {sections.map(({ id, name, left, top, rotation, width, height }) => (
+        <Section
+          key={id}
+          id={id}
+          name={name}
+          left={left}
+          top={top}
+          rotation={rotation}
+          currentOffset={currentOffset}
+        />
+      ))}
+      {entrance && <Entrance {...entrance} />}
+      {drawPath()}
+      {drawUserLocation()}
+    </View>
+  );
+
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="viewer-container">
-        <div className="button-container">
-          <button className="action-button" onClick={toggleFoundItemsModal}>Show Found Items</button>
-          <button className="action-button" onClick={toggleMissingItemsModal}>Show Missing Items</button>
-          <button className="action-button" onClick={toggleShoppingCart}>Show Shopping Cart</button>
-          <button className="action-button" onClick={togglePayment}>Pay now</button>
+    <View style={styles.viewerContainer}>
+      {Platform.OS === 'web' ? (
+        <DndProvider backend={HTML5Backend}>
+          {MapContent}
+        </DndProvider>
+      ) : (
+        MapContent
+      )}
 
-        </div>
-        <div ref={mapRef} className="map-editor" style={{ position: 'relative', width: `${mapWidth}px`, height: `${mapHeight}px`, border: '1px solid black' }}>
-          {sections.map(({ id, name, left, top, rotation, width, height }) => (
-            <Section
-              key={id}
-              id={id}
-              name={name}
-              left={left}
-              top={top}
-              rotation={rotation}
-              currentOffset={currentOffset}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.actionButton} onPress={toggleFoundItemsModal}>
+          <Text style={styles.actionButtonText}>Show Found Items</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton} onPress={toggleMissingItemsModal}>
+          <Text style={styles.actionButtonText}>Show Missing Items</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton} onPress={toggleShoppingCart}>
+          <Text style={styles.actionButtonText}>Show Shopping Cart</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionButton} onPress={togglePayment}>
+          <Text style={styles.actionButtonText}>Pay now</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Modal
+        visible={isScannedDataOpen}
+        transparent={true}
+        onRequestClose={toggleIsScannedDataOpen}
+      >
+        <TouchableOpacity style={styles.modalOverlay} onPress={toggleIsScannedDataOpen}>
+          <View style={styles.modal} onStartShouldSetResponder={() => true}>
+            <ScanItem handleData={handleAddToCart} supermarketId={supermarketId || ''} />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      <Modal
+        visible={isFoundItemsModalOpen}
+        transparent={true}
+        onRequestClose={toggleFoundItemsModal}
+      >
+        <TouchableOpacity style={styles.modalOverlay} onPress={toggleFoundItemsModal}>
+          <View style={styles.modal} onStartShouldSetResponder={() => true}>
+            <FoundItemsModal
+              isOpen={isFoundItemsModalOpen}
+              onRequestClose={toggleFoundItemsModal}
+              items={itemFoundList}
+              checkedItems={checkedItems}
+              onCheckboxChange={handleCheckboxChange}
             />
-          ))}
-          {entrance && (
-            <Entrance left={entrance.left} top={entrance.top} />
-          )}
-          {drawPath()}
-          {drawUserLocation()}
-        </div>
-        <div className="button-container">
-          <button  className="action-button" onClick={handleLoadMapAndPath}>Scan Barcode</button>
-        </div>
-        {isFoundItemsModalOpen && (
-          <div className="modal-overlay" onClick={toggleFoundItemsModal}>
-            <div className="modal" onClick={e => e.stopPropagation()}>
-              <FoundItemsModal
-                isOpen={isFoundItemsModalOpen}
-                onRequestClose={toggleFoundItemsModal}
-                items={itemFoundList}
-                checkedItems={checkedItems}
-                onCheckboxChange={handleCheckboxChange}
-              />
-            </div>
-          </div>
-        )}
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
-        {isMissingItemsModalOpen && (
-          <div className="modal-overlay" onClick={toggleMissingItemsModal}>
-            <div className="modal" onClick={e => e.stopPropagation()}>
-              <MissingItemsModal
-                isOpen={isMissingItemsModalOpen}
-                onRequestClose={toggleMissingItemsModal}
-                items={missingItemList}
-                shoppingCart={shoppingCart}
-              />
-            </div>
-          </div>
-        )}
+      <Modal
+        visible={isMissingItemsModalOpen}
+        transparent={true}
+        onRequestClose={toggleMissingItemsModal}
+      >
+        <TouchableOpacity style={styles.modalOverlay} onPress={toggleMissingItemsModal}>
+          <View style={styles.modal} onStartShouldSetResponder={() => true}>
+            <MissingItemsModal
+              isOpen={isMissingItemsModalOpen}
+              onRequestClose={toggleMissingItemsModal}
+              items={missingItemList}
+              shoppingCart={shoppingCart}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
-        {isShoppingCartOpen && (
-          <div className="modal-overlay" onClick={toggleShoppingCart}>
-            <div className="modal" onClick={e => e.stopPropagation()}>
-              <ShoppingCart isOpen={isShoppingCartOpen} onRequestClose={toggleShoppingCart} itemInCard={shoppingCart} />
-            </div>
-          </div>
-        )}
+      <Modal
+        visible={isShoppingCartOpen}
+        transparent={true}
+        onRequestClose={toggleShoppingCart}
+      >
+        <TouchableOpacity style={styles.modalOverlay} onPress={toggleShoppingCart}>
+          <View style={styles.modal} onStartShouldSetResponder={() => true}>
+            <ShoppingCart
+              isOpen={isShoppingCartOpen}
+              onRequestClose={toggleShoppingCart}
+              itemInCard={shoppingCart}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
 
-        {isPaymentState && (
-          <div className="modal-overlay" onClick={toggleShoppingCart}>
-            <div className="modal" onClick={e => e.stopPropagation()}>
-              <Payments items={shoppingCart} />
-            </div>
-          </div>
-        )}
-
-      </div>
-    </DndProvider>
+      <Modal
+        visible={isPaymentState}
+        transparent={true}
+        onRequestClose={toggleShoppingCart}
+      >
+        <TouchableOpacity style={styles.modalOverlay} onPress={toggleShoppingCart}>
+          <View style={styles.modal} onStartShouldSetResponder={() => true}>
+            <Payments items={shoppingCart} />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
   );
 };
+
+
+const styles = StyleSheet.create({
+  viewerContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  mapEditor: {
+    width: 800,
+    height: 600,
+    borderColor: 'black',
+    borderWidth: 1,
+    position: 'relative',
+    marginVertical: 20,
+    marginHorizontal: 'auto',
+    backgroundColor: '#f0f0f0',
+  },
+  sidebar: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    padding: 20,
+    backgroundColor: '#ddd',
+    height: '100%',
+  },
+  section: {
+    width: 100,
+    height: 50,
+    backgroundColor: '#007bff',
+    color: 'white',
+    textAlign: 'center',
+    lineHeight: 50, // Not supported in React Native, needs an alternative
+    borderColor: '#0056b3',
+    borderWidth: 1,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  arrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 10,
+    borderLeftColor: 'transparent',
+    borderRightWidth: 10,
+    borderRightColor: 'transparent',
+    borderTopWidth: 10,
+    borderTopColor: 'white',
+    position: 'absolute',
+    top: -10,
+    left: 45,
+  },
+  entrance: {
+    width: 100,
+    height: 50,
+    backgroundColor: 'green',
+    color: 'white',
+    textAlign: 'center',
+    lineHeight: 50, // Not supported in React Native, needs an alternative
+    borderColor: '#004d00',
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  aisle: {
+    backgroundColor: 'yellow',
+    borderColor: '#cccc00',
+    borderWidth: 1,
+    position: 'absolute',
+    cursor: 'pointer', // Not supported in React Native, use onPress for functionality
+  },
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'flex-start', // Aligns modals at the top
+    paddingTop: 20, // Adds some padding from the top
+  },
+  modal: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    maxWidth: '90%',
+    maxHeight: '90%',
+    overflow: 'hidden', // overflow-y is not supported, use ScrollView if needed
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10, // Not directly supported in React Native, use margin or padding
+    marginBottom: 20,
+  },
+  actionButton: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+  },
+  actionButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+});
 
 export default CustomerMapViewer;

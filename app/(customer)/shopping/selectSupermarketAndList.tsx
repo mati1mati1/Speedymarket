@@ -1,54 +1,49 @@
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Modal, Pressable } from 'react-native';
-import SelectListModal from '../../src/components/SelectListModal';
-import SelectSupermarketModal from '../../src/components/SelectSupermarketModalProps';
+import SelectListModal from 'src/components/SelectListModal';
+import SelectSupermarketModal from 'src/components/SelectSupermarketModalProps';
+import { ShoppingList, Supermarket } from 'src/models';
 
 const StartShoppingScreen = () => {
   const [listModalVisible, setListModalVisible] = useState(false);
   const [supermarketModalVisible, setSupermarketModalVisible] = useState(false);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
   const [selectedSupermarket, setSelectedSupermarket] = useState<Supermarket | null>(null);
-
-  useEffect(() => {
-    setListModalVisible(true); 
-  }, []);
+  const [isListLoading, setIsListLoading] = useState(false);
+  const [isSupermarketLoading, setIsSupermarketLoading] = useState(false);
 
   const handleSelectList = () => {
-    setListModalVisible(true); // Show the modal with ShoppingCartListScreen
+    setListModalVisible(true);
   };
 
   const handleSelectSupermarket = () => {
-    setSupermarketModalVisible(true); // Show the modal with SelectSupermarketScreen
+    setSupermarketModalVisible(true);
+  };
+  const handleStartWithoutList = () => {
+    setSelectedList(null);
   };
 
-  const handleStartWithoutList = () => {
-    setListModalVisible(false);
-    setSupermarketModalVisible(true);
+  const startShopping = () => {
+    if (selectedSupermarket != null) {
+      router.push({
+        pathname: '/shopping/shoppingMap',
+        params: { supermarketId: selectedSupermarket?.SupermarketID, listId: selectedList?.ListID }
+      });
+  }
   };
 
   const closeListModal = (selectedList: ShoppingList | null) => {
     setSelectedList(selectedList);
     setListModalVisible(false);
-    setSupermarketModalVisible(true);
   };
 
   const closeSupermarketModal = (selectedSupermarket: Supermarket | null) => {
     setSupermarketModalVisible(false);
-    setSelectedSupermarket(selectedSupermarket);
-    debugger
-    router.push({
-      pathname: '/shopping/shoppingMap',
-      params: { supermarketId : selectedSupermarket?.SupermarketID, listId : selectedList?.ListID }}
-    ); 
-    // router.setParams({shopingMap : selectedSupermarket?.SupermarketID, listId : selectedList?.ListID }) 
+    if (selectedSupermarket != null) {
+      setSelectedSupermarket(selectedSupermarket);
+    }
   };
-
-  const showNewItemDetails = (data: any) => {
-    //show the data in the cart u are now using
-  };
-
-//exmpale of how to use the scanner  
-{/* <ScanItem handleData={showNewItemDetails} supermarketId={"dkjfdfjd"}/> */}
 
   return (
     <View style={styles.container}>
@@ -58,8 +53,8 @@ const StartShoppingScreen = () => {
       <Pressable style={styles.button} onPress={handleSelectSupermarket}>
         <Text style={styles.buttonText}>Select Supermarket</Text>
       </Pressable>
-      <Pressable style={styles.button} onPress={handleStartWithoutList}>
-        <Text style={styles.buttonText}>Start Without List</Text>
+      <Pressable style={styles.button} onPress={startShopping}>
+        <Text style={styles.buttonText}>Start shopping</Text>
       </Pressable>
 
       <Modal
@@ -70,7 +65,12 @@ const StartShoppingScreen = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <SelectListModal closeModal={closeListModal} continueWithoutList={handleStartWithoutList} />
+            <SelectListModal
+              closeModal={closeListModal}
+              continueWithoutList={handleStartWithoutList}
+              setIsLoading={setIsListLoading}
+              isLoading={isListLoading}
+            />
             <Pressable style={styles.closeButton} onPress={() => closeListModal(null)}>
               <Text style={styles.closeButtonText}>Close</Text>
             </Pressable>
@@ -86,7 +86,11 @@ const StartShoppingScreen = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <SelectSupermarketModal closeModal={closeSupermarketModal} />
+            <SelectSupermarketModal
+              closeModal={closeSupermarketModal}
+              setIsLoading={setIsSupermarketLoading}
+              isLoading={isSupermarketLoading}
+            />
             <Pressable style={styles.closeButton} onPress={() => closeSupermarketModal(null)}>
               <Text style={styles.closeButtonText}>Close</Text>
             </Pressable>

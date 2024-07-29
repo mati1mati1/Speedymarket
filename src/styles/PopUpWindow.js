@@ -1,4 +1,3 @@
-// styles.js
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
@@ -6,6 +5,7 @@ export default StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Added for background transparency
     padding: 16,
   },
   modalContent: {
@@ -13,6 +13,7 @@ export default StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
+    alignItems: 'center', // Center align items inside the modal
   },
   title: {
     fontSize: 20,
@@ -44,6 +45,7 @@ export default StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 10,
+    width: '100%', // Ensure button takes full width
   },
   buttonDisabled: {
     backgroundColor: 'gray',

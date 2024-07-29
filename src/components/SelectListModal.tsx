@@ -1,121 +1,89 @@
 import React, { useEffect, useState } from 'react';
-import useAuth from 'src/hooks/useAuth';
-import { FlatList, View, Text, Button, StyleSheet, Pressable } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { getShoppingListsByBuyerId } from 'src/api/api';
-
-interface ShoppingList {
-  ListID: string;
-  ListName: string;
-  BuyerID: string;
-}
+import { ShoppingList } from 'src/models'; // Ensure this is correctly imported
+import useAuth from 'src/hooks/useAuth'; // Ensure this is correctly imported
+import styles from 'src/styles/PopUpWindow'; // Ensure this is correctly imported
 
 interface SelectListModalProps {
   closeModal: (selectedList: ShoppingList | null) => void;
   continueWithoutList: () => void;
+  setIsLoading: (isLoading: boolean) => void;
+  isLoading: boolean;
 }
 
-const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueWithoutList }) => {
+const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueWithoutList, setIsLoading, isLoading }) => {
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
   const token = useAuth();
 
-  const fetchData = async (page: number) => {
-    setLoading(true);
+  const fetchData = async () => {
+    setIsLoading(true);
     try {
       const fetchedShoppingLists = await getShoppingListsByBuyerId(token);
       if (fetchedShoppingLists) {
-        setShoppingLists((prevLists) => [...prevLists, ...fetchedShoppingLists]);
+        setShoppingLists(fetchedShoppingLists);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!hasFetched) {
-      fetchData(page);
-      setHasFetched(true);
-    }
-  }, [hasFetched, page, token]);
+    fetchData();
+  }, [token]);
 
   const handleSelectList = (list: ShoppingList) => {
     setSelectedList(list);
   };
 
   const handleConfirmSelection = () => {
-    if (selectedList) {
-      closeModal(selectedList); 
-    }
-  };
-
-  const handleLoadMore = () => {
-    if (!loading) {
-      setPage((prevPage) => prevPage + 1);
-    }
+    closeModal(selectedList);
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Select a Shopping List</Text>
-      <FlatList
-        data={shoppingLists}
-        keyExtractor={(item) => item.ListID}
-        renderItem={({ item }) => (
+    <Modal animationType="slide" transparent={true} onRequestClose={() => closeModal(null)}>
+      <View style={styles.container}>
+        <View style={styles.modalContent}>
+          <Text style={styles.title}>Select a Shopping List</Text>
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : (
+            <FlatList
+              data={shoppingLists}
+              keyExtractor={(item) => item.ListID}
+              renderItem={({ item }) => (
+                <Pressable
+                  style={styles.listItem}
+                  onPress={() => handleSelectList(item)}
+                >
+                  <Text style={selectedList?.ListID === item.ListID ? styles.selectedItem : styles.listItemText}>
+                    {item.ListName}
+                  </Text>
+                </Pressable>
+              )}
+              ListEmptyComponent={<Text>No Shopping Lists Available</Text>}
+            />
+          )}
           <Pressable
-            onPress={() => handleSelectList(item)}
-            style={[
-              styles.listItem,
-              selectedList?.ListID === item.ListID && styles.selectedItem,
-            ]}
+            style={[styles.button, !selectedList && styles.buttonDisabled]}
+            onPress={handleConfirmSelection}
+            disabled={!selectedList}
           >
-            <Text style={styles.listItemText}>{item.ListName}</Text>
+            <Text style={styles.buttonText}>Confirm Selection</Text>
           </Pressable>
-        )}
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={loading ? <Text>Loading...</Text> : null}
-        contentContainerStyle={styles.list}
-      />
-      <Button onPress={handleConfirmSelection} disabled={!selectedList} title="Confirm Selection" />
-      <Button onPress={continueWithoutList} title="Continue Without List" />
-    </View>
+          <Pressable style={styles.button} onPress={continueWithoutList}>
+            <Text style={styles.buttonText}>Continue Without List</Text>
+          </Pressable>
+          <Pressable onPress={() => closeModal(null)}>
+            <Text style={styles.closeText}>Close</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
-  title: {
-    fontSize: 20,
-    marginBottom: 16,
-  },
-  list: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-  listItem: {
-    padding: 16,
-    marginVertical: 8,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    width: '100%',
-    alignItems: 'center',
-  },
-  selectedItem: {
-    backgroundColor: '#cce5ff',
-  },
-  listItemText: {
-    fontSize: 16,
-  },
-});
 
 export default SelectListModal;

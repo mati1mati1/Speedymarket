@@ -2,7 +2,6 @@ import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQ
 import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem } from '../models';
 import { decodedToken } from '../utils/authUtils';
 import axiosInstance from '../utils/axiosInstance';
-import Button from '@components/Button';
 export const executeSqlQuery = async <T>(queryObject: Query): Promise<T[]> => {
   try {
     const response = await axiosInstance.post<T[]>('', {
@@ -113,7 +112,6 @@ export const getOrdersByBuyerId = async (token : string): Promise<BuyerOrder[]> 
 };
 
 export const getSupermarkets = async (): Promise<Supermarket[]> => {
-  debugger
   const queryObject = getSupermarketsQuery();
   return await executeSqlQuery<Supermarket>(queryObject);
 };
