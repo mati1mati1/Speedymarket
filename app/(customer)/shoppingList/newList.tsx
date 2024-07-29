@@ -3,13 +3,13 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Image 
 import { Pressable } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { ImagePickerResponse } from 'react-native-image-picker';
-import { uploadGroceryListImage } from '../../../src/api/api';
+import { uploadGroceryListImage,uploadRecipeUrl } from '../../../src/api/api';
 
 const NewListPage: React.FC = () => {
     const [listItems, setListItems] = useState<string[]>([]);
     const [newItem, setNewItem] = useState<string>('');
     const [image, setImage] = useState<{ uri: string } | null>(null);
-
+    const [recipeUrl, setRecipeUrl] =  useState<string>('');
     interface ImageSource {
         uri: string;
     }
@@ -35,7 +35,6 @@ const NewListPage: React.FC = () => {
                 const res = await uploadGroceryListImage(source.uri);
                 // Process the image here
                 console.log('Image uploaded:', res);
-                debugger;
                 //add to the listItems the items from the image
                 if (res.success) {
                     const items = res.list;
@@ -46,6 +45,16 @@ const NewListPage: React.FC = () => {
         });
     };
 
+    const handleRecipe = async () => {
+        console.log('Get grocery ingredients');
+        const res = await uploadRecipeUrl(recipeUrl);
+        if (res.success){
+            console.log(res)
+        }
+
+    }
+
+
     return (
         <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.contentContainer}>
@@ -54,6 +63,17 @@ const NewListPage: React.FC = () => {
                 <TouchableOpacity style={styles.uploadButton} onPress={handleUploadImage}>
                     <Text style={styles.uploadButtonText}>Upload List</Text>
                 </TouchableOpacity>
+                <View>
+                    <TextInput 
+                        style={styles.input}            
+                        placeholder="Enter Recipe URL" 
+                        value={recipeUrl}
+                        onChangeText={setRecipeUrl}
+                        />
+                    <TouchableOpacity style={styles.uploadButton} onPress={handleRecipe}>
+                        <Text style={styles.uploadButtonText}>Get Grocery Ingredients</Text>
+                    </TouchableOpacity>
+                </View>
                 
                 {image && <Image source={image} style={styles.image} />}
                 
@@ -116,8 +136,10 @@ const styles = StyleSheet.create({
         flex: 1,
         borderBottomWidth: 1,
         borderColor: '#ccc',
-        marginRight: 10,
-        paddingVertical: 5,
+        // marginRight: 10,
+        paddingVertical: 10,
+        paddingHorizontal:20,
+        margin: 20
     },
     listContainer: {
         marginTop: 20,

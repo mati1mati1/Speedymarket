@@ -117,11 +117,11 @@ export const getSupermarkets = async (): Promise<Supermarket[]> => {
 };
 
   
-interface ImgResponse {
+interface AIResponse {
   success: boolean;
   list: string[];
 }
-export const uploadGroceryListImage = async (imageFile: string): Promise<ImgResponse> => {
+export const uploadGroceryListImage = async (imageFile: string): Promise<AIResponse> => {
   console.log("this is the image file", imageFile);
   const response = await fetch('https://readimage.azurewebsites.net/api/readImage?', {
     method: 'POST',
@@ -144,4 +144,19 @@ export const uploadGroceryListImage = async (imageFile: string): Promise<ImgResp
       list: JSON.parse(""),
     };
   }
+}
+
+export const uploadRecipeUrl = async (recipeUrl: string): Promise<AIResponse>=>{
+  const response = await fetch("", {
+    method: 'POST',
+    body: recipeUrl
+  });
+  const data = await response.json();
+  if (data){
+    console.log(data);
+  }
+  return {
+    success: false,
+    list: JSON.parse(""),
+  };
 }
