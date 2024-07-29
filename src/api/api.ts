@@ -42,6 +42,7 @@ export const getItemBySupermarketIdAndItemName = async (supermarketId: string, I
   return await executeSqlQuery<ShopInventory>(queryObject);
 };
 
+//this is when the user scans the barcode
 export const getItemBySupermarketIdAndBarcode = async (supermarketId: string, barcode: string): Promise<ShopInventory[]> => {
   const queryObject = getItemBySupermarketIdAndBarcodeQuery(supermarketId, barcode);
   return await executeSqlQuery<ShopInventory>(queryObject);

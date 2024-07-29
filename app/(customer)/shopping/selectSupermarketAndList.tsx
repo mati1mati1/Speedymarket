@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Modal, Pressable } from 'react-native';
-import SelectListModal from '../../../src/components/SelectListModal';
-import SelectSupermarketModal from '../../../src/components/SelectSupermarketModalProps';
-import { router } from 'expo-router';
-import { ShoppingList, Supermarket } from '../../../src/models';
+import SelectListModal from '../../src/components/SelectListModal';
+import SelectSupermarketModal from '../../src/components/SelectSupermarketModalProps';
 
 const StartShoppingScreen = () => {
   const [listModalVisible, setListModalVisible] = useState(false);
@@ -44,6 +42,13 @@ const StartShoppingScreen = () => {
     ); 
     // router.setParams({shopingMap : selectedSupermarket?.SupermarketID, listId : selectedList?.ListID }) 
   };
+
+  const showNewItemDetails = (data: any) => {
+    //show the data in the cart u are now using
+  };
+
+//exmpale of how to use the scanner  
+{/* <ScanItem handleData={showNewItemDetails} supermarketId={"dkjfdfjd"}/> */}
 
   return (
     <View style={styles.container}>
