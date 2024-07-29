@@ -10,11 +10,6 @@ export default function ScanItem({ handleData, supermarketId}) {
   const [hasPermission, setHasPermission] = useState(null);
   const [loading, setLoading] = useState(false); // Loading state
 
-  const url = Platform.select({
-    ios: "http://localhost:7071/api",
-    android: "http://192.168.1.136:7071/api",
-  });
-
   useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -62,10 +57,14 @@ export default function ScanItem({ handleData, supermarketId}) {
         <Button title="Scan Barcode" onPress={() => { setScanned(false); setCameraVisible(true); }} disabled={loading} />
       </View>
       {cameraVisible && !scanned && (
-        <BarCodeScanner
+        <View>
+          <BarCodeScanner
           onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
           style={StyleSheet.absoluteFillObject}
         />
+          <Button title="Back" onPress={() => setCameraVisible(false)} />
+        </View>
+        
       )}
       {loading && (
         <View style={styles.loadingOverlay}>
@@ -78,11 +77,11 @@ export default function ScanItem({ handleData, supermarketId}) {
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 20,
+    // flexGrow: 1,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // backgroundColor: '#fff',
+    // paddingVertical: 20,
   },
   statusText: {
     fontSize: 18,

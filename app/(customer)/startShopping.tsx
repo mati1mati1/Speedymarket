@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Modal, Pressable } from 'react-native';
 import SelectListModal from '../../src/components/SelectListModal';
 import SelectSupermarketModal from '../../src/components/SelectSupermarketModalProps';
+import ScanItem from '../../src/components/Scanner';
 
 const StartShoppingScreen = () => {
   const [listModalVisible, setListModalVisible] = useState(false);
@@ -28,6 +29,13 @@ const StartShoppingScreen = () => {
   const closeSupermarketModal = () => {
     setSupermarketModalVisible(false);
   };
+
+  const showNewItemDetails = (data: any) => {
+    //show the data in the cart u are now using
+  };
+
+//exmpale of how to use the scanner  
+{/* <ScanItem handleData={showNewItemDetails} supermarketId={"dkjfdfjd"}/> */}
 
   return (
     <View style={styles.container}>
