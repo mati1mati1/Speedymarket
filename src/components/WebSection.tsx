@@ -14,7 +14,7 @@ interface SectionProps {
   currentOffset: { x: number; y: number } | null;
 }
 
-const Section: React.FC<SectionProps> = ({ id, name, left, top, rotation, currentOffset }) => {
+const WebSection: React.FC<SectionProps> = ({ id, name, left, top, rotation, currentOffset }) => {
   const [{ isDraggingItem }, drag] = useDrag(() => ({
     type: ItemTypes.SECTION,
     item: { id, type: ItemTypes.SECTION, left, top, rotation },
@@ -50,4 +50,4 @@ const Section: React.FC<SectionProps> = ({ id, name, left, top, rotation, curren
   );
 };
 
-export default Section;
+export default WebSection;

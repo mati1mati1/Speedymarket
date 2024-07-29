@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
-import Section from '../../src/components/Section';
-import Entrance from '../../src/components/Entrance';
+import WebSection from '../../src/components/WebSection';
+import WebEntrance from '../../src/components/WebEntrance';
 import '../../src/styles/MapEditor.css';
 import { getSupermarketByUserId, updateMap } from '../../src/api/api';
 import { useToken } from '../../src/context/TokenContext';
@@ -171,10 +171,10 @@ const ManagerMapEditor: React.FC = () => {
       <div ref={(node) => { if (node) { mapRef.current = node; drop(node); } }} className="map-editor" style={{ position: 'relative', width: `${mapWidth}px`, height: `${mapHeight}px`, border: '1px solid black' }}>
         {sections.map(({ id, name, left, top, rotation, width, height }) => (
           <div key={`section-${id}`} onDoubleClick={() => rotateSection(id)}>
-            <Section id={id} name={name} left={left} top={top} rotation={rotation} currentOffset={currentOffset} />
+            <WebSection id={id} name={name} left={left} top={top} rotation={rotation} currentOffset={currentOffset} />
           </div>
         ))}
-        {entrance && <Entrance left={entrance.left} top={entrance.top} />}
+        {entrance && <WebEntrance left={entrance.left} top={entrance.top} />}
       </div>
       <div className="sidebar">
         <div onClick={() => addSection(0, 0, 0)}>מדף</div>
