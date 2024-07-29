@@ -50,7 +50,7 @@ export default function LoginScreen() {
       // } else {
       const data = await login(username, password);
       console.log("Login response:", data);
-
+      debugger;
       if (data && data.success && data.token) {
         setToken(data.token);
         const decoded: DecodedToken = jwtDecode(data.token);

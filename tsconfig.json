@@ -16,21 +16,25 @@
     "noEmit": true,
     "jsx": "react",
     "baseUrl": ".",
-    "paths": {
-      "@components/*": ["src/components/*"],
-      "@services/*": ["src/services/*"],
-      "@api/*": ["src/api/*"],
-      "@styles/*": ["src/styles/*"]
-    }
+    // "paths": {
+    //   "@components": ["src/components/*"],
+    //   "@styles": ["src/styles/*"],
+    //   "@services": ["src/services/*"],
+    //   "@api": ["src/api/*"],
+    //   "@models": ["src/models/*"]
+    // }
   },
   "include": [
     "src",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "src/App.tsx",
+    "src/components/**/*.tsx",
+    "src/services/**/*.ts",
+    "src/api/**/*.ts",
+    "src/styles/**/*.css",
     "app/(customer)/purchaseHistory.tsx",
     "app/(customer)/shoppingList/shoppingCartList.tsx",
-    "app/(customer)/startShopping/selectSupermarketAndList.tsx",
+    "app/(customer)/shopping/selectSupermarketAndList.tsx",
     "app/(customer)/shoppingList/map-viewer/[customerMapViewer].tsx"
   ],
   "exclude": [

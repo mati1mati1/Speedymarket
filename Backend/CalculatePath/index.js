@@ -155,11 +155,12 @@ function findShortestPath(matrix, entrance) {
             }
         }
     }
-    points.unshift([entrance.top, entrance.left]);
-    const numPoints = points.length;
+    points.unshift([entrance.top, entrance.left]); // Ensure entry point is the first point
 
+    const numPoints = points.length;
     const distances = [];
     const predecessors = [];
+
     for (const point of points) {
         const { distances: dist, predecessors: pred } = bfs(matrix, point);
         distances.push(dist);
@@ -175,14 +176,12 @@ function findShortestPath(matrix, entrance) {
 
     const pathIndices = tspDp(distMatrix, numPoints);
 
-    const keyPointsPath = [];
     let fullPath = [];
     for (let i = 0; i < pathIndices.length - 1; i++) {
         const startIndex = pathIndices[i];
         const endIndex = pathIndices[i + 1];
         const startPoint = points[startIndex];
         const endPoint = points[endIndex];
-
         let current = endPoint;
         const segmentPath = [];
         while (current.toString() !== startPoint.toString()) {
@@ -190,11 +189,30 @@ function findShortestPath(matrix, entrance) {
             current = predecessors[startIndex][`${current[0]},${current[1]}`];
         }
         segmentPath.push(startPoint);
-        fullPath = [...segmentPath.reverse(), ...fullPath];
+        fullPath = [...fullPath, ...segmentPath.reverse()];
     }
 
+    // Ensure the path starts with the entrance
+    if (fullPath[0].toString() !== [entrance.top, entrance.left].toString()) {
+        fullPath.unshift([entrance.top, entrance.left]);
+    }
+
+    // // Find the return path to the entrance
+    // const lastPoint = fullPath[fullPath.length - 1];
+    // const { distances: returnDistances, predecessors: returnPredecessors } = bfs(matrix, lastPoint);
+    // let current = [entrance.top, entrance.left];
+    // const returnPath = [];
+    // while (current.toString() !== lastPoint.toString()) {
+    //     returnPath.push(current);
+    //     current = returnPredecessors[`${current[0]},${current[1]}`];
+    // }
+    // returnPath.push(lastPoint);
+    // fullPath = [...fullPath, ...returnPath.reverse()];
+
+    console.log('Full Path:', fullPath);
+
     // Collect key points where direction changes
-    keyPointsPath.push(fullPath[0]);
+    const keyPointsPath = [fullPath[0]];
     for (let i = 1; i < fullPath.length - 1; i++) {
         if (isDirectionChange(fullPath[i - 1], fullPath[i], fullPath[i + 1])) {
             keyPointsPath.push(fullPath[i]);
@@ -202,10 +220,7 @@ function findShortestPath(matrix, entrance) {
     }
     keyPointsPath.push(fullPath[fullPath.length - 1]);
 
-    if (keyPointsPath[keyPointsPath.length - 1].toString() !== [entrance.top, entrance.left].toString()) {
-        keyPointsPath.push([entrance.top, entrance.left]);
-    }
-
+    // Mark the path on the grid
     fullPath.forEach(([r, c]) => {
         if (matrix[r][c] === 0 || matrix[r][c] === 2) {
             matrix[r][c] = 3; // Using 3 to indicate the path
@@ -230,23 +245,6 @@ function mapToGridPoint(point, mapWidth, mapHeight, gridWidth, gridHeight) {
 module.exports = async function (context, req) {
     const { supermarketId, listId } = req.body;
     const token = req.headers.authorization?.split(' ')[1];
-
-    // if (!token) {
-    //     context.res = {
-    //         status: 401,
-    //         body: "Authorization token is required"
-    //     };
-    //     return;
-    // }
-    // try {
-    //     jwt.verify(token, process.env.JWT_SECRET);
-    // } catch (err) {
-    //     context.res = {
-    //         status: 401,
-    //         body: "Invalid token"
-    //     };
-    //     return;
-    // }
 
     if (!supermarketId || !listId) {
         context.res = {
@@ -279,7 +277,6 @@ module.exports = async function (context, req) {
             const listResult = await listRequest.query(listQuery);
             if (listResult.length === 0) throw new Error('No shopping list data found for given listId');
             shoppingList = listResult.recordset;
-            context.log('Shopping list:', shoppingList);
         } catch (err) {
             throw new Error(`Error fetching shopping list data: ${err.message}`);
         }
@@ -293,33 +290,29 @@ module.exports = async function (context, req) {
         } catch (err) {
             throw new Error(`Error fetching inventory data: ${err.message}`);
         }
-        context.log('Inventory:', inventory);
-        const shelvesToVisit = shoppingList.map(item => {
-        const inventoryItem = inventory.find(inv => inv.ItemName === item.ItemName);
-        if (!inventoryItem) {
-            missingItems.push(item);
-            return null;
-        }
-        itemsWithLocations.push({ ...item, location: inventoryItem.Location });
-        return parseInt(inventoryItem.Location, 10);
-                }).filter(Boolean);
 
-        context.log('Shelves to visit:', shelvesToVisit);
+        const shelvesToVisit = shoppingList.map(item => {
+            const inventoryItem = inventory.find(inv => inv.ItemName === item.ItemName);
+            if (!inventoryItem) {
+                missingItems.push(item);
+                return null;
+            }
+            itemsWithLocations.push({ ...item, location: inventoryItem.Location });
+            return parseInt(inventoryItem.Location, 10);
+        }).filter(Boolean);
 
         const grid = createGrid(branchMap.sections, branchMap.mapWidth, branchMap.mapHeight, shelvesToVisit);
-        context.log('Grid created:');
-        //context.log(grid.map(row => row.join(' ')).join('\n'));
 
         let { keyPointsPath, matrixWithPath } = findShortestPath(grid, branchMap.entrance);
         context.log('Key points path found:', keyPointsPath);
         writeMatrixToFile(matrixWithPath, 'matrix_with_path.txt');
 
         const pathInMapCoordinates = keyPointsPath.map(point => mapToGridPoint(point, branchMap.mapWidth, branchMap.mapHeight, grid[0].length, grid.length));
-        
+        const entry = branchMap.entrance;
         if (keyPointsPath) {
             context.res = {
                 status: 200,
-                body: { map: branchMap, path: pathInMapCoordinates, missingItems, itemsWithLocations }
+                body: { map: branchMap, path: keyPointsPath, missingItems, itemsWithLocations, entry }
             };
         } else {
             context.res = {

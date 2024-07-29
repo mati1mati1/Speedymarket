@@ -1,7 +1,7 @@
-import { getShoppingListsByBuyerId } from '@api/api';
 import React, { useEffect, useState } from 'react';
 import useAuth from 'src/hooks/useAuth';
 import { FlatList, View, Text, Button, StyleSheet, Pressable } from 'react-native';
+import { getShoppingListsByBuyerId } from 'src/api/api';
 
 interface ShoppingList {
   ListID: string;

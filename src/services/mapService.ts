@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ShoppingListItem,ShopInventory } from "src/models";
 
 export interface SectionType {
     id: number;
@@ -14,16 +15,50 @@ export interface SectionType {
     left: number;
     top: number;
   }
-
-  export interface PathData {
-    map: {
-      sections: SectionType[];
-      entrance: EntranceType;
-    };
-    path: number[][];
+  interface Section {
+    id: number;
+    name: string;
+    left: number;
+    top: number;
+    rotation: number;
+    width: number;
+    height: number;
   }
+  
+  interface Entrance {
+    left: number;
+    top: number;
+  }
+  
+  interface MapData {
+    sections: Section[];
+    entrance: Entrance;
+    mapWidth: number;
+    mapHeight: number;
+  }
+  export interface Location{
+    x: number;
+    y: number;
+  }
+  export interface ItemWithLocation  {
+    ListItemID: string;
+    ListID: string;
+    ItemName: string;
+    Quantity: number;
+    location: Location;
+  }
+  
+  interface Data {
+    map: MapData;
+    path: number[][];
+    missingItems: ShoppingListItem[];
+    itemsWithLocations: ItemWithLocation[];
+    entry: Entrance;
+  }
+  
+  
 
-  export const loadMapAndPath = async (supermarketId: string, listId: string): Promise<PathData> => {
+  export const loadMapAndPath = async (supermarketId: string, listId: string): Promise<Data> => {
     const token = await AsyncStorage.getItem('token'); 
     const response = await fetch('http://localhost:7071/api/calculatePath', {
       method: 'POST',

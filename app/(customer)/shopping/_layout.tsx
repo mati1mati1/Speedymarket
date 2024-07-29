@@ -10,10 +10,9 @@ function ShoppingListLayout() {
         options={{ headerShown: false }} 
       />
       <Stack.Screen 
-        name="customerMapViewer" 
+        name="Shopping Map" 
         options={{ 
           headerShown: true, 
-          headerBackTitleVisible: false, 
           headerTitle: 'Shopping Map'
         }} 
       />

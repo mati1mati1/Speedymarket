@@ -39,7 +39,7 @@ const StartShoppingScreen = () => {
     setSelectedSupermarket(selectedSupermarket);
     debugger
     router.push({
-      pathname: '/startShopping/shopingMap',
+      pathname: '/shopping/shoppingMap',
       params: { supermarketId : selectedSupermarket?.SupermarketID, listId : selectedList?.ListID }}
     ); 
     // router.setParams({shopingMap : selectedSupermarket?.SupermarketID, listId : selectedList?.ListID }) 

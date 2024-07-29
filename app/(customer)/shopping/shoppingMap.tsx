@@ -8,9 +8,14 @@ import { PermissionsAndroid, Platform, Pressable } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { fetchCurrentLocation } from '../../../src/services/locationService';
 import { connectToWifi } from '../../../src/services/wifiService';
-import { EntranceType, loadMapAndPath, SectionType } from '../../../src/services/mapService';
+import { EntranceType, loadMapAndPath, SectionType, ItemWithLocation } from '../../../src/services/mapService';
 import { getSupermarketBySupermarketID } from '../../../src/api/api';
-
+import { ShopInventory, ShoppingListItem } from '../../../src/models';
+import MissingItemsModal from '../../../src/components/MissingItemsModal';
+import FoundItemsModal from '../../../src/components/FoundItemsModal';
+import Payments from '../../../src/components/Payments';
+import ShoppingCart from '../../../src/components/ShoppingCart';
+import '../../../src/styles/MapEditor.css'; // Import CSS file for styling
 
 const CustomerMapViewer: React.FC = () => {
   const { supermarketId, listId } = useLocalSearchParams<{ supermarketId: string; listId?: string }>();
@@ -19,6 +24,15 @@ const CustomerMapViewer: React.FC = () => {
   const [path, setPath] = useState<number[][]>([]);
   const [currentOffset, setCurrentOffset] = useState<{ x: number; y: number } | null>(null);
   const [userLocation, setUserLocation] = useState<{ x: number; y: number } | null>(null);
+  const [itemFoundList, setItemFoundList] = useState<ItemWithLocation[]>([]);
+  const [missingItemList, setItemMissingList] = useState<ShoppingListItem[]>([]);
+  const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
+  const [shoppingCart, setShoppingCart] = useState<ShopInventory[]>([]);
+  const [isFoundItemsModalOpen, setIsFoundItemsModalOpen] = useState(false);
+  const [isMissingItemsModalOpen, setIsMissingItemsModalOpen] = useState(false);
+  const [isShoppingCartOpen, setIsShoppingCartOpen] = useState(false);
+  const [isPaymentState, setIsPaymentState] = useState(false);
+
   const mapRef = useRef<HTMLDivElement>(null);
   const mapWidth = 800;
   const mapHeight = 600;
@@ -32,6 +46,13 @@ const CustomerMapViewer: React.FC = () => {
         setSections(data.map.sections || []);
         setEntrance(data.map.entrance || null);
         setPath(data.path || []);
+        setItemFoundList(data.itemsWithLocations || []);
+        setItemMissingList(data.missingItems || []);
+        const initialCheckedItems = data.itemsWithLocations.reduce((acc: { [key: string]: boolean }, item: ItemWithLocation) => {
+          acc[item.ListItemID] = false;
+          return acc;
+        }, {});
+        setCheckedItems(initialCheckedItems);
       } catch (error: any) {
         alert(error.message);
       }
@@ -62,7 +83,7 @@ const CustomerMapViewer: React.FC = () => {
   const handleLoadMapAndPath = async () => {
     try {
       const supermarket = await getSupermarketBySupermarketID(supermarketId || '');
-      const ssid = supermarket[0]?.WiFiSSID || ''; 
+      const ssid = supermarket[0]?.WiFiSSID || '';
       const password = supermarket[0]?.WiFiPassword || '';
       if(Platform.OS !== 'web'){
         await connectToWifi(ssid, password);
@@ -72,6 +93,33 @@ const CustomerMapViewer: React.FC = () => {
       alert(error.message);
     }
   };
+
+  const handleCheckboxChange = (itemId: string) => {
+    setCheckedItems(prevCheckedItems => ({
+      ...prevCheckedItems,
+      [itemId]: !prevCheckedItems[itemId]
+    }));
+  };
+
+  const handleAddToCart = (item: ItemWithLocation) => {
+    setShoppingCart(prevCart => [...prevCart, item]);
+  };
+
+  const toggleFoundItemsModal = () => {
+    setIsFoundItemsModalOpen(!isFoundItemsModalOpen);
+  };
+
+  const toggleMissingItemsModal = () => {
+    setIsMissingItemsModalOpen(!isMissingItemsModalOpen);
+  };
+
+  const toggleShoppingCart = () => {
+    setIsShoppingCartOpen(!isShoppingCartOpen);
+  };
+  const togglePayment = () => {
+    setIsPaymentState(!isPaymentState);
+  };
+
 
   const drawPath = () => (
     <svg style={{ position: 'absolute', top: 0, left: 0, width: mapWidth, height: mapHeight }}>
@@ -124,7 +172,14 @@ const CustomerMapViewer: React.FC = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div>
+      <div className="viewer-container">
+        <div className="button-container">
+          <button className="action-button" onClick={toggleFoundItemsModal}>Show Found Items</button>
+          <button className="action-button" onClick={toggleMissingItemsModal}>Show Missing Items</button>
+          <button className="action-button" onClick={toggleShoppingCart}>Show Shopping Cart</button>
+          <button className="action-button" onClick={togglePayment}>Pay now</button>
+
+        </div>
         <div ref={mapRef} className="map-editor" style={{ position: 'relative', width: `${mapWidth}px`, height: `${mapHeight}px`, border: '1px solid black' }}>
           {sections.map(({ id, name, left, top, rotation, width, height }) => (
             <Section
@@ -143,6 +198,52 @@ const CustomerMapViewer: React.FC = () => {
           {drawPath()}
           {drawUserLocation()}
         </div>
+        <div className="button-container">
+          <button  className="action-button" onClick={handleLoadMapAndPath}>Scan Barcode</button>
+        </div>
+        {isFoundItemsModalOpen && (
+          <div className="modal-overlay" onClick={toggleFoundItemsModal}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <FoundItemsModal
+                isOpen={isFoundItemsModalOpen}
+                onRequestClose={toggleFoundItemsModal}
+                items={itemFoundList}
+                checkedItems={checkedItems}
+                onCheckboxChange={handleCheckboxChange}
+              />
+            </div>
+          </div>
+        )}
+
+        {isMissingItemsModalOpen && (
+          <div className="modal-overlay" onClick={toggleMissingItemsModal}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <MissingItemsModal
+                isOpen={isMissingItemsModalOpen}
+                onRequestClose={toggleMissingItemsModal}
+                items={missingItemList}
+                shoppingCart={shoppingCart}
+              />
+            </div>
+          </div>
+        )}
+
+        {isShoppingCartOpen && (
+          <div className="modal-overlay" onClick={toggleShoppingCart}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <ShoppingCart isOpen={isShoppingCartOpen} onRequestClose={toggleShoppingCart} itemInCard={shoppingCart} />
+            </div>
+          </div>
+        )}
+
+        {isPaymentState && (
+          <div className="modal-overlay" onClick={toggleShoppingCart}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <Payments items={shoppingCart} />
+            </div>
+          </div>
+        )}
+
       </div>
     </DndProvider>
   );
