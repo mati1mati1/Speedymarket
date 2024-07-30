@@ -1,4 +1,4 @@
-import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNameQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery, getShoppingListItemsByListIdQuery, updateShoppingListItemsQuery, createShoppingListQuery, changeShoppingListQuery, addShopInventoryQuery, updateShopInventoryQuery } from '../queries';
+import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNameQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery, getShoppingListItemsByListIdQuery, updateShoppingListItemsQuery, createShoppingListQuery, changeShoppingListQuery, addShopInventoryQuery, updateShopInventoryQuery, getSupermarketBybarcodeQuery } from '../queries';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem } from '../models';
 import { decodedToken } from '../utils/authUtils';
 import axiosInstance from '../utils/axiosInstance';
@@ -68,6 +68,10 @@ export const getSupermarketByUserId = async (token : string ): Promise<Supermark
 };
 export const getSupermarketBySupermarketID = async (supermarketID : string ): Promise<Supermarket[]> => {
   const queryObject = getSupermarketByUserIdQuery(supermarketID);
+  return await executeSqlQuery<Supermarket>(queryObject);
+};
+export const getSupermarketByBarcode = async (barcode : string ): Promise<Supermarket[]> => {
+  const queryObject = getSupermarketBybarcodeQuery(barcode);
   return await executeSqlQuery<Supermarket>(queryObject);
 };
 

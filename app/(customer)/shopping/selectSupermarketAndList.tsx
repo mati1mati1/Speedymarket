@@ -14,13 +14,9 @@ const StartShoppingScreen = () => {
   const [selectedSupermarket, setSelectedSupermarket] = useState<Supermarket | null>(null);
   const [isListLoading, setIsListLoading] = useState(false);
   const [isSupermarketLoading, setIsSupermarketLoading] = useState(false);
-  const [isScannedDataOpen, setScannedDataModalOpen] = useState(false);
 
   const handleSelectList = () => {
     setListModalVisible(true);
-  };
-  const toggleIsScannedDataOpen = () => {
-    setScannedDataModalOpen(!isScannedDataOpen);
   };
   const handleSelectSupermarket = () => {
     setSupermarketModalVisible(true);
@@ -61,9 +57,6 @@ const StartShoppingScreen = () => {
       <Pressable style={styles.button} onPress={startShopping}>
         <Text style={styles.buttonText}>Start shopping</Text>
       </Pressable>
-      {/* <Pressable style={styles.button} onPress={toggleIsScannedDataOpen}>
-              <Text style={styles.buttonText}>Scann item</Text>
-      </Pressable> */}
 
     
       <Modal
@@ -86,13 +79,7 @@ const StartShoppingScreen = () => {
           </View>
         </View>
       </Modal>
-      {/* <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
-          <TouchableOpacity style={styles.modalContainer} onPress={toggleIsScannedDataOpen}>
-            <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
-              <ScanItem  />
-            </View>
-          </TouchableOpacity>
-        </Modal> */}
+
       <Modal
         animationType="slide"
         transparent={true}

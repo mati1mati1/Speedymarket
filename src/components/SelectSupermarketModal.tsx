@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Modal, Pressable, ActivityIndicator } from 'react-native';
-import { getSupermarkets } from 'src/api/api';
+import { View, Text, FlatList, StyleSheet, Modal, Pressable, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { getSupermarketByBarcode, getSupermarkets } from 'src/api/api';
 import { Supermarket } from 'src/models';
+import ScanItem from './Scanner';
 
 interface SelectSupermarketModalProps {
   closeModal: (selectedSupermarket: Supermarket | null) => void;
@@ -13,6 +14,7 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
   const [supermarkets, setSupermarkets] = useState<Supermarket[]>([]);
   const [selectedSupermarket, setSelectedSupermarket] = useState<Supermarket | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
+  const [isScannedDataOpen, setScannedDataModalOpen] = useState(false);
 
   const fetchSupermarkets = async () => {
     setIsLoading(true);
@@ -37,6 +39,22 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
 
   const handleSelectSupermarket = (supermarket: Supermarket) => {
     setSelectedSupermarket(supermarket);
+  };
+
+  const handleScannedBarcode = async (data: string) => {
+    try{
+      let response = await getSupermarketByBarcode(data);
+      if(response.length > 0){
+        setSelectedSupermarket(response[0]);
+        setScannedDataModalOpen(false);
+      }
+    }
+    catch(error){
+      console.log(error);
+    }
+  }
+  const toggleIsScannedDataOpen = () => {
+    setScannedDataModalOpen(!isScannedDataOpen);
   };
 
   const handleConfirmSelection = () => {
@@ -66,12 +84,22 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
               )}
             />
           )}
+          <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
+          <TouchableOpacity style={styles.modalContainer} onPress={toggleIsScannedDataOpen}>
+            <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+              <ScanItem handleData={handleScannedBarcode}  />
+            </View>
+          </TouchableOpacity>
+        </Modal>
           <Pressable
             style={[styles.button, !selectedSupermarket && styles.buttonDisabled]}
             onPress={handleConfirmSelection}
             disabled={!selectedSupermarket}
           >
             <Text style={styles.buttonText}>Select Supermarket</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={toggleIsScannedDataOpen}>
+              <Text style={styles.buttonText}>Scann </Text>
           </Pressable>
           <Pressable onPress={() => closeModal(null)}>
             <Text style={styles.closeText}>Close</Text>
@@ -129,6 +157,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   closeText: {
     color: 'red',

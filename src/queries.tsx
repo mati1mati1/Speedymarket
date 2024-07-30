@@ -69,6 +69,16 @@ export const getSupermarketByUserIdQuery = (userId: string): Query => ({
     { name: 'userId', type: 'UniqueIdentifier', value: userId }
   ]
 });
+export const getSupermarketBybarcodeQuery = (barcode: string): Query => ({
+  query: `
+    SELECT sm.*
+    FROM Supermarket sm
+    WHERE sm.Barcode = @barcode
+  `,
+  params: [
+    { name: 'barcode', type: 'NVarChar', value: barcode }
+  ]
+});
 
 export const getShoppingListsByBuyerIdQuery = (buyerId: string): Query => ({
   query: 'SELECT * FROM ShoppingList WHERE BuyerID = @buyerId',
