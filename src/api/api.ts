@@ -1,4 +1,4 @@
-import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNameQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, addOrUpdateShoppingListByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery, getShoppingListItemsByListIdQuery } from '../queries';
+import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNameQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery, getShoppingListItemsByListIdQuery, updateShoppingListItemsQuery, createShoppingListQuery, changeShoppingListQuery, addShopInventoryQuery, updateShopInventoryQuery } from '../queries';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem } from '../models';
 import { decodedToken } from '../utils/authUtils';
 import axiosInstance from '../utils/axiosInstance';
@@ -93,15 +93,10 @@ export const getShopInventory = async (token : string ): Promise<ShopInventory[]
   return await executeSqlQuery<ShopInventory>(queryObject);
 };
 
-export const addOrUpdateShoppingListByBuyerId = async (listId: string, items: string,token : string): Promise<void> => {
-  const userId = decodedToken(token)?.userId
-  if (!userId) {
-    throw new Error('User ID not found in token');
-  }
-  const queryObject = addOrUpdateShoppingListByBuyerIdQuery(listId, userId, items);
+export const updateShoppingListItems = async (listId: string, items: ShoppingListItem []): Promise<void> => {
+  const queryObject = updateShoppingListItemsQuery(listId, items);
   await executeSqlQuery<void>(queryObject);
 };
-
 export const getOrdersByBuyerId = async (token : string): Promise<BuyerOrder[]> => {
   const userId = decodedToken(token)?.userId
   if (!userId) {
@@ -114,4 +109,27 @@ export const getOrdersByBuyerId = async (token : string): Promise<BuyerOrder[]> 
 export const getSupermarkets = async (): Promise<Supermarket[]> => {
   const queryObject = getSupermarketsQuery();
   return await executeSqlQuery<Supermarket>(queryObject);
+};
+export const createShoppingList = async (listName: string,token : string): Promise<ShoppingList[]> => {
+  const userId = decodedToken(token)?.userId
+  if (!userId) {
+    throw new Error('User ID not found in token');
+  }
+  const queryObject = createShoppingListQuery(listName,userId);
+  return await executeSqlQuery<ShoppingList>(queryObject);
+};
+export const changeShoppingListName = async (listName: string,listId : string): Promise<ShoppingList[]> => {
+  const queryObject = changeShoppingListQuery(listName, listId);
+  return await executeSqlQuery<ShoppingList>(queryObject);
+};
+
+export const addShopInventory = async (shopInventory: ShopInventory): Promise<string> => {
+  const queryObject = addShopInventoryQuery(shopInventory);
+  const result = await executeSqlQuery<{ InventoryID: string }>(queryObject);
+  return result[0].InventoryID;
+};
+
+export const updateShopInventory = async (shopInventory: ShopInventory): Promise<void> => {
+  const queryObject = updateShopInventoryQuery(shopInventory);
+  await executeSqlQuery<void>(queryObject);
 };

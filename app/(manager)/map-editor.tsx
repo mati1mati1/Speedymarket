@@ -19,6 +19,7 @@ const ManagerMapEditor: React.FC = () => {
   const [currentOffset, setCurrentOffset] = useState<{ x: number; y: number } | null>(null);
   const [supermarket, setSupermarket] = useState<any | null>(null);
   const [isDataFetched, setIsDataFetched] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // New loading state
   const mapRef = useRef<HTMLDivElement | null>(null);
   const token = useAuth();
   const mapWidth = 800;
@@ -27,7 +28,7 @@ const ManagerMapEditor: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const fetchedSupermarket = await getSupermarketByUserId(token)[0];
+        const fetchedSupermarket = (await getSupermarketByUserId(token))[0];
         if (fetchedSupermarket) {
           setSupermarket(fetchedSupermarket);
           const branchMap = JSON.parse(fetchedSupermarket.BranchMap);
@@ -38,6 +39,8 @@ const ManagerMapEditor: React.FC = () => {
         setIsDataFetched(true);
       } catch (error) {
         console.error('Failed to fetch data:', error);
+      } finally {
+        setIsLoading(false); // Set loading to false after data is fetched
       }
     };
 
@@ -165,18 +168,22 @@ const ManagerMapEditor: React.FC = () => {
     await updateMap(supermarket.SupermarketID, JSON.stringify(mapData));
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>; // Loading indicator
+  }
+
   return (
     <div>
-      <button onClick={saveMapToDB}>שמור מפה</button>
       <div ref={(node) => { if (node) { mapRef.current = node; drop(node); } }} className="map-editor" style={{ position: 'relative', width: `${mapWidth}px`, height: `${mapHeight}px`, border: '1px solid black' }}>
-        {sections.map(({ id, name, left, top, rotation, width, height }) => (
+        {sections.map(({ id, left, top, rotation, width, height }) => (
           <div key={`section-${id}`} onDoubleClick={() => rotateSection(id)}>
-            <WebSection id={id} name={name} left={left} top={top} rotation={rotation} currentOffset={currentOffset} />
+            <WebSection id={id} left={left} top={top} rotation={rotation} currentOffset={currentOffset} />
           </div>
         ))}
         {entrance && <WebEntrance left={entrance.left} top={entrance.top} />}
       </div>
       <div className="sidebar">
+        <button  onClick={saveMapToDB}>שמור מפה</button>
         <div onClick={() => addSection(0, 0, 0)}>מדף</div>
         <div onClick={() => !entrance && setEntrance({ left: 0, top: 0 })}>כניסה</div>
       </div>

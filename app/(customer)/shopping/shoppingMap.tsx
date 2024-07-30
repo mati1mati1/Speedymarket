@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Modal, TouchableOpacity, Text, Platform, ScrollView } from 'react-native';
+import { View, StyleSheet, Modal, TouchableOpacity, Text, Platform, ScrollView, Animated, Alert } from 'react-native';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import WebSection from '../../../src/components/WebSection';
 import WebEntrance from '../../../src/components/WebEntrance';
 import NativeSection from '../../../src/components/NativeSection';
 import NativeEntrance from '../../../src/components/NativeEntrance';
-import Svg, { Line, Defs, Marker, Path } from 'react-native-svg';
+import Svg, { Line, Defs, Marker, Path, Circle } from 'react-native-svg';
 import { useLocalSearchParams } from 'expo-router';
 import { fetchCurrentLocation } from '../../../src/services/locationService';
 import { connectToWifi } from '../../../src/services/wifiService';
 import { EntranceType, loadMapAndPath, SectionType, ItemWithLocation } from '../../../src/services/mapService';
-import { getSupermarketBySupermarketID } from '../../../src/api/api';
+import { getItemBySupermarketIdAndBarcode, getSupermarketBySupermarketID } from '../../../src/api/api';
 import { ShopInventory, ShoppingListItem } from '../../../src/models';
 import MissingItemsModal from '../../../src/components/MissingItemsModal';
 import FoundItemsModal from '../../../src/components/FoundItemsModal';
 import Payments from '../../../src/components/Payments';
 import ShoppingCart from '../../../src/components/ShoppingCart';
 import ScanItem from '../../../src/components/Scanner';
+import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
+import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import QuantityModal from '../../../src/components/QuantityModal'; // Import the QuantityModal component
 
 const Entrance = Platform.OS === 'web' ? WebEntrance : NativeEntrance;
 const Section = Platform.OS === 'web' ? WebSection : NativeSection;
@@ -39,9 +42,13 @@ const CustomerMapViewer: React.FC = () => {
   const [isShoppingCartOpen, setIsShoppingCartOpen] = useState(false);
   const [isPaymentState, setIsPaymentState] = useState(false);
   const [scannedData, setScannedData] = useState<any>(null);
+  const [menuCollapsed, setMenuCollapsed] = useState(true);
+  const [zoomLevel, setZoomLevel] = useState(new Animated.Value(1));
+  const [isQuantityModalVisible, setIsQuantityModalVisible] = useState(false); // State for QuantityModal visibility
+  const [selectedItem, setSelectedItem] = useState<ShopInventory | null>(null); // State for selected item
 
-  const mapWidth = 1200; // Adjust the width as necessary
-  const mapHeight = 900; // Adjust the height as necessary
+  const mapWidth = 800;
+  const mapHeight = 600;
 
   useEffect(() => {
     const fetchMapAndPath = async () => {
@@ -65,25 +72,6 @@ const CustomerMapViewer: React.FC = () => {
     fetchMapAndPath();
   }, [supermarketId, listId]);
 
-  useEffect(() => {
-    const updateLocation = async () => {
-      try {
-        if (Platform.OS === 'web') {
-          return;
-        }
-        const location = await fetchCurrentLocation(supermarketId || '');
-        if(location){
-          setUserLocation(location);
-        }
-      } catch (error: any) {
-        console.error('Error fetching location:', error);
-      }
-    };
-
-    const interval = setInterval(updateLocation, 5000); // Update every 5 seconds
-    return () => clearInterval(interval); // Cleanup interval on component unmount
-  }, [supermarketId]);
-
   const handleLoadMapAndPath = async () => {
     try {
       const supermarket = await getSupermarketBySupermarketID(supermarketId || '');
@@ -99,14 +87,34 @@ const CustomerMapViewer: React.FC = () => {
   };
 
   const handleCheckboxChange = (itemId: string) => {
-    setCheckedItems(prevCheckedItems => ({
+    setCheckedItems((prevCheckedItems) => ({
       ...prevCheckedItems,
-      [itemId]: !prevCheckedItems[itemId]
+      [itemId]: !prevCheckedItems[itemId],
     }));
   };
 
-  const handleAddToCart = (item: ShopInventory) => {
-    setShoppingCart(prevCart => [...prevCart, item]);
+  const handleScannedData = async (data: string) => {
+    setScannedData(data);
+    try {
+      const item: ShopInventory[] = await getItemBySupermarketIdAndBarcode(supermarketId || '', data);
+      if (item.length > 0) {
+        setSelectedItem(item[0]); // Set the selected item
+        setIsQuantityModalVisible(true); // Show the QuantityModal
+      } else {
+        Alert.alert('Item Not Found', 'The scanned item was not found in the database.', [{ text: 'OK' }]);
+      }
+    } catch (error) {
+      console.error('Error fetching item:', error);
+      Alert.alert('Error', 'There was an error fetching the item. Please try again.', [{ text: 'OK' }]);
+    }
+  };
+
+  const handleAddToCart = (quantity: number) => {
+    if (selectedItem) {
+      const itemWithQuantity = { ...selectedItem, quantity };
+      setShoppingCart((prevCart) => [...prevCart, itemWithQuantity]);
+      setIsQuantityModalVisible(false);
+    }
   };
 
   const toggleFoundItemsModal = () => {
@@ -127,6 +135,10 @@ const CustomerMapViewer: React.FC = () => {
 
   const togglePayment = () => {
     setIsPaymentState(!isPaymentState);
+  };
+
+  const toggleMenu = () => {
+    setMenuCollapsed(!menuCollapsed);
   };
 
   const drawPath = () => (
@@ -178,27 +190,49 @@ const CustomerMapViewer: React.FC = () => {
     )
   );
 
+  const drawItemLocations = () => (
+    <Svg style={{ position: 'absolute', top: 0, left: 0, width: mapWidth, height: mapHeight }}>
+      {itemFoundList.map((item, index) => (
+        <Circle
+          key={index}
+          cx={item.location.x}
+          cy={item.location.y}
+          r={5}
+          fill="green"
+        />
+      ))}
+    </Svg>
+  );
+
   return (
     <DndProvider backend={HTML5Backend}>
       <View style={styles.viewerContainer}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.actionButton} onPress={toggleFoundItemsModal}>
-            <Text style={styles.actionButtonText}>Show Found Items</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={toggleMissingItemsModal}>
-            <Text style={styles.actionButtonText}>Show Missing Items</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={toggleShoppingCart}>
-            <Text style={styles.actionButtonText}>Show Shopping Cart</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={togglePayment}>
-            <Text style={styles.actionButtonText}>Pay now</Text>
-          </TouchableOpacity>
-        </View>
-        <ScrollView horizontal style={{ width: '100%' }}>
-          <ScrollView style={{ height: '100%' }}>
-            <View style={[styles.mapEditor, { width: mapWidth, height: mapHeight }]}>
-              {sections.map(({ id, name, left, top, rotation }) => (
+        <TouchableOpacity style={styles.menuToggle} onPress={toggleMenu}>
+          <Text style={styles.menuToggleText}>{menuCollapsed ? 'Show Menu' : 'Hide Menu'}</Text>
+        </TouchableOpacity>
+        {!menuCollapsed && (
+          <View style={styles.collapsedMenu}>
+            <TouchableOpacity style={styles.actionButton} onPress={toggleFoundItemsModal}>
+              <Text style={styles.actionButtonText}>Show Found Items</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton} onPress={toggleMissingItemsModal}>
+              <Text style={styles.actionButtonText}>Show Missing Items</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton} onPress={toggleShoppingCart}>
+              <Text style={styles.actionButtonText}>Show Shopping Cart</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton} onPress={togglePayment}>
+              <Text style={styles.actionButtonText}>Pay now</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton} onPress={toggleIsScannedDataOpen}>
+              <Text style={styles.actionButtonText}>Scan Item</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        <ScrollView horizontal={true}>
+          <ScrollView>
+            <Animated.View style={[styles.mapEditor, { transform: [{ scale: zoomLevel }], width: mapWidth, height: mapHeight }]}>
+              {sections.map(({ id, name, left, top, rotation, width, height }) => (
                 <Section
                   key={id}
                   id={id}
@@ -209,30 +243,23 @@ const CustomerMapViewer: React.FC = () => {
                   currentOffset={currentOffset}
                 />
               ))}
-              {entrance && <Entrance left={entrance.left} top={entrance.top} />}
+              {entrance && <Entrance {...entrance} />}
               {drawPath()}
               {drawUserLocation()}
-            </View>
+              {drawItemLocations()}
+            </Animated.View>
           </ScrollView>
         </ScrollView>
 
-        <Modal
-          visible={isScannedDataOpen}
-          transparent={true}
-          onRequestClose={toggleIsScannedDataOpen}
-        >
+        <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
           <TouchableOpacity style={styles.modalOverlay} onPress={toggleIsScannedDataOpen}>
             <View style={styles.modal} onStartShouldSetResponder={() => true}>
-              <ScanItem handleData={handleAddToCart} supermarketId={supermarketId || ''} />
+              <ScanItem handleData={handleScannedData}/>
             </View>
           </TouchableOpacity>
         </Modal>
 
-        <Modal
-          visible={isFoundItemsModalOpen}
-          transparent={true}
-          onRequestClose={toggleFoundItemsModal}
-        >
+        <Modal visible={isFoundItemsModalOpen} transparent={true} onRequestClose={toggleFoundItemsModal}>
           <TouchableOpacity style={styles.modalOverlay} onPress={toggleFoundItemsModal}>
             <View style={styles.modal} onStartShouldSetResponder={() => true}>
               <FoundItemsModal
@@ -246,11 +273,7 @@ const CustomerMapViewer: React.FC = () => {
           </TouchableOpacity>
         </Modal>
 
-        <Modal
-          visible={isMissingItemsModalOpen}
-          transparent={true}
-          onRequestClose={toggleMissingItemsModal}
-        >
+        <Modal visible={isMissingItemsModalOpen} transparent={true} onRequestClose={toggleMissingItemsModal}>
           <TouchableOpacity style={styles.modalOverlay} onPress={toggleMissingItemsModal}>
             <View style={styles.modal} onStartShouldSetResponder={() => true}>
               <MissingItemsModal
@@ -263,142 +286,87 @@ const CustomerMapViewer: React.FC = () => {
           </TouchableOpacity>
         </Modal>
 
-        <Modal
-          visible={isShoppingCartOpen}
-          transparent={true}
-          onRequestClose={toggleShoppingCart}
-        >
+        <Modal visible={isShoppingCartOpen} transparent={true} onRequestClose={toggleShoppingCart}>
           <TouchableOpacity style={styles.modalOverlay} onPress={toggleShoppingCart}>
             <View style={styles.modal} onStartShouldSetResponder={() => true}>
-              <ShoppingCart
-                isOpen={isShoppingCartOpen}
-                onRequestClose={toggleShoppingCart}
-                itemInCard={shoppingCart}
-              />
+              <ShoppingCart isOpen={isShoppingCartOpen} onRequestClose={toggleShoppingCart} itemInCard={shoppingCart} />
             </View>
           </TouchableOpacity>
         </Modal>
 
-        <Modal
-          visible={isPaymentState}
-          transparent={true}
-          onRequestClose={toggleShoppingCart}
-        >
+        <Modal visible={isPaymentState} transparent={true} onRequestClose={toggleShoppingCart}>
           <TouchableOpacity style={styles.modalOverlay} onPress={toggleShoppingCart}>
             <View style={styles.modal} onStartShouldSetResponder={() => true}>
               <Payments items={shoppingCart} />
             </View>
           </TouchableOpacity>
         </Modal>
-
+        
+        <QuantityModal
+          visible={isQuantityModalVisible}
+          onClose={() => setIsQuantityModalVisible(false)}
+          onAddToCart={handleAddToCart}
+        />
       </View>
     </DndProvider>
   );
 };
 
+export default CustomerMapViewer;
 
 const styles = StyleSheet.create({
   viewerContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   mapEditor: {
-    width: 800,
-    height: 600,
+    borderWidth: 1,
     borderColor: 'black',
-    borderWidth: 1,
-    position: 'relative',
-    marginVertical: 20,
-    marginHorizontal: 'auto',
-    backgroundColor: '#f0f0f0',
   },
-  sidebar: {
+  menuToggle: {
     position: 'absolute',
-    left: 0,
-    top: 0,
-    padding: 20,
-    backgroundColor: '#ddd',
-    height: '100%',
+    top: 10,
+    left: 10,
+    zIndex: 10,
+    padding: 10,
+    backgroundColor: 'blue',
+    borderRadius: 5,
   },
-  section: {
-    width: 100,
-    height: 50,
-    backgroundColor: '#007bff',
+  menuToggleText: {
     color: 'white',
-    textAlign: 'center',
-    lineHeight: 50, // Not supported in React Native, needs an alternative
-    borderColor: '#0056b3',
-    borderWidth: 1,
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
+    fontWeight: 'bold',
   },
-  arrow: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 10,
-    borderLeftColor: 'transparent',
-    borderRightWidth: 10,
-    borderRightColor: 'transparent',
-    borderTopWidth: 10,
-    borderTopColor: 'white',
+  collapsedMenu: {
     position: 'absolute',
-    top: -10,
-    left: 45,
-  },
-  entrance: {
-    width: 100,
-    height: 50,
-    backgroundColor: 'green',
-    color: 'white',
-    textAlign: 'center',
-    lineHeight: 50, // Not supported in React Native, needs an alternative
-    borderColor: '#004d00',
-    borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  aisle: {
-    backgroundColor: 'yellow',
-    borderColor: '#cccc00',
-    borderWidth: 1,
-    position: 'absolute',
-    cursor: 'pointer', // Not supported in React Native, use onPress for functionality
-  },
-  modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'flex-start', // Aligns modals at the top
-    paddingTop: 20, // Adds some padding from the top
-  },
-  modal: {
+    top: 50,
+    left: 10,
+    zIndex: 10,
     backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    maxWidth: '90%',
-    maxHeight: '90%',
-    overflow: 'hidden', // overflow-y is not supported, use ScrollView if needed
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 10, // Not directly supported in React Native, use margin or padding
-    marginBottom: 20,
+    borderRadius: 5,
+    padding: 10,
   },
   actionButton: {
-    backgroundColor: '#007bff',
+    marginVertical: 5,
     padding: 10,
+    backgroundColor: 'blue',
     borderRadius: 5,
+    alignItems: 'center',
   },
   actionButtonText: {
     color: 'white',
     fontSize: 16,
   },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modal: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+  },
 });
-
-export default CustomerMapViewer;

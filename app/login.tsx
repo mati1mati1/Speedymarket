@@ -22,12 +22,8 @@ export default function LoginScreen() {
   useEffect(() => {
     if (token) {
       const role = decodedToken(token)?.role;
-      if (role === 'manager') {
-        if (Platform.OS !== 'web') {
-          router.replace('/error');
-        } else {
+      if (role === 'Seller') {
           router.replace('/(manager)/inventory');
-        }
       } else {
         router.replace('/(customer)/purchaseHistory');
       }
@@ -53,16 +49,15 @@ export default function LoginScreen() {
       if (data && data.success && data.token) {
         setToken(data.token);
         const decoded: DecodedToken = jwtDecode(data.token);
-        if (decoded.role === 'manager') {
-          if (Platform.OS !== 'web') {
-            router.replace('/error');
-          } else {
+        console.log("rolle:", decoded.role);
+        if (decoded.role === 'Seller') {
             router.replace('/(manager)/inventory');
           }
-        } else {
+        else {
           router.replace('/(customer)/purchaseHistory');
         }
-      } else {
+      }
+       else {
         Alert.alert('Login failed', 'Please check your username and password.');
       }
     } catch (error) {

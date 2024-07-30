@@ -1,8 +1,10 @@
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Modal, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Modal, Pressable, TouchableOpacity } from 'react-native';
+import ScanItem from 'src/components/Scanner';
 import SelectListModal from 'src/components/SelectListModal';
-import SelectSupermarketModal from 'src/components/SelectSupermarketModalProps';
+import SelectSupermarketModal from 'src/components/SelectSupermarketModal';
+import ShoppingCart from 'src/components/ShoppingCart';
 import { ShoppingList, Supermarket } from 'src/models';
 
 const StartShoppingScreen = () => {
@@ -12,11 +14,14 @@ const StartShoppingScreen = () => {
   const [selectedSupermarket, setSelectedSupermarket] = useState<Supermarket | null>(null);
   const [isListLoading, setIsListLoading] = useState(false);
   const [isSupermarketLoading, setIsSupermarketLoading] = useState(false);
+  const [isScannedDataOpen, setScannedDataModalOpen] = useState(false);
 
   const handleSelectList = () => {
     setListModalVisible(true);
   };
-
+  const toggleIsScannedDataOpen = () => {
+    setScannedDataModalOpen(!isScannedDataOpen);
+  };
   const handleSelectSupermarket = () => {
     setSupermarketModalVisible(true);
   };
@@ -56,7 +61,11 @@ const StartShoppingScreen = () => {
       <Pressable style={styles.button} onPress={startShopping}>
         <Text style={styles.buttonText}>Start shopping</Text>
       </Pressable>
+      {/* <Pressable style={styles.button} onPress={toggleIsScannedDataOpen}>
+              <Text style={styles.buttonText}>Scann item</Text>
+      </Pressable> */}
 
+    
       <Modal
         animationType="slide"
         transparent={true}
@@ -77,7 +86,13 @@ const StartShoppingScreen = () => {
           </View>
         </View>
       </Modal>
-
+      {/* <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
+          <TouchableOpacity style={styles.modalContainer} onPress={toggleIsScannedDataOpen}>
+            <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+              <ScanItem  />
+            </View>
+          </TouchableOpacity>
+        </Modal> */}
       <Modal
         animationType="slide"
         transparent={true}
