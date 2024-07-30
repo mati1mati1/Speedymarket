@@ -122,7 +122,9 @@ const CustomerMapViewer: React.FC = () => {
   };
 
   const toggleIsScannedDataOpen = () => {
-    setScannedDataModalOpen(!isScannedDataOpen);
+    //setScannedDataModalOpen(!isScannedDataOpen);
+    debugger
+    handleScannedData('7290010298273');
   };
 
   const toggleMissingItemsModal = () => {

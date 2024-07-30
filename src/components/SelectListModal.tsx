@@ -3,7 +3,6 @@ import { View, Text, FlatList, StyleSheet, Modal, Pressable, ActivityIndicator }
 import { getShoppingListsByBuyerId } from 'src/api/api';
 import { ShoppingList } from 'src/models'; // Ensure this is correctly imported
 import useAuth from 'src/hooks/useAuth'; // Ensure this is correctly imported
-import styles from 'src/styles/PopUpWindow'; // Ensure this is correctly imported
 
 interface SelectListModalProps {
   closeModal: (selectedList: ShoppingList | null) => void;
@@ -56,10 +55,10 @@ const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueW
               keyExtractor={(item) => item.ListID}
               renderItem={({ item }) => (
                 <Pressable
-                  style={styles.listItem}
+                  style={[styles.listItem, selectedList?.ListID === item.ListID && styles.selectedItem]}
                   onPress={() => handleSelectList(item)}
                 >
-                  <Text style={selectedList?.ListID === item.ListID ? styles.selectedItem : styles.listItemText}>
+                  <Text style={styles.listItemText}>
                     {item.ListName}
                   </Text>
                 </Pressable>
@@ -74,7 +73,7 @@ const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueW
           >
             <Text style={styles.buttonText}>Confirm Selection</Text>
           </Pressable>
-          <Pressable style={styles.button} onPress={continueWithoutList}>
+          <Pressable style={[styles.button, styles.continueButton]} onPress={continueWithoutList}>
             <Text style={styles.buttonText}>Continue Without List</Text>
           </Pressable>
           <Pressable onPress={() => closeModal(null)}>
@@ -85,5 +84,63 @@ const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueW
     </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  listItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    width: '100%',
+  },
+  listItemText: {
+    fontSize: 18,
+    color: 'black',
+  },
+  selectedItem: {
+    backgroundColor: '#dcdcdc',
+  },
+  button: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 10,
+    width: '80%',
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  continueButton: {
+    backgroundColor: '#0000ff',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  closeText: {
+    color: 'red',
+    marginTop: 10,
+    fontSize: 16,
+  },
+});
 
 export default SelectListModal;

@@ -54,7 +54,6 @@ export default function EditListScreen() {
   };
 
   const saveList = async () => {
-    debugger;
     if (!(cardId! && cardId !== '0' && cardId !== '')) {
       const response = await createShoppingList(listName,token)[0];
       cardId = response[0].ListID; 

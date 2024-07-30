@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Modal, Alert, ScrollView, Dimensions } from 'react-native';
-import { Table, TableWrapper, Row, Rows, Cell } from 'react-native-table-component';
+import { View, Text, TextInput, Button, StyleSheet, Modal, Alert, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
 import { ShopInventory } from '../../src/models';
 import { addShopInventory, getShopInventory, getSupermarketByUserId, updateShopInventory } from '../../src/api/api';
 import useAuth from '../../src/hooks/useAuth';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'; // Ensure uuid is installed
+import ScanItem from '../../src/components/Scanner';
 
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);
@@ -15,6 +16,7 @@ export default function InventoryManagementScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const token = useAuth();
+  const [isScannedDataOpen, setScannedDataModalOpen] = useState(false);
 
   const screenWidth = Dimensions.get('window').width;
 
@@ -55,6 +57,15 @@ export default function InventoryManagementScreen() {
     return true;
   };
 
+  const toggleIsScannedDataOpen = () => {
+    setScannedDataModalOpen(!isScannedDataOpen);
+  };
+
+  const handleScannedBarcode = async (data: string) => {
+    setForm({ ...form, Barcode: data });
+    setScannedDataModalOpen(false);
+  };
+
   const handleAddItem = async () => {
     if (!validateForm()) return;
     const newItem: ShopInventory = {
@@ -67,9 +78,8 @@ export default function InventoryManagementScreen() {
       Barcode: form.Barcode,
       SupermarketID: supermarketID
     };
-    var response = await addShopInventory(newItem);
+    const response = await addShopInventory(newItem);
     newItem.InventoryID = response[0];
-    console.log(response);
     setInventory([...inventory, newItem]);
     setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
     setModalVisible(false);
@@ -132,32 +142,36 @@ export default function InventoryManagementScreen() {
       <Button title="Add Item" onPress={openAddItemModal} />
 
       <ScrollView horizontal>
-        <View style={styles.tableContainer}>
-          <Table borderStyle={{ borderWidth: 1, borderColor: '#C1C0B9' }}>
-            <Row 
-              data={['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode', 'Actions']} 
-              style={styles.head} 
-              textStyle={styles.text} 
-              widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7]} 
-            />
-            <TableWrapper style={styles.wrapper}>
-              <Rows 
-                data={inventory.map(item => [
-                  item.ItemName, 
-                  item.Quantity, 
-                  item.Price, 
-                  item.Discount, 
-                  item.Location, 
-                  item.Barcode, 
-                  renderEditButton(null, inventory.indexOf(item))
-                ])} 
+        <ScrollView>
+          <View style={styles.tableContainer}>
+            <Table borderStyle={{ borderWidth: 1, borderColor: '#C1C0B9' }}>
+              <Row 
+                data={['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode', 'Actions']} 
+                style={styles.head} 
                 textStyle={styles.text} 
                 widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7]} 
               />
-            </TableWrapper>
-          </Table>
-        </View>
+              <TableWrapper style={styles.wrapper}>
+                <Rows 
+                  data={inventory.map(item => [
+                    item.ItemName, 
+                    item.Quantity, 
+                    item.Price, 
+                    item.Discount, 
+                    item.Location, 
+                    item.Barcode, 
+                    renderEditButton(null, inventory.indexOf(item))
+                  ])} 
+                  textStyle={styles.text} 
+                  widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7]} 
+                />
+              </TableWrapper>
+            </Table>
+          </View>
+        </ScrollView>
       </ScrollView>
+
+
 
       <Modal
         animationType="slide"
@@ -167,32 +181,45 @@ export default function InventoryManagementScreen() {
           setModalVisible(!modalVisible);
         }}
       >
-        <View style={styles.modalView}>
-          {['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode'].map((placeholder, index) => (
-            <View style={styles.inputContainer} key={index}>
-              <Text style={styles.label}>{placeholder}</Text>
-              <TextInput 
-                placeholder={placeholder} 
-                value={form[placeholder.replace(' ', '')]} 
-                onChangeText={(value) => handleFormChange(placeholder.replace(' ', ''), value)} 
-                style={styles.input} 
-                keyboardType={placeholder === 'Quantity' || placeholder === 'Price' || placeholder === 'Discount' ? 'numeric' : 'default'} 
-              />
-            </View>
-          ))}
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalView}>
+            {['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode'].map((placeholder, index) => (
+              <View style={styles.inputContainer} key={index}>
+                <Text style={styles.label}>{placeholder}</Text>
+                <TextInput 
+                  placeholder={placeholder} 
+                  value={form[placeholder.replace(' ', '')]} 
+                  onChangeText={(value) => handleFormChange(placeholder.replace(' ', ''), value)} 
+                  style={styles.input} 
+                  keyboardType={placeholder === 'Quantity' || placeholder === 'Price' || placeholder === 'Discount' ? 'numeric' : 'default'} 
+                />
+              </View>
+            ))}
 
-          <View style={styles.buttonRow}>
-            <Button 
-              title={isEditing ? "Update Item" : "Add Item"} 
-              onPress={isEditing ? handleEditItem : handleAddItem} 
-            />
-            <Button
-              title="Cancel"
-              onPress={() => {
-                setModalVisible(false);
-                setCurrentItem(null);
-              }}
-            />
+            <View style={styles.buttonRow}>
+              <Button 
+                title={isEditing ? "Update Item" : "Add Item"} 
+                onPress={isEditing ? handleEditItem : handleAddItem} 
+              />
+              <Button
+                title="Cancel"
+                onPress={() => {
+                  setModalVisible(false);
+                  setCurrentItem(null);
+                }}
+              />
+              <Button
+                title="Scan Barcode"
+                onPress={toggleIsScannedDataOpen}
+              />
+              <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
+              <TouchableOpacity style={styles.modalOverlay} onPress={toggleIsScannedDataOpen}>
+                <View style={styles.modal} onStartShouldSetResponder={() => true}>
+                  <ScanItem handleData={handleScannedBarcode}/>
+                </View>
+              </TouchableOpacity>
+            </Modal>
+            </View>
           </View>
         </View>
       </Modal>
@@ -219,21 +246,6 @@ const styles = StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  itemContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  item: {
-    padding: 10,
-    fontSize: 18,
-  },
   text: {
     margin: 6,
     textAlign: 'center',
@@ -258,7 +270,7 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '60%',
+    width: '100%',
     marginTop: 20,
   },
   modalView: {
@@ -275,7 +287,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    width: '90%',
+    maxWidth: 400, // limit modal width
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modal: {
     width: '80%',
-    alignSelf: 'center',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
   },
 });

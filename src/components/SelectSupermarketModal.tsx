@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { getSupermarkets } from 'src/api/api';
 import { Supermarket } from 'src/models';
-import styles from 'src/styles/PopUpWindow';
 
 interface SelectSupermarketModalProps {
   closeModal: (selectedSupermarket: Supermarket | null) => void;
@@ -57,10 +56,10 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
               keyExtractor={(item) => item.SupermarketID.toString()}
               renderItem={({ item }) => (
                 <Pressable
-                  style={styles.listItem}
+                  style={[styles.listItem, selectedSupermarket?.SupermarketID === item.SupermarketID && styles.selectedItem]}
                   onPress={() => handleSelectSupermarket(item)}
                 >
-                  <Text style={selectedSupermarket?.SupermarketID === item.SupermarketID ? styles.selectedItem : styles.listItemText}>
+                  <Text style={styles.listItemText}>
                     {item.BranchName}
                   </Text>
                 </Pressable>
@@ -82,5 +81,60 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
     </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  listItem: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    width: '100%',
+  },
+  listItemText: {
+    fontSize: 18,
+    color: 'black',
+  },
+  selectedItem: {
+    backgroundColor: '#dcdcdc',
+  },
+  button: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 10,
+    width: '80%',
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  closeText: {
+    color: 'red',
+    marginTop: 10,
+    fontSize: 16,
+  },
+});
 
 export default SelectSupermarketModal;

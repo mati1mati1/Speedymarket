@@ -275,9 +275,15 @@ module.exports = async function (context, req) {
             const listRequest = new sql.Request();
             listRequest.input('listId', sql.UniqueIdentifier, listId);
             const listResult = await listRequest.query(listQuery);
-            if (listResult.length === 0) throw new Error('No shopping list data found for given listId');
-            shoppingList = listResult.recordset;
-            context.log('Shopping List:', shoppingList);
+            if (listResult.length === 0) {
+                context.res = {
+                    status: 200,
+                    body: { map: branchMap}
+                };
+            } else {
+                shoppingList = listResult.recordset;
+                context.log('Shopping List:', shoppingList);
+            }
         } catch (err) {
             throw new Error(`Error fetching shopping list data: ${err.message}`);
         }
@@ -325,6 +331,13 @@ module.exports = async function (context, req) {
             return parseInt(inventoryItem.Location, 10);
         }).filter(Boolean);
 
+        if (shelvesToVisit.length === 0) {
+            context.res = {
+                status: 200,
+                body: { map: branchMap, missingItems, itemsWithLocations }
+            };
+            return;
+        }
         const grid = createGrid(branchMap.sections, branchMap.mapWidth, branchMap.mapHeight, shelvesToVisit);
 
         let { keyPointsPath, matrixWithPath } = findShortestPath(grid, branchMap.entrance);

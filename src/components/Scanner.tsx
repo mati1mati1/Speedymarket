@@ -47,7 +47,7 @@ const ScanItem: React.FC<ScanItemProps> = ({ handleData }) => {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.statusText}>Status: {status}</Text>
       <View style={styles.buttonContainer}>
-        <Button title="Scan QR Code" onPress={() => { setScanned(false); setCameraVisible(true); }} disabled={loading} />
+        <Button title="Scan Barcode" onPress={() => { setScanned(false); setCameraVisible(true); }} disabled={loading} />
       </View>
       {cameraVisible && !scanned && (
         <CameraView
