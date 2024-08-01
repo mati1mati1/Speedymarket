@@ -275,8 +275,15 @@ module.exports = async function (context, req) {
             const listRequest = new sql.Request();
             listRequest.input('listId', sql.UniqueIdentifier, listId);
             const listResult = await listRequest.query(listQuery);
-            if (listResult.length === 0) throw new Error('No shopping list data found for given listId');
-            shoppingList = listResult.recordset;
+            if (listResult.length === 0) {
+                context.res = {
+                    status: 200,
+                    body: { map: branchMap}
+                };
+            } else {
+                shoppingList = listResult.recordset;
+                context.log('Shopping List:', shoppingList);
+            }
         } catch (err) {
             throw new Error(`Error fetching shopping list data: ${err.message}`);
         }
@@ -294,13 +301,43 @@ module.exports = async function (context, req) {
         const shelvesToVisit = shoppingList.map(item => {
             const inventoryItem = inventory.find(inv => inv.ItemName === item.ItemName);
             if (!inventoryItem) {
+                context.log(`Missing item: ${item.ItemName}`);
                 missingItems.push(item);
                 return null;
             }
-            itemsWithLocations.push({ ...item, location: inventoryItem.Location });
+            const section = branchMap.sections.find(section => section.id === parseInt(inventoryItem.Location, 10));
+            if (section) {
+                let location;
+                switch (section.rotation) {
+                    case 0:
+                        location = { x: section.left + section.width / 2, y: section.top + section.height / 2 };
+                        break;
+                    case 90:
+                        location = { x: section.left + section.height / 2, y: section.top + section.width / 2 };
+                        break;
+                    case 180:
+                        location = { x: section.left + section.width / 2, y: section.top + section.height / 2 };
+                        break;
+                    case 270:
+                        location = { x: section.left + section.height / 2, y: section.top + section.width / 2 };
+                        break;
+                }
+                itemsWithLocations.push({
+                    ...item,
+                    location,
+                    shelf: section.id
+                });
+            }
             return parseInt(inventoryItem.Location, 10);
         }).filter(Boolean);
 
+        if (shelvesToVisit.length === 0) {
+            context.res = {
+                status: 200,
+                body: { map: branchMap, missingItems, itemsWithLocations }
+            };
+            return;
+        }
         const grid = createGrid(branchMap.sections, branchMap.mapWidth, branchMap.mapHeight, shelvesToVisit);
 
         let { keyPointsPath, matrixWithPath } = findShortestPath(grid, branchMap.entrance);

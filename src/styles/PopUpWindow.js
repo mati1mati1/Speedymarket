@@ -64,4 +64,58 @@ export default StyleSheet.create({
     color: 'red',
     marginTop: 10,
   },
+  viewerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mapEditor: {
+    borderWidth: 1,
+    borderColor: 'black',
+  },
+  menuToggle: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    zIndex: 10,
+    padding: 10,
+    backgroundColor: 'blue',
+    borderRadius: 5,
+  },
+  menuToggleText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  collapsedMenu: {
+    position: 'absolute',
+    top: 50,
+    left: 10,
+    zIndex: 10,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    padding: 10,
+  },
+  actionButton: {
+    marginVertical: 5,
+    padding: 10,
+    backgroundColor: 'blue',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  actionButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modal: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+  },
 });

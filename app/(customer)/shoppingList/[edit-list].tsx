@@ -4,14 +4,16 @@ import { useLocalSearchParams } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import useAuth from '../../../src/hooks/useAuth';
 import { ShoppingListItem } from '../../../src/models';
-import { addOrUpdateShoppingListByBuyerId, getShoppingListItemByCardId } from '../../../src/api/api';
+import { updateShoppingListItems, getShoppingListItemByCardId, createShoppingList } from '../../../src/api/api';
+import { changeShoppingListQuery } from '../../../src/queries';
 
 export default function EditListScreen() {
-  const { cardId,ListName} = useLocalSearchParams<{ cardId: string; ListName?: string }>();  
+  let { cardId, ListName } = useLocalSearchParams<{ cardId: string; ListName?: string }>();  
   const token = useAuth();
   const navigation = useNavigation();
   const [items, setItems] = useState<ShoppingListItem[]>([]);
   const [newItem, setNewItem] = useState('');
+  const [newQuantity, setNewQuantity] = useState('1');
   const [loading, setLoading] = useState(true);
   const [listName, setListName] = useState('');
 
@@ -21,7 +23,7 @@ export default function EditListScreen() {
         console.log("cardId:", cardId);
         console.log("ListName:", ListName);
 
-        if (cardId !== '0') {
+        if (cardId! && cardId !== '0' && cardId !== '') {
           const fetchedItems = await getShoppingListItemByCardId(cardId || '');
           setItems(fetchedItems);
         }
@@ -42,17 +44,24 @@ export default function EditListScreen() {
   const addItem = () => {
     if (newItem.trim() !== '') {
       setItems([...items, {
-        ItemID: Date.now().toString(), ItemName: newItem, Quantity: 1,
+        ItemID: Date.now().toString(), ItemName: newItem, Quantity: parseInt(newQuantity),
         ListItemID: '',
         ListID: ''
       }]);
       setNewItem('');
+      setNewQuantity('1');
     }
   };
 
   const saveList = async () => {
-    // const listId = localParams["cartId"] || Date.now().toString();
-    // await addOrUpdateShoppingListByBuyerId(listId, JSON.stringify(items), token);
+    if (!(cardId! && cardId !== '0' && cardId !== '')) {
+      const response = await createShoppingList(listName,token)[0];
+      cardId = response[0].ListID; 
+    }
+    if (ListName !== listName) {
+      await changeShoppingListQuery(cardId || '', listName);
+    }
+    await updateShoppingListItems(cardId || '', items);    
     navigation.goBack();
   };
 
@@ -87,12 +96,24 @@ export default function EditListScreen() {
         onChangeText={setNewItem}
         placeholder="Enter item"
       />
+      <TextInput
+        style={styles.input}
+        value={newQuantity}
+        onChangeText={setNewQuantity}
+        placeholder="Enter quantity"
+        keyboardType="numeric"
+      />
       <Pressable style={styles.button} onPress={addItem}>
         <Text style={styles.buttonText}>Add</Text>
       </Pressable>
       <FlatList
         data={items}
-        renderItem={({ item }) => <Text style={styles.item}>{item.ItemName}</Text>}
+        renderItem={({ item }) => (
+          <View style={styles.itemContainer}>
+            <Text style={styles.item}>{item.ItemName}</Text>
+            <Text style={styles.quantity}>Quantity: {item.Quantity}</Text>
+          </View>
+        )}
         keyExtractor={(item) => item.ItemID}
       />
     </View>
@@ -127,10 +148,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
   },
-  item: {
+  itemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  item: {
     fontSize: 18,
-    height: 44,
+  },
+  quantity: {
+    fontSize: 18,
   },
   button: {
     backgroundColor: '#007bff',

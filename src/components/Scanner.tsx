@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, ActivityIndicator, ScrollView, Pressable } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
-import { getItemBySupermarketIdAndBarcode } from '../api/api';
-import { ShopInventory } from 'src/models';
+import { StyleSheet, Text, View, Button, ActivityIndicator, ScrollView } from 'react-native';
+import { CameraView, Camera } from 'expo-camera';
+import { BarCodeScanningResult } from 'expo-camera/build/legacy/Camera.types';
 
 interface ScanItemProps {
-  handleData: (data: any) => void;
-  supermarketId: string;
+  handleData: (data: string) => void;
 }
 
-const ScanItem: React.FC<ScanItemProps> = ({ handleData, supermarketId }) => {
+const ScanItem: React.FC<ScanItemProps> = ({ handleData }) => {
+  const [status, setStatus] = useState<null | string>(null);
   const [scanned, setScanned] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Loading state
 
   useEffect(() => {
     (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
   }, []);
@@ -30,44 +29,34 @@ const ScanItem: React.FC<ScanItemProps> = ({ handleData, supermarketId }) => {
     return (
       <View style={styles.container}>
         <Text style={styles.message}>We need your permission to show the camera</Text>
-        <Pressable onPress={() => BarCodeScanner.requestPermissionsAsync()}>
-          <Text>Grant Permission</Text>
-        </Pressable>
+        <Button onPress={() => Camera.requestCameraPermissionsAsync()} title="Grant Permission" />
       </View>
     );
   }
 
-  const handleBarCodeScanned = async ({ type, data }: { type: string; data: string }) => {
+  const handleBarCodeScanned = ({ type, data }: BarCodeScanningResult) => {
     setScanned(true);
+    setLoading(true);
     console.log(`barcode detected: ${data}`);
-    try {
-      const response: ShopInventory[] = await getItemBySupermarketIdAndBarcode(supermarketId, data);
-      console.log(response);
-      if (response?.length > 0) {
-        console.log('Item found');
-        handleData(response[0]);
-      } else {
-        console.log('Item not found');
-        handleData(null);
-      }
-    } catch (error) {
-      console.error('Invalid QR code data:', error);
-    }
+    handleData(data);
+    setLoading(false);
+    setCameraVisible(false);
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.statusText}>Status: {status}</Text>
       <View style={styles.buttonContainer}>
         <Button title="Scan Barcode" onPress={() => { setScanned(false); setCameraVisible(true); }} disabled={loading} />
       </View>
       {cameraVisible && !scanned && (
-        <View>
-          <BarCodeScanner
-            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-            style={StyleSheet.absoluteFillObject}
-          />
-          <Button title="Back" onPress={() => setCameraVisible(false)} />
-        </View>
+        <CameraView
+          style={StyleSheet.absoluteFillObject}
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+          barcodeScannerSettings={{
+            barcodeTypes: ["qr","ean13","ean8","upc_a","upc_e","code39","code93","code128","codabar"],
+          }}
+        />
       )}
       {loading && (
         <View style={styles.loadingOverlay}>

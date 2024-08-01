@@ -1,8 +1,10 @@
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Modal, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Modal, Pressable, TouchableOpacity } from 'react-native';
+import ScanItem from 'src/components/Scanner';
 import SelectListModal from 'src/components/SelectListModal';
-import SelectSupermarketModal from 'src/components/SelectSupermarketModalProps';
+import SelectSupermarketModal from 'src/components/SelectSupermarketModal';
+import ShoppingCart from 'src/components/ShoppingCart';
 import { ShoppingList, Supermarket } from 'src/models';
 
 const StartShoppingScreen = () => {
@@ -16,7 +18,6 @@ const StartShoppingScreen = () => {
   const handleSelectList = () => {
     setListModalVisible(true);
   };
-
   const handleSelectSupermarket = () => {
     setSupermarketModalVisible(true);
   };
@@ -57,6 +58,7 @@ const StartShoppingScreen = () => {
         <Text style={styles.buttonText}>Start shopping</Text>
       </Pressable>
 
+    
       <Modal
         animationType="slide"
         transparent={true}

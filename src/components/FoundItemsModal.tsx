@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, FlatList, Pressable } from 'react-native';
+import { View, Text, FlatList, Pressable, Modal } from 'react-native';
 import { ItemWithLocation } from 'src/services/mapService';
 import styles from '../styles/PopUpWindow'; // Import the styles
-
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 interface FoundItemsModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
@@ -12,7 +12,6 @@ interface FoundItemsModalProps {
 }
 
 const FoundItemsModal: React.FC<FoundItemsModalProps> = ({ isOpen, onRequestClose, items, checkedItems, onCheckboxChange }) => {
-  const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
 
   return (
     <Modal visible={isOpen} onRequestClose={onRequestClose} transparent={true}>
@@ -26,12 +25,8 @@ const FoundItemsModal: React.FC<FoundItemsModalProps> = ({ isOpen, onRequestClos
               <View style={styles.listItem}>
                 <Pressable onPress={() => onCheckboxChange(item.ListItemID)}>
                   <Text style={styles.listItemText}>
-                    <input
-                      type="checkbox"
-                      checked={!!checkedItems[item.ListItemID]}
-                      onChange={() => onCheckboxChange(item.ListItemID)}
-                    />
-                    {item.ItemName} (Quantity: {item.Quantity})
+                    <BouncyCheckbox onPress={(isChecked: boolean) => {}} />
+                    {item.ItemName} Quantity: {item.Quantity} shelf: {item.shelf}
                   </Text>
                 </Pressable>
               </View>

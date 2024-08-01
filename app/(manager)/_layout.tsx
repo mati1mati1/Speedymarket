@@ -7,6 +7,7 @@ import InventoryManagementScreen from './inventory';
 import OrderManagementScreen from './orders';
 import ManagerMapEditor from './map-editor';
 import { Tabs } from 'expo-router';
+import LogoutButton from '../../src/components/LogoutButton';
 
 const Tab = createBottomTabNavigator();
 
@@ -16,15 +17,6 @@ const iconMap = {
   SupermarketMap: 'map',
 };
 
-const LogoutButton = () => {
-  const { logout } = useToken();
-
-  return (
-    <Pressable onPress={logout} style={styles.logoutButton}>
-      <Text style={styles.logoutButtonText}>Logout</Text>
-    </Pressable>
-  );
-};
 
 export default function ManagerScreen() {
   return (
@@ -47,19 +39,5 @@ export default function ManagerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  logoutButton: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    backgroundColor: '#007bff',
-    padding: 10,
-    borderRadius: 5,
-  },
-  logoutButtonText: {
-    color: 'white',
-    fontSize: 16,
-  },
-});
 
 
