@@ -32,6 +32,9 @@ const StartShoppingScreen = () => {
         params: { supermarketId: selectedSupermarket?.SupermarketID, listId: selectedList?.ListID }
       });
   }
+    else {
+      alert('Please select a supermarket before starting shopping.');
+    }
   };
 
   const closeListModal = (selectedList: ShoppingList | null) => {
