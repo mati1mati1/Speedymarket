@@ -1,29 +1,36 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useDrag, useDrop, DropTargetMonitor } from 'react-dnd';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native';
+import Draggable from 'react-native-draggable';
 import WebSection from '../../src/components/WebSection';
 import WebEntrance from '../../src/components/WebEntrance';
-import '../../src/styles/MapEditor.css';
 import { getSupermarketByUserId, updateMap } from '../../src/api/api';
-import { useToken } from '../../src/context/TokenContext';
 import useAuth from '../../src/hooks/useAuth';
 
-const ItemTypes = {
-  SECTION: 'section',
-  ENTRANCE: 'entrance'
-};
+interface Section {
+  id: number;
+  name: string;
+  x: number;
+  y: number;
+  rotation: number;
+  width: number;
+  height: number;
+}
+
+interface Entrance {
+  x: number;
+  y: number;
+}
 
 const ManagerMapEditor: React.FC = () => {
-  const [sections, setSections] = useState<any[]>([]);
-  const [entrance, setEntrance] = useState<{ left: number; top: number } | null>(null);
+  const [sections, setSections] = useState<Section[]>([]);
+  const [entrance, setEntrance] = useState<Entrance | null>(null);
   const [shelfCounter, setShelfCounter] = useState(1);
-  const [currentOffset, setCurrentOffset] = useState<{ x: number; y: number } | null>(null);
   const [supermarket, setSupermarket] = useState<any | null>(null);
-  const [isDataFetched, setIsDataFetched] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // New loading state
-  const mapRef = useRef<HTMLDivElement | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
   const token = useAuth();
   const mapWidth = 800;
-  const mapHeight = 600;
+  const mapHeight = 800;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,65 +43,49 @@ const ManagerMapEditor: React.FC = () => {
           setEntrance(branchMap.entrance || null);
           setShelfCounter(branchMap.sections.length + 1);
         }
-        setIsDataFetched(true);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
-        setIsLoading(false); // Set loading to false after data is fetched
+        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [token]);
 
-  const [, drop] = useDrop({
-    accept: [ItemTypes.SECTION, ItemTypes.ENTRANCE],
-    hover: (item: any, monitor: DropTargetMonitor) => {
-      const delta = monitor.getClientOffset();
-      const mapRect = mapRef.current?.getBoundingClientRect();
-      if (delta && mapRect) {
-        const left = Math.round(delta.x - mapRect.left);
-        const top = Math.round(delta.y - mapRect.top);
-
-        setCurrentOffset({ x: left, y: top });
-      }
-    },
-    drop: (item: any, monitor: DropTargetMonitor) => {
-      const delta = monitor.getClientOffset();
-      const mapRect = mapRef.current?.getBoundingClientRect();
-      if (delta && mapRect) {
-        const left = Math.round(delta.x - mapRect.left);
-        const top = Math.round(delta.y - mapRect.top);
-
-        setCurrentOffset(null); // Reset current offset after drop
-
-        if (item.type === ItemTypes.ENTRANCE) {
-          moveEntrance(left, top);
-        } else if (item.type === ItemTypes.SECTION) {
-          const existingSection = sections.find(section => section.id === item.id);
-          if (existingSection) {
-            moveSection(item.id, left, top, item.rotation);
-          } else {
-            addSection(left, top, item.rotation);
-          }
-        }
-      }
-      return undefined;
-    },
-  });
-
-  const addSection = (left: number, top: number, rotation: number) => {
-    const adjustedPosition = adjustPosition(shelfCounter, left, top, rotation);
+  const addSection = (x: number, y: number, rotation: number) => {
     setSections((sections) => [
       ...sections,
-      { id: shelfCounter, name: `מדף`, left: adjustedPosition.left, top: adjustedPosition.top, rotation: rotation, width: 80, height: 40 }
+      { id: shelfCounter, name: 'מדף', x, y, rotation, width: 80, height: 40 }
     ]);
     setShelfCounter(shelfCounter + 1);
   };
 
-  const adjustPosition = (id: number, left: number, top: number, rotation: number) => {
-    let adjustedLeft = left;
-    let adjustedTop = top;
+  const cleanMap = () => {
+    setSections([]);
+    setEntrance(null);
+    setShelfCounter(1);
+  };
+
+  const moveSection = (id: number, gestureState: any) => {
+    debugger
+    setSections((sections) =>
+      sections.map((section) =>
+        section.id === id
+          ? {
+              ...section,
+              
+              x: section.x + gestureState.dx,
+              y: section.y + gestureState.dy,
+            }
+          : section
+      )
+    );
+  };
+
+  const adjustPosition = (id: number, x: number, y: number, rotation: number) => {
+    let adjustedX = x;
+    let adjustedY = y;
     let overlap = true;
     const itemWidth = rotation % 180 === 0 ? 80 : 40;
     const itemHeight = rotation % 180 === 0 ? 40 : 80;
@@ -105,62 +96,77 @@ const ManagerMapEditor: React.FC = () => {
         if (section.id !== id) {
           const sectionWidth = section.rotation % 180 === 0 ? 80 : 40;
           const sectionHeight = section.rotation % 180 === 0 ? 40 : 80;
-          const sectionRight = section.left + sectionWidth;
-          const sectionBottom = section.top + sectionHeight;
+          const sectionRight = section.x + sectionWidth;
+          const sectionBottom = section.y + sectionHeight;
 
-          const itemRight = adjustedLeft + itemWidth;
-          const itemBottom = adjustedTop + itemHeight;
+          const itemRight = adjustedX + itemWidth;
+          const itemBottom = adjustedY + itemHeight;
 
-          const isOverlapping = !(sectionRight <= adjustedLeft || section.left >= itemRight || sectionBottom <= adjustedTop || section.top >= itemBottom);
+          const isOverlapping = !(sectionRight <= adjustedX || section.x >= itemRight || sectionBottom <= adjustedY || section.y >= itemBottom);
 
           if (isOverlapping) {
             overlap = true;
-            let newLeft = adjustedLeft;
-            let newTop = adjustedTop;
+            let newX = adjustedX;
+            let newY = adjustedY;
 
-            if (adjustedTop < section.top) {
-              newTop = section.top - itemHeight;
-            } else if (adjustedTop > section.top) {
-              newTop = section.top + sectionHeight;
+            if (adjustedY < section.y) {
+              newY = section.y - itemHeight;
+            } else if (adjustedY > section.y) {
+              newY = section.y + sectionHeight;
             }
 
-            if (adjustedLeft < section.left) {
-              newLeft = section.left - itemWidth;
-            } else if (adjustedLeft > section.left) {
-              newLeft = section.left + sectionWidth;
+            if (adjustedX < section.x) {
+              newX = section.x - itemWidth;
+            } else if (adjustedX > section.x) {
+              newX = section.x + sectionWidth;
             }
 
-            adjustedLeft = newLeft;
-            adjustedTop = newTop;
+            adjustedX = newX;
+            adjustedY = newY;
           }
         }
       });
     }
 
-    return { left: adjustedLeft, top: adjustedTop };
+    return { x: adjustedX, y: adjustedY };
+  };
+
+  const moveEntrance = (gestureState: any) => {
+    debugger;
+    if (entrance) {
+      console.log('moveEntrance triggered');
+      setEntrance({ x: entrance.x + gestureState.dx, y: entrance.y + gestureState.dy });
+    }
   };
 
   const rotateSection = (id: number) => {
-    setSections((sections) =>
-      sections.map((section) =>
-        section.id === id ? { ...section, rotation: (section.rotation + 90) % 360 } : section
-      )
-    );
+    if (!isDragging) {
+      setSections((sections) =>
+        sections.map((section) => {
+          if (section.id === id) {
+            const newRotation = (section.rotation + 90) % 360;
+            const adjustedPosition = adjustPosition(id, section.x, section.y, newRotation);
+            return {
+              ...section,
+              rotation: newRotation,
+              x: adjustedPosition.x,
+              y: adjustedPosition.y,
+              width: newRotation % 180 === 0 ? 80 : 40,
+              height: newRotation % 180 === 0 ? 40 : 80,
+            };
+          }
+          return section;
+        })
+      );
+    }
   };
 
-  const moveSection = (id: number, left: number, top: number, rotation: number) => {
-    const adjustedPosition = adjustPosition(id, left, top, rotation);
-    setSections((sections) =>
-      sections.map((section) =>
-        section.id === id ? { ...section, left: Math.max(0, Math.min(adjustedPosition.left, mapWidth - (rotation % 180 === 0 ? 80 : 40))), top: Math.max(0, Math.min(adjustedPosition.top, mapHeight - (rotation % 180 === 0 ? 40 : 80))) } : section
-      )
-    );
+  const getMaxX = (rotation: number) => {
+    return rotation === 0 || rotation === 180 ? mapWidth - 80 : mapWidth - 40;
   };
 
-  const moveEntrance = (left: number, top: number) => {
-    const adjustedLeft = Math.max(0, Math.min(left, mapWidth - 50));
-    const adjustedTop = (adjustedLeft === 0 || adjustedLeft === mapWidth - 50) ? Math.max(0, Math.min(top, mapHeight - 50)) : (top <= 25 || top >= mapHeight - 25 ? top : (top < mapHeight / 2 ? 0 : mapHeight - 50));
-    setEntrance({ left: adjustedLeft, top: adjustedTop });
+  const getMaxY = (rotation: number) => {
+    return rotation === 0 || rotation === 180 ? mapHeight - 40 : mapHeight - 60;
   };
 
   const saveMapToDB = async () => {
@@ -169,26 +175,90 @@ const ManagerMapEditor: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>; // Loading indicator
+    return <Text>Loading...</Text>;
   }
 
   return (
-    <div>
-      <div ref={(node) => { if (node) { mapRef.current = node; drop(node); } }} className="map-editor" style={{ position: 'relative', width: `${mapWidth}px`, height: `${mapHeight}px`, border: '1px solid black' }}>
-        {sections.map(({ id, left, top, rotation, width, height }) => (
-          <div key={`section-${id}`} onDoubleClick={() => rotateSection(id)}>
-            <WebSection id={id} left={left} top={top} rotation={rotation} currentOffset={currentOffset} />
-          </div>
+    <View style={styles.viewerContainer}>
+      <View style={styles.buttonRow}>
+        <Button title="שמור מפה" onPress={saveMapToDB} color="blue" />
+        <Button title="הוסף מדף" onPress={() => addSection(0, 0, 0)} color="blue" />
+        <Button title="נקה מפה" onPress={cleanMap} color="blue" />
+        <Button title="הוסף כניסה" onPress={() => !entrance && setEntrance({ x: 0, y: 0 })} color="blue" />
+      </View>
+      <View style={[styles.mapEditor, { width: mapWidth, height: mapHeight }]}>
+        {sections.map(({ id, x, y, rotation }) => (
+          <Draggable
+            key={`section-${id}`}
+            x={x}
+            minX={0}
+            minY={0}
+            maxX={getMaxX(rotation)}
+            maxY={getMaxY(rotation)}
+            y={y}
+            onDrag={() => setIsDragging(true)}
+            onDragRelease={(event, gestureState) => moveSection(id, gestureState)}
+            onLongPress={() => rotateSection(id)}>
+              <WebSection id={id} left={x} top={y} rotation={rotation} />
+          </Draggable>
         ))}
-        {entrance && <WebEntrance left={entrance.left} top={entrance.top} />}
-      </div>
-      <div className="sidebar">
-        <button  onClick={saveMapToDB}>שמור מפה</button>
-        <div onClick={() => addSection(0, 0, 0)}>מדף</div>
-        <div onClick={() => !entrance && setEntrance({ left: 0, top: 0 })}>כניסה</div>
-      </div>
-    </div>
+        {entrance && (
+          <Draggable
+            x={entrance.x}
+            y={entrance.y}
+            minX={0}
+            minY={0}
+            maxX={mapWidth - 50}
+            maxY={mapHeight - 50}
+            onDragRelease={(event, gestureState) => {
+              console.log('Drag release detected for entrance');
+              moveEntrance(gestureState);
+            }}
+          >
+              <WebEntrance x={entrance.x} y={entrance.y} />
+          </Draggable>
+        )}
+      </View>
+    </View>
   );
 };
 
 export default ManagerMapEditor;
+
+const styles = StyleSheet.create({
+  viewerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mapEditor: {
+    borderWidth: 1,
+    borderColor: 'black',
+    backgroundColor: '#f5f5f5',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
+  },
+  section: {
+    position: 'absolute',
+    width: 80,
+    height: 40,
+    backgroundColor: 'lightgrey',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'black'
+  },
+  entrance: {
+    position: 'absolute',
+    width: 50,
+    height: 50,
+    backgroundColor: 'lightblue',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'black'
+  },
+});

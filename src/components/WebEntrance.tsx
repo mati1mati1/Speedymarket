@@ -1,40 +1,42 @@
 import React from 'react';
-import { useDrag } from 'react-dnd';
-
-const ItemTypes = {
-  ENTRANCE: 'entrance'
-};
+import { View, Text, StyleSheet } from 'react-native';
+import Draggable from 'react-native-draggable';
 
 interface EntranceProps {
-  left: number;
-  top: number;
+  x: number;
+  y: number;
 }
 
-const WebEntrance: React.FC<EntranceProps> = ({ left, top }) => {
-  const [{ isDraggingItem }, drag] = useDrag(() => ({
-    type: ItemTypes.ENTRANCE,
-    item: { type: ItemTypes.ENTRANCE, left, top },
-    collect: (monitor) => ({
-      isDraggingItem: monitor.isDragging(),
-    }),
-  }), [left, top]);
-
+const WebEntrance: React.FC<EntranceProps> = ({ x, y }) => {
   return (
-    <div
-      ref={drag}
-      className="entrance"
-      style={{
-        position: 'absolute',
-        left,
-        top,
-        width: '50px',
-        height: '50px',
-        opacity: isDraggingItem ? 0.5 : 1
-      }}
+    <View
+      style={[
+        styles.entrance,
+        {
+          left: x,
+          top: y
+        }
+      ]}
     >
-      כניסה
-    </div>
+      <Text style={styles.text}>כניסה</Text>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  entrance: {
+    position: 'absolute',
+    width: 50,
+    height: 50,
+    backgroundColor: 'lightblue',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'black'
+  },
+  text: {
+    fontSize: 16
+  }
+});
 
 export default WebEntrance;

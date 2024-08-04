@@ -89,6 +89,18 @@ const styles = StyleSheet.create({
     gap: 10, // Not directly supported in React Native, use margin or padding
     marginBottom: 20,
   },
+  container: {
+    flex: 1,
+    flexDirection: 'row'
+  },
+  mapEditor: {
+    position: 'relative',
+    borderWidth: 1,
+    borderColor: 'black'
+  },
+  sidebar: {
+    padding: 10
+  }
 });
 
 export default styles;

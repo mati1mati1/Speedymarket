@@ -1,52 +1,44 @@
 import React from 'react';
-import { useDrag } from 'react-dnd';
-
-const ItemTypes = {
-  SECTION: 'section'
-};
+import { View, Text, StyleSheet } from 'react-native';
 
 interface SectionProps {
   id: number;
   left: number;
   top: number;
   rotation: number;
-  currentOffset: { x: number; y: number } | null;
 }
 
-const WebSection: React.FC<SectionProps> = ({ id,  left, top, rotation, currentOffset }) => {
-  const [{ isDraggingItem }, drag] = useDrag(() => ({
-    type: ItemTypes.SECTION,
-    item: { id, type: ItemTypes.SECTION, left, top, rotation },
-    collect: (monitor) => ({
-      isDraggingItem: monitor.isDragging(),
-    }),
-  }), [id, left, top, rotation]);
-
-  const currentLeft = currentOffset && isDraggingItem ? currentOffset.x : left;
-  const currentTop = currentOffset && isDraggingItem ? currentOffset.y : top;
-
+const WebSection: React.FC<SectionProps> = ({ id, left, top, rotation }) => {
   return (
-    <div
-      ref={drag}
-      className="section"
-      style={{
-        position: 'absolute',
-        left: currentLeft,
-        top: currentTop,
-        width: '80px',
-        height: '40px',
-        transform: `rotate(${rotation}deg)`,
-        opacity: isDraggingItem ? 0.5 : 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '10px'
-      }}
+    <View
+      style={[
+        styles.section,
+        {
+          transform: [{ rotate: `${rotation}deg` }],
+          left,
+          top
+        }
+      ]}
     >
-      <span style={{ transform: `rotate(-${rotation}deg)` }}>{id}</span>
-      <div className="arrow" />
-    </div>
+      <Text style={styles.text}>{id}</Text>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  section: {
+    position: 'absolute',
+    width: 80,
+    height: 40,
+    backgroundColor: 'lightgrey',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'black'
+  },
+  text: {
+    fontSize: 10
+  }
+});
 
 export default WebSection;
