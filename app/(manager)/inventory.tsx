@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Modal, Alert, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
 import { ShopInventory } from '../../src/models';
-import { addShopInventory, getShopInventory, getSupermarketByUserId, updateShopInventory } from '../../src/api/api';
+import { addShopInventory, getShopInventory, getSupermarketByUserId, updateShopInventory, deleteShopInventory } from '../../src/api/api';
 import useAuth from '../../src/hooks/useAuth';
 import { v4 as uuidv4 } from 'uuid'; // Ensure uuid is installed
 import ScanItem from '../../src/components/Scanner';
@@ -17,6 +17,9 @@ export default function InventoryManagementScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const token = useAuth();
   const [isScannedDataOpen, setScannedDataModalOpen] = useState(false);
+  const [filter, setFilter] = useState('');
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<ShopInventory | null>(null);
 
   const screenWidth = Dimensions.get('window').width;
 
@@ -44,14 +47,19 @@ export default function InventoryManagementScreen() {
     setForm({ ...form, [name]: value });
   };
 
+  
   const validateForm = () => {
     const { ItemName, Quantity, Price, Discount, Location, Barcode } = form;
     if (!ItemName || !Quantity || !Price || !Discount || !Location || !Barcode) {
-      Alert.alert('Validation Error', 'All fields are required');
+      alert( 'All fields are required');
       return false;
     }
     if (isNaN(parseInt(Quantity)) || isNaN(parseFloat(Price)) || isNaN(parseFloat(Discount))) {
-      Alert.alert('Validation Error', 'Quantity, Price, and Discount must be numbers');
+      alert('Quantity, Price, and Discount must be numbers');
+      return false;
+    }
+    if (inventory.some(item => item.ItemName === ItemName && (!isEditing || (isEditing && currentItem && item.InventoryID !== currentItem.InventoryID)))) {
+      alert('An item with this name already exists');
       return false;
     }
     return true;
@@ -127,6 +135,20 @@ export default function InventoryManagementScreen() {
     setModalVisible(true);
   };
 
+  const handleDeleteItem = async (item: ShopInventory) => {
+    setItemToDelete(item);
+    setDeleteModalVisible(true);
+  };
+
+  const confirmDeleteItem = async () => {
+    if (itemToDelete) {
+      await deleteShopInventory(itemToDelete.InventoryID);
+      setInventory(inventory.filter(i => i.InventoryID !== itemToDelete.InventoryID));
+      setDeleteModalVisible(false);
+      setItemToDelete(null);
+    }
+  };
+
   const openAddItemModal = () => {
     setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
     setIsEditing(false);
@@ -134,11 +156,25 @@ export default function InventoryManagementScreen() {
   };
 
   const renderEditButton = (data: any, index: number) => (
-    <Button title="Edit" onPress={() => handleEditClick(inventory[index])} />
+    <View style={styles.buttonGroup}>
+      <Button title="Edit" onPress={() => handleEditClick(inventory[index])} />
+      <Button title="Delete" onPress={() => handleDeleteItem(inventory[index])} color="red" />
+    </View>
+  );
+
+  const filteredInventory = inventory.filter(item => 
+    item.ItemName.toLowerCase().includes(filter.toLowerCase()) ||
+    item.Barcode.includes(filter)
   );
 
   return (
     <View style={styles.container}>
+      <TextInput
+        placeholder="Filter items"
+        style={styles.input}
+        value={filter}
+        onChangeText={setFilter}
+      />
       <Button title="Add Item" onPress={openAddItemModal} />
 
       <ScrollView horizontal>
@@ -153,7 +189,7 @@ export default function InventoryManagementScreen() {
               />
               <TableWrapper style={styles.wrapper}>
                 <Rows 
-                  data={inventory.map(item => [
+                  data={filteredInventory.map(item => [
                     item.ItemName, 
                     item.Quantity, 
                     item.Price, 
@@ -170,8 +206,6 @@ export default function InventoryManagementScreen() {
           </View>
         </ScrollView>
       </ScrollView>
-
-
 
       <Modal
         animationType="slide"
@@ -219,6 +253,32 @@ export default function InventoryManagementScreen() {
                 </View>
               </TouchableOpacity>
             </Modal>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={deleteModalVisible}
+        onRequestClose={() => {
+          setDeleteModalVisible(!deleteModalVisible);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Are you sure you want to delete this item?</Text>
+            <View style={styles.buttonRow}>
+              <Button 
+                title="Delete" 
+                onPress={confirmDeleteItem} 
+                color="red"
+              />
+              <Button
+                title="Cancel"
+                onPress={() => setDeleteModalVisible(false)}
+              />
             </View>
           </View>
         </View>
@@ -288,7 +348,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     width: '90%',
-    maxWidth: 400, // limit modal width
   },
   modalOverlay: {
     flex: 1,
@@ -301,5 +360,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
   },
 });

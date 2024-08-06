@@ -86,6 +86,12 @@ export const getShoppingListsByBuyerIdQuery = (buyerId: string): Query => ({
     { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }
   ]
 });
+export const deleteShoppingListQuery = (listId: string): Query => ({
+  query: 'DELETE FROM ShoppingList WHERE ListID = @listId',
+  params: [
+    { name: 'listId', type: 'UniqueIdentifier', value: listId }
+  ]
+});
 export const getShoppingListItemsByListIdQuery = (listId: string): Query => ({
   query: 'SELECT * FROM ShoppingListItem WHERE ListID = @listId',
   params: [
@@ -97,8 +103,8 @@ export const updateShoppingListItemsQuery = (listId: string, items: ShoppingList
   query: `BEGIN TRANSACTION;
             DELETE FROM ShoppingListItem WHERE ListID = @listId;
 
-            INSERT INTO ShoppingListItem (ListID, ItemName, Quantity)
-            VALUES ${items.map((_, index) => `(@listId, @itemName${index}, @quantity${index})`).join(", ")};
+            INSERT INTO ShoppingListItem (ItemID, ListID, ItemName, Quantity)
+            VALUES ${items.map((_, index) => `(NEWID(), @listId, @itemName${index}, @quantity${index})`).join(", ")};
 
             COMMIT;`,
   params: [
@@ -109,7 +115,6 @@ export const updateShoppingListItemsQuery = (listId: string, items: ShoppingList
     ]),
   ],
 });
-
 
 export const getOrdersByBuyerIdQuery = (buyerId: string): Query => ({
   query: 'SELECT * FROM BuyerOrder WHERE BuyerID = @buyerId',
@@ -160,6 +165,12 @@ export const updateShopInventoryQuery = (inventory: ShopInventory): Query => ({
     { name: 'discount', type: 'Decimal', value: inventory.Discount },
     { name: 'location', type: 'Int', value: inventory.Location },
     { name: 'barcode', type: 'NVarChar', value: inventory.Barcode }
+  ]
+});
+export const deleteShopInventoryQuery = (inventoryId: string): Query => ({
+  query: `DELETE FROM ShopInventory WHERE InventoryID = @inventoryId`,
+  params: [
+    { name: 'inventoryId', type: 'UniqueIdentifier', value: inventoryId }
   ]
 });
 

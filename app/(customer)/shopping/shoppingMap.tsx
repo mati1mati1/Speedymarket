@@ -294,8 +294,8 @@ const CustomerMapViewer: React.FC = () => {
           </TouchableOpacity>
         </Modal>
 
-        <Modal visible={isPaymentState} transparent={true} onRequestClose={toggleShoppingCart}>
-          <TouchableOpacity style={styles.modalOverlay} onPress={toggleShoppingCart}>
+        <Modal visible={isPaymentState} transparent={true} onRequestClose={togglePayment}>
+          <TouchableOpacity style={styles.modalOverlay} onPress={togglePayment}>
             <View style={styles.modal} onStartShouldSetResponder={() => true}>
               <Payments items={shoppingCart} />
             </View>
