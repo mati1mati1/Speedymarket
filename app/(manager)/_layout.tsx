@@ -8,6 +8,7 @@ import OrderManagementScreen from './orders';
 import ManagerMapEditor from './map-editor';
 import { Tabs } from 'expo-router';
 import LogoutButton from '../../src/components/LogoutButton';
+import ManagerSettingsScreen from './ManagerSettingsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -33,6 +34,7 @@ export default function ManagerScreen() {
         <Tab.Screen name="Inventory Management" component={InventoryManagementScreen} />
         <Tab.Screen name="OrderManagement" component={OrderManagementScreen} />
         <Tab.Screen name="SupermarketMap" component={ManagerMapEditor} />
+        <Tab.Screen name="Settings" component={ManagerSettingsScreen} />
       </Tab.Navigator>
       <LogoutButton />
     </>

@@ -1,4 +1,4 @@
-import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNameQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery, getShoppingListItemsByListIdQuery, updateShoppingListItemsQuery, createShoppingListQuery, changeShoppingListQuery, addShopInventoryQuery, updateShopInventoryQuery, getSupermarketBybarcodeQuery, deleteShoppingListQuery, deleteShopInventoryQuery } from '../queries';
+import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNameQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery, getShoppingListItemsByListIdQuery, updateShoppingListItemsQuery, createShoppingListQuery, changeShoppingListQuery, addShopInventoryQuery, updateShopInventoryQuery, getSupermarketBybarcodeQuery, deleteShoppingListQuery, deleteShopInventoryQuery, updateSupermarketDetailsQuery } from '../queries';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem } from '../models';
 import { decodedToken } from '../utils/authUtils';
 import axiosInstance from '../utils/axiosInstance';
@@ -57,6 +57,10 @@ export const updateMap = async (supermarketId: string, BranchMap: string): Promi
   return await executeSqlQuery<string>(queryObject);
 };
 
+export const updateSupermarketDetails = async (supermarket: any): Promise<void> => {
+  const queryObject = updateSupermarketDetailsQuery(supermarket);
+  await executeSqlQuery<void>(queryObject);
+};
 
 export const getSupermarketByUserId = async (token : string ): Promise<Supermarket[]> => {
   const userId = decodedToken(token)?.userId

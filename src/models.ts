@@ -56,9 +56,14 @@ export interface Supermarket {
   BranchName: string;
   BranchAddress: string;
   BranchMap: string;
-  Location: string;
+  StreetNumber: string;
+  Street: string;
+  City: string;
+  Country: string;
   WiFiPassword : string;
   WiFiSSID : string;
+  OperatingHours: { day: string; openHour: string; closeHour: string }[];
+
 }
 
 export interface Location {
@@ -70,4 +75,12 @@ export interface ESP32Info {
   Esp32Id: string;
   Ssid: string;
   Location: Location;
+}
+export interface CountryResponse {
+  iso2: string;
+  name: string;
+}
+
+export interface CityResponse {
+  name: string;
 }

@@ -9,6 +9,7 @@
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
     "@azure/functions": "^4.0.0",
+    "@react-native-picker/picker": "^2.7.7",
     "fastpriorityqueue": "^0.7.5",
     "jsonwebtoken": "^9.0.2",
     "mssql": "^11.0.1"

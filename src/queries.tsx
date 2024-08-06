@@ -86,6 +86,22 @@ export const getShoppingListsByBuyerIdQuery = (buyerId: string): Query => ({
     { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }
   ]
 });
+export const updateSupermarketDetailsQuery = (supermarket: any): Query => ({
+  query: `
+    UPDATE Supermarket
+    SET BranchName = @name, BranchAddress = @location, WiFiSSID = @wifiSSID, WiFiPassword = @wifiPassword, OperatingHours = @operatingHours
+    WHERE SupermarketID = @supermarketId
+  `,
+  params: [
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarket.SupermarketID },
+    { name: 'name', type: 'NVarChar', value: supermarket.Name },
+    { name: 'location', type: 'NVarChar', value: supermarket.Location },
+    { name: 'wifiSSID', type: 'NVarChar', value: supermarket.WiFiSSID },
+    { name: 'wifiPassword', type: 'NVarChar', value: supermarket.WiFiPassword },
+    { name: 'operatingHours', type: 'NVarChar', value: JSON.stringify(supermarket.OperatingHours) },
+  ],
+});
+
 export const deleteShoppingListQuery = (listId: string): Query => ({
   query: 'DELETE FROM ShoppingList WHERE ListID = @listId',
   params: [
