@@ -68,74 +68,23 @@ const ManagerMapEditor: React.FC = () => {
   };
 
   const moveSection = (id: number, gestureState: any) => {
-    debugger
     setSections((sections) =>
       sections.map((section) =>
         section.id === id
           ? {
               ...section,
-              
-              x: section.x + gestureState.dx,
-              y: section.y + gestureState.dy,
+              x: gestureState.moveX,
+              y: gestureState.moveY,
             }
           : section
       )
     );
   };
 
-  const adjustPosition = (id: number, x: number, y: number, rotation: number) => {
-    let adjustedX = x;
-    let adjustedY = y;
-    let overlap = true;
-    const itemWidth = rotation % 180 === 0 ? 80 : 40;
-    const itemHeight = rotation % 180 === 0 ? 40 : 80;
-
-    while (overlap) {
-      overlap = false;
-      sections.forEach(section => {
-        if (section.id !== id) {
-          const sectionWidth = section.rotation % 180 === 0 ? 80 : 40;
-          const sectionHeight = section.rotation % 180 === 0 ? 40 : 80;
-          const sectionRight = section.x + sectionWidth;
-          const sectionBottom = section.y + sectionHeight;
-
-          const itemRight = adjustedX + itemWidth;
-          const itemBottom = adjustedY + itemHeight;
-
-          const isOverlapping = !(sectionRight <= adjustedX || section.x >= itemRight || sectionBottom <= adjustedY || section.y >= itemBottom);
-
-          if (isOverlapping) {
-            overlap = true;
-            let newX = adjustedX;
-            let newY = adjustedY;
-
-            if (adjustedY < section.y) {
-              newY = section.y - itemHeight;
-            } else if (adjustedY > section.y) {
-              newY = section.y + sectionHeight;
-            }
-
-            if (adjustedX < section.x) {
-              newX = section.x - itemWidth;
-            } else if (adjustedX > section.x) {
-              newX = section.x + sectionWidth;
-            }
-
-            adjustedX = newX;
-            adjustedY = newY;
-          }
-        }
-      });
-    }
-
-    return { x: adjustedX, y: adjustedY };
-  };
-
   const moveEntrance = (gestureState: any) => {
-    debugger;
     if (entrance) {
-      console.log('moveEntrance triggered');
-      setEntrance({ x: entrance.x + gestureState.dx, y: entrance.y + gestureState.dy });
+      console.log('Moving entrance to', gestureState.moveX, gestureState.moveY);
+      setEntrance({ x: entrance.x + gestureState.dx, y: entrance.y +gestureState.dy });
     }
   };
 
@@ -145,12 +94,9 @@ const ManagerMapEditor: React.FC = () => {
         sections.map((section) => {
           if (section.id === id) {
             const newRotation = (section.rotation + 90) % 360;
-            const adjustedPosition = adjustPosition(id, section.x, section.y, newRotation);
             return {
               ...section,
               rotation: newRotation,
-              x: adjustedPosition.x,
-              y: adjustedPosition.y,
               width: newRotation % 180 === 0 ? 80 : 40,
               height: newRotation % 180 === 0 ? 40 : 80,
             };
@@ -199,7 +145,7 @@ const ManagerMapEditor: React.FC = () => {
             onDrag={() => setIsDragging(true)}
             onDragRelease={(event, gestureState) => moveSection(id, gestureState)}
             onLongPress={() => rotateSection(id)}>
-              <WebSection id={id} left={x} top={y} rotation={rotation} />
+              <WebSection id={id} x={x} y={y} rotation={rotation} />
           </Draggable>
         ))}
         {entrance && (
@@ -208,14 +154,12 @@ const ManagerMapEditor: React.FC = () => {
             y={entrance.y}
             minX={0}
             minY={0}
-            maxX={mapWidth - 50}
-            maxY={mapHeight - 50}
             onDragRelease={(event, gestureState) => {
               console.log('Drag release detected for entrance');
               moveEntrance(gestureState);
             }}
           >
-              <WebEntrance x={entrance.x} y={entrance.y} />
+            <WebEntrance x={entrance.x} y={entrance.y} />
           </Draggable>
         )}
       </View>

@@ -9,8 +9,6 @@ import ManagerMapEditor from './map-editor';
 import { Tabs } from 'expo-router';
 import LogoutButton from '../../src/components/LogoutButton';
 
-const Tab = createBottomTabNavigator();
-
 const iconMap = {
   InventoryManagement: 'cubes',
   OrderManagement: 'clipboard',
@@ -21,7 +19,7 @@ const iconMap = {
 export default function ManagerScreen() {
   return (
     <>
-      <Tab.Navigator
+      <Tabs
         initialRouteName="Inventory Management"
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color, size }) => {
@@ -30,10 +28,10 @@ export default function ManagerScreen() {
           },
         })}
       >
-        <Tab.Screen name="Inventory Management" component={InventoryManagementScreen} />
-        <Tab.Screen name="OrderManagement" component={OrderManagementScreen} />
-        <Tab.Screen name="SupermarketMap" component={ManagerMapEditor} />
-      </Tab.Navigator>
+        <Tabs.Screen name="Inventory Management"/>
+        <Tabs.Screen name="OrderManagement" />
+        <Tabs.Screen name="SupermarketMap" />
+      </Tabs>
       <LogoutButton />
     </>
   );

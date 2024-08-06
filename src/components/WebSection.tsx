@@ -3,20 +3,20 @@ import { View, Text, StyleSheet } from 'react-native';
 
 interface SectionProps {
   id: number;
-  left: number;
-  top: number;
+  x: number;
+  y: number;
   rotation: number;
 }
 
-const WebSection: React.FC<SectionProps> = ({ id, left, top, rotation }) => {
+const WebSection: React.FC<SectionProps> = ({ id, x, y, rotation }) => {
   return (
     <View
       style={[
         styles.section,
         {
           transform: [{ rotate: `${rotation}deg` }],
-          left,
-          top
+          left: x,
+          top: y
         }
       ]}
     >

@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Draggable from 'react-native-draggable';
 
 interface EntranceProps {
   x: number;
