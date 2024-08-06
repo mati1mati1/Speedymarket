@@ -1,4 +1,4 @@
-import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNameQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery, getShoppingListItemsByListIdQuery, updateShoppingListItemsQuery, createShoppingListQuery, changeShoppingListQuery, addShopInventoryQuery, updateShopInventoryQuery, getSupermarketBybarcodeQuery } from '../queries';
+import { Query, getUserByUserNameQuery, getUserByIdQuery, getMapBySupermarketIdQuery, updateMapQuery, getItemBySupermarketIdAndItemNameQuery, getItemBySupermarketIdAndBarcodeQuery, getSupermarketByIdQuery, getShoppingListsByBuyerIdQuery, getOrdersByBuyerIdQuery, getSupermarketsQuery, getShopInventoryQuery, getSupermarketByUserIdQuery, getShoppingListItemsByListIdQuery, updateShoppingListItemsQuery, createShoppingListQuery, changeShoppingListQuery, addShopInventoryQuery, updateShopInventoryQuery, getSupermarketBybarcodeQuery, deleteShoppingListQuery, deleteShopInventoryQuery } from '../queries';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem } from '../models';
 import { decodedToken } from '../utils/authUtils';
 import axiosInstance from '../utils/axiosInstance';
@@ -75,6 +75,10 @@ export const getSupermarketByBarcode = async (barcode : string ): Promise<Superm
   return await executeSqlQuery<Supermarket>(queryObject);
 };
 
+export const deleteShoppingList = async (listId: string, token: string): Promise<void> => {
+  const queryObject = deleteShoppingListQuery(listId);
+  await executeSqlQuery<void>(queryObject);
+};
 export const getShoppingListsByBuyerId = async (token : string ): Promise<ShoppingList[]> => {
   const userId = decodedToken(token)?.userId
   if (!userId) {
@@ -135,5 +139,10 @@ export const addShopInventory = async (shopInventory: ShopInventory): Promise<st
 
 export const updateShopInventory = async (shopInventory: ShopInventory): Promise<void> => {
   const queryObject = updateShopInventoryQuery(shopInventory);
+  await executeSqlQuery<void>(queryObject);
+};
+
+export const deleteShopInventory = async (inventoryId: string): Promise<void> => {
+  const queryObject = deleteShopInventoryQuery(inventoryId);
   await executeSqlQuery<void>(queryObject);
 };

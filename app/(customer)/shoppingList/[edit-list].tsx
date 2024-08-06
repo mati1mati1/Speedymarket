@@ -4,8 +4,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
 import useAuth from '../../../src/hooks/useAuth';
 import { ShoppingListItem } from '../../../src/models';
-import { updateShoppingListItems, getShoppingListItemByCardId, createShoppingList } from '../../../src/api/api';
-import { changeShoppingListQuery } from '../../../src/queries';
+import { updateShoppingListItems, getShoppingListItemByCardId } from '../../../src/api/api';
 
 export default function EditListScreen() {
   let { cardId, ListName } = useLocalSearchParams<{ cardId: string; ListName?: string }>();  
@@ -53,15 +52,18 @@ export default function EditListScreen() {
     }
   };
 
+  const removeItem = (itemId: string) => {
+    setItems(items.filter(item => item.ItemID !== itemId));
+  };
+
   const saveList = async () => {
-    if (!(cardId! && cardId !== '0' && cardId !== '')) {
-      const response = await createShoppingList(listName,token)[0];
-      cardId = response[0].ListID; 
+    if (items.length > 0) {
+      await updateShoppingListItems(cardId || '', items);  
+    }  
+    else {
+      alert('A shopping list must have at least one item.');
+      return;
     }
-    if (ListName !== listName) {
-      await changeShoppingListQuery(cardId || '', listName);
-    }
-    await updateShoppingListItems(cardId || '', items);    
     navigation.goBack();
   };
 
@@ -84,12 +86,7 @@ export default function EditListScreen() {
           <Text style={styles.topButtonText}>Save</Text>
         </Pressable>
       </View>
-      <TextInput
-        style={styles.input}
-        value={listName}
-        onChangeText={setListName}
-        placeholder="Enter list name"
-      />
+      <Text style={styles.input}>{listName}</Text>
       <TextInput
         style={styles.input}
         value={newItem}
@@ -112,6 +109,9 @@ export default function EditListScreen() {
           <View style={styles.itemContainer}>
             <Text style={styles.item}>{item.ItemName}</Text>
             <Text style={styles.quantity}>Quantity: {item.Quantity}</Text>
+            <Pressable style={styles.deleteButton} onPress={() => removeItem(item.ItemID)}>
+              <Text style={styles.buttonText}>Remove</Text>
+            </Pressable>
           </View>
         )}
         keyExtractor={(item) => item.ItemID}
@@ -172,5 +172,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
+  },
+  deleteButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
   },
 });
