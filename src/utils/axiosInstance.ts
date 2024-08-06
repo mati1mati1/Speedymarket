@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-import Cookies from 'js-cookie';
 
 const API_URL = 'https://speedymarketbackend1.azurewebsites.net/api/ExecuteSqlQuery?';
 

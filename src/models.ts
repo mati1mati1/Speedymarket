@@ -5,9 +5,13 @@ export interface User {
   LastName: string;
   Email: string;
   PhoneNumber: string;
-  UserType: string; // Buyer or Seller
+  Role: string; // Buyer or Seller
 }
-
+export enum Role{
+  Buyer = "Buyer",
+  Seller = "Seller",
+  Customer = "Customer"
+}
 export interface BuyerOrder {
   OrderID: string;
   BuyerID: string;

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { getShoppingListsByBuyerId } from 'src/api/api';
+import { useAuth } from 'src/context/AuthContext';
 import { ShoppingList } from 'src/models'; // Ensure this is correctly imported
-import useAuth from 'src/hooks/useAuth'; // Ensure this is correctly imported
 
 interface SelectListModalProps {
   closeModal: (selectedList: ShoppingList | null) => void;
@@ -14,12 +14,17 @@ interface SelectListModalProps {
 const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueWithoutList, setIsLoading, isLoading }) => {
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
-  const token = useAuth();
+  const { authState } = useAuth();
+  const token = authState.token;
 
   const fetchData = async () => {
     setIsLoading(true);
+    if (!token) {
+      console.error('Token not found');
+      return;
+    }
     try {
-      const fetchedShoppingLists = await getShoppingListsByBuyerId(token);
+      const fetchedShoppingLists = await getShoppingListsByBuyerId(token || '');
       if (fetchedShoppingLists) {
         setShoppingLists(fetchedShoppingLists);
       }

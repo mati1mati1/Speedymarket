@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
-import useAuth from '../../../src/hooks/useAuth';
 import { ShoppingListItem } from '../../../src/models';
 import { updateShoppingListItems, getShoppingListItemByCardId } from '../../../src/api/api';
+import { useAuth } from '../../../src/context/AuthContext';
 
 export default function EditListScreen() {
   let { cardId, ListName } = useLocalSearchParams<{ cardId: string; ListName?: string }>();  
-  const token = useAuth();
+  const { authState } = useAuth();
+  const token = authState.token;
   const navigation = useNavigation();
   const [items, setItems] = useState<ShoppingListItem[]>([]);
   const [newItem, setNewItem] = useState('');
@@ -18,6 +19,10 @@ export default function EditListScreen() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!token) {
+        console.error('Token not found');
+        return;
+      }
       try {
         console.log("cardId:", cardId);
         console.log("ListName:", ListName);
@@ -38,7 +43,7 @@ export default function EditListScreen() {
     };
 
     fetchData();
-  }, [cardId, ListName]);
+  }, [cardId, ListName, token]);
 
   const addItem = () => {
     if (newItem.trim() !== '') {
