@@ -1,5 +1,5 @@
 # Use the official Microsoft SQL Server image
-FROM mcr.microsoft.com/mssql/server:2019-latest
+FROM mcr.microsoft.com/mssql/server:2019-CU8-ubuntu-18.04
 
 # Set environment variables
 ENV ACCEPT_EULA=Y

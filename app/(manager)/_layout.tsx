@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
 import { useToken } from '../../src/context/TokenContext';
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, Text, StyleSheet, Platform } from 'react-native';
 import InventoryManagementScreen from './inventory';
 import OrderManagementScreen from './orders';
 import ManagerMapEditor from './map-editor';
@@ -13,9 +13,10 @@ import ManagerSettingsScreen from './ManagerSettingsScreen';
 const Tab = createBottomTabNavigator();
 
 const iconMap = {
-  InventoryManagement: 'cubes',
+  "Inventory Management": 'cubes',
   OrderManagement: 'clipboard',
   SupermarketMap: 'map',
+  Settings: 'cog',
 };
 
 
@@ -33,7 +34,9 @@ export default function ManagerScreen() {
       >
         <Tab.Screen name="Inventory Management" component={InventoryManagementScreen} />
         <Tab.Screen name="OrderManagement" component={OrderManagementScreen} />
+        {Platform.OS === 'web' ?
         <Tab.Screen name="SupermarketMap" component={ManagerMapEditor} />
+        : null}
         <Tab.Screen name="Settings" component={ManagerSettingsScreen} />
       </Tab.Navigator>
       <LogoutButton />

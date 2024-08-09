@@ -86,16 +86,28 @@ export const getShoppingListsByBuyerIdQuery = (buyerId: string): Query => ({
     { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }
   ]
 });
-export const updateSupermarketDetailsQuery = (supermarket: any): Query => ({
+export const updateSupermarketDetailsQuery = (supermarket: Supermarket): Query => ({
   query: `
     UPDATE Supermarket
-    SET BranchName = @name, BranchAddress = @location, WiFiSSID = @wifiSSID, WiFiPassword = @wifiPassword, OperatingHours = @operatingHours
+    SET BranchName = @branchName,
+        BranchMap = @branchMap,
+        StreetNumber = @streetNumber,
+        Street = @street,
+        City = @city,
+        Country = @country,
+        WiFiSSID = @wifiSSID,
+        WiFiPassword = @wifiPassword,
+        OperatingHours = @operatingHours
     WHERE SupermarketID = @supermarketId
   `,
   params: [
     { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarket.SupermarketID },
-    { name: 'name', type: 'NVarChar', value: supermarket.Name },
-    { name: 'location', type: 'NVarChar', value: supermarket.Location },
+    { name: 'branchName', type: 'NVarChar', value: supermarket.BranchName },
+    { name: 'branchMap', type: 'NVarChar', value: supermarket.BranchMap },
+    { name: 'streetNumber', type: 'Int', value: supermarket.StreetNumber },
+    { name: 'street', type: 'NVarChar', value: supermarket.Street?.name },
+    { name: 'city', type: 'NVarChar', value: supermarket.City?.name },
+    { name: 'country', type: 'NVarChar', value: supermarket.Country?.name },
     { name: 'wifiSSID', type: 'NVarChar', value: supermarket.WiFiSSID },
     { name: 'wifiPassword', type: 'NVarChar', value: supermarket.WiFiPassword },
     { name: 'operatingHours', type: 'NVarChar', value: JSON.stringify(supermarket.OperatingHours) },

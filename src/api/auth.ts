@@ -8,7 +8,7 @@ interface LoginResponse {
   token: string;
 }
 export const login = async (username: string, password: string): Promise<LoginResponse> => {
-  const response = await fetch('https://speedymarketbackend1.azurewebsites.net/api/login?', {
+  const response = await fetch('http://localhost:7071/api/login?', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

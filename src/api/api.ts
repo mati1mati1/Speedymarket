@@ -57,7 +57,7 @@ export const updateMap = async (supermarketId: string, BranchMap: string): Promi
   return await executeSqlQuery<string>(queryObject);
 };
 
-export const updateSupermarketDetails = async (supermarket: any): Promise<void> => {
+export const updateSupermarketDetails = async (supermarket: Supermarket): Promise<void> => {
   const queryObject = updateSupermarketDetailsQuery(supermarket);
   await executeSqlQuery<void>(queryObject);
 };
