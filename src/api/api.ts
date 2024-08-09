@@ -6,10 +6,6 @@ export const executeFunction = async <T>(token: string, functionName: string, pa
     const response = await axios.post<T>('http://localhost:7071/api/ExecuteSqlQuery', {
       functionName,
       params
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
     });
     return response.data;
   } catch (error) {

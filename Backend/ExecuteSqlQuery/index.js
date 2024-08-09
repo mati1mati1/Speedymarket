@@ -92,8 +92,15 @@ module.exports = async function (context, req) {
         const queryObject = getQueryByName(functionName, params);
         console.log(queryObject.query);
         for (const param of queryObject.params) {
-            request.input(param.name, sql[param.type], param.value);
-
+            if(param.name === 'userId' || param.name === 'buyerId' || param.name === 'sellerId'){
+                request.input(param.name, sql[param.type], decoded.userId);
+            }
+            else if(param.name === 'userName'){
+                request.input(param.name, sql[param.type], decoded.userName);
+            }
+            else{
+                request.input(param.name, sql[param.type], param.value);
+            }
         }
         context.log('SQL Query:', queryObject.query);
         context.log('SQL Query Parameters:', queryObject.params);
