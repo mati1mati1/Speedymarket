@@ -23,7 +23,7 @@ const ShoppingCartListScreen = () => {
         return;
       }
       try {
-        const storedShoppingLists = await getShoppingListsByBuyerId(token);
+        const storedShoppingLists = await getShoppingListsByBuyerId();
         if (storedShoppingLists) {
           setShoppingLists(storedShoppingLists);
         }
@@ -53,12 +53,12 @@ const ShoppingCartListScreen = () => {
     }
     setIsModalVisible(false);
     try {
-      const response = await createShoppingList(newListName, token || '');
+      const response = await createShoppingList(newListName);
       setShoppingLists(prevLists => [...prevLists, response[0]]);
       setNewListName('');
       router.push({
         pathname: '/shoppingList/[edit-list]',
-        params: { cardId: response[0].ListID, ListName: newListName }
+        params: { 'edit-list': '', cardId: response[0].ListID, ListName: newListName }
       });
     } catch (error) {
       console.error('Error creating shopping list:', error);
@@ -68,7 +68,7 @@ const ShoppingCartListScreen = () => {
   const handleEditCart = (cartId: string, listName: string) => {
     router.push({
       pathname: '/shoppingList/[edit-list]',
-      params: { cardId: cartId, ListName: listName }
+      params: { 'edit-list': '', cardId: cartId, ListName: listName }
     });
   };
 
@@ -80,7 +80,7 @@ const ShoppingCartListScreen = () => {
   const handleDeleteCart = async () => {
     setIsConfirmModalVisible(false);
     try {
-      await deleteShoppingList(selectedCartId, token || '');
+      await deleteShoppingList(selectedCartId);
       setShoppingLists(prevLists => prevLists.filter(list => list.ListID !== selectedCartId));
     } catch (error) {
       console.error('Error deleting shopping list:', error);

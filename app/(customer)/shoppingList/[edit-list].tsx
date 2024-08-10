@@ -28,7 +28,7 @@ export default function EditListScreen() {
         console.log("ListName:", ListName);
 
         if (cardId! && cardId !== '0' && cardId !== '') {
-          const fetchedItems = await getShoppingListItemByCardId(cardId || '');
+          const fetchedItems = await getShoppingListItemByCardId( cardId || '');
           setItems(fetchedItems);
         }
         console.log("cardId:", cardId);
