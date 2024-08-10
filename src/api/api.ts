@@ -3,7 +3,7 @@ import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingLis
 
 export const executeFunction = async <T>(token: string, functionName: string, params: Record<string, any>): Promise<T> => {
   try {
-    const response = await axios.post<T>('http://localhost:7071/api/ExecuteSqlQuery', {
+    const response = await axios.post<T>('http://localhost:7071/api/  ', {
       functionName,
       params
     });
