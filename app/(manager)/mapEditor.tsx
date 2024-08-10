@@ -32,7 +32,7 @@ const ManagerMapEditor: React.FC = () => {
         return;
       }
       try {
-        const fetchedSupermarket = (await getSupermarketByUserId(token || ''))[0];
+        const fetchedSupermarket = (await getSupermarketByUserId())[0];
         if (fetchedSupermarket) {
           setSupermarket(fetchedSupermarket);
           const branchMap = JSON.parse(fetchedSupermarket.BranchMap);
@@ -169,7 +169,7 @@ const ManagerMapEditor: React.FC = () => {
 
   const saveMapToDB = async () => {
     const mapData = { sections, entrance, mapWidth, mapHeight };
-    await updateMap(token || '', supermarket.SupermarketID, JSON.stringify(mapData));
+    await updateMap(supermarket.SupermarketID, JSON.stringify(mapData));
   };
 
   if (isLoading) {

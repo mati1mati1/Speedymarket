@@ -28,7 +28,7 @@ export default function EditListScreen() {
         console.log("ListName:", ListName);
 
         if (cardId! && cardId !== '0' && cardId !== '') {
-          const fetchedItems = await getShoppingListItemByCardId(token , cardId || '');
+          const fetchedItems = await getShoppingListItemByCardId( cardId || '');
           setItems(fetchedItems);
         }
         console.log("cardId:", cardId);
@@ -63,7 +63,7 @@ export default function EditListScreen() {
 
   const saveList = async () => {
     if (items.length > 0) {
-      await updateShoppingListItems(token || '', cardId || '', items);  
+      await updateShoppingListItems(cardId || '', items);  
     }  
     else {
       alert('A shopping list must have at least one item.');

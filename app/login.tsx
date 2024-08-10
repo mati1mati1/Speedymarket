@@ -1,18 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { login } from '../src/api/auth';
-import { jwtDecode } from 'jwt-decode';
 import Input from '../src/components/Input';
-import { decodedToken } from '../src/utils/authUtils';
 import { useAuth } from '../src/context/AuthContext';
 import { Role } from '../src/models';
 
-interface DecodedToken {
-  username: string;
-  role: string;
-  exp: number;
-}
 
 export default function LoginScreen() {
   const [username, setUsername] = useState<string>('');
@@ -26,7 +18,6 @@ export default function LoginScreen() {
     console.log("handleLogin called with:", username, password); // Debugging
     try {
       const response = await onLogin!(username, password);
-      debugger;
       if (response.success) {
         if (response.role === Role.Seller) {
             router.replace('/(manager)/inventory');
