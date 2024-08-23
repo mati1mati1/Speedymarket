@@ -1,14 +1,14 @@
 import React from 'react';
-import { useToken } from '../context/TokenContext';
-import { useRouter } from 'expo-router';
+import { useAuth } from '../context/AuthContext';
 import { Pressable, Text, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const LogoutButton = () => {
-  const { logout } = useToken();
+  const { authState, onLogout } = useAuth();
   const router = useRouter();
 
   const handleLogout = () => {
-    logout();
+    onLogout();
     router.push('/login');
   };
 

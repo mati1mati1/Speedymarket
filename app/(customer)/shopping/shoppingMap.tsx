@@ -11,7 +11,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { fetchCurrentLocation } from '../../../src/services/locationService';
 import { connectToWifi } from '../../../src/services/wifiService';
 import { EntranceType, loadMapAndPath, SectionType, ItemWithLocation } from '../../../src/services/mapService';
-import { getItemBySupermarketIdAndBarcode, getSupermarketBySupermarketID } from '../../../src/api/api';
+import { getItemBySupermarketIdAndBarcode, getSupermarketBySupermarketId } from '../../../src/api/api';
 import { ShopInventory, ShoppingListItem } from '../../../src/models';
 import MissingItemsModal from '../../../src/components/MissingItemsModal';
 import FoundItemsModal from '../../../src/components/FoundItemsModal';
@@ -71,21 +71,7 @@ const CustomerMapViewer: React.FC = () => {
 
     fetchMapAndPath();
   }, [supermarketId, listId]);
-
-  const handleLoadMapAndPath = async () => {
-    try {
-      const supermarket = await getSupermarketBySupermarketID(supermarketId || '');
-      const ssid = supermarket[0]?.WiFiSSID || '';
-      const password = supermarket[0]?.WiFiPassword || '';
-      if (Platform.OS !== 'web') {
-        await connectToWifi(ssid, password);
-      }
-      await loadMapAndPath(supermarketId || '', listId || '');
-    } catch (error: any) {
-      alert(error.message);
-    }
-  };
-
+  
   const handleCheckboxChange = (itemId: string) => {
     setCheckedItems((prevCheckedItems) => ({
       ...prevCheckedItems,

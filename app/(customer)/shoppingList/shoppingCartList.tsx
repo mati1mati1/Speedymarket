@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator, Modal, 
 import { useRouter } from 'expo-router';
 import { createShoppingList, getShoppingListsByBuyerId, deleteShoppingList } from '../../../src/api/api';
 import { ShoppingList } from '../../../src/models';
-import useAuth from '../../../src/hooks/useAuth';
+import { useAuth } from 'src/context/AuthContext';
 
 const ShoppingCartListScreen = () => {
   const router = useRouter();
@@ -13,12 +13,17 @@ const ShoppingCartListScreen = () => {
   const [newListName, setNewListName] = useState('');
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [selectedCartId, setSelectedCartId] = useState('');
-  const token = useAuth();
+  const { authState } = useAuth();
+  const token = authState.token;
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!token) {
+        console.error('Token not found');
+        return;
+      }
       try {
-        const storedShoppingLists = await getShoppingListsByBuyerId(token);
+        const storedShoppingLists = await getShoppingListsByBuyerId();
         if (storedShoppingLists) {
           setShoppingLists(storedShoppingLists);
         }
@@ -48,12 +53,12 @@ const ShoppingCartListScreen = () => {
     }
     setIsModalVisible(false);
     try {
-      const response = await createShoppingList(newListName, token);
+      const response = await createShoppingList(newListName);
       setShoppingLists(prevLists => [...prevLists, response[0]]);
       setNewListName('');
       router.push({
         pathname: '/shoppingList/[edit-list]',
-        params: { cardId: response[0].ListID, ListName: newListName }
+        params: { 'edit-list': '', cardId: response[0].ListID, ListName: newListName }
       });
     } catch (error) {
       console.error('Error creating shopping list:', error);
@@ -63,7 +68,7 @@ const ShoppingCartListScreen = () => {
   const handleEditCart = (cartId: string, listName: string) => {
     router.push({
       pathname: '/shoppingList/[edit-list]',
-      params: { cardId: cartId, ListName: listName }
+      params: { 'edit-list': '', cardId: cartId, ListName: listName }
     });
   };
 
@@ -75,7 +80,7 @@ const ShoppingCartListScreen = () => {
   const handleDeleteCart = async () => {
     setIsConfirmModalVisible(false);
     try {
-      await deleteShoppingList(selectedCartId, token);
+      await deleteShoppingList(selectedCartId);
       setShoppingLists(prevLists => prevLists.filter(list => list.ListID !== selectedCartId));
     } catch (error) {
       console.error('Error deleting shopping list:', error);

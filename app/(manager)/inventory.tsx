@@ -3,9 +3,9 @@ import { View, Text, TextInput, Button, StyleSheet, Modal, Alert, ScrollView, Di
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
 import { ShopInventory } from '../../src/models';
 import { addShopInventory, getShopInventory, getSupermarketByUserId, updateShopInventory, deleteShopInventory } from '../../src/api/api';
-import useAuth from '../../src/hooks/useAuth';
 import { v4 as uuidv4 } from 'uuid'; // Ensure uuid is installed
 import ScanItem from '../../src/components/Scanner';
+import { useAuth } from '../../src/context/AuthContext';
 
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);
@@ -15,16 +15,17 @@ export default function InventoryManagementScreen() {
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const token = useAuth();
   const [isScannedDataOpen, setScannedDataModalOpen] = useState(false);
   const [filter, setFilter] = useState('');
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<ShopInventory | null>(null);
-
+  const { authState } = useAuth();
+  const token = authState.token;
   const screenWidth = Dimensions.get('window').width;
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!token) return;
       try {
         const shopInventory = await getShopInventory(token);
         if (shopInventory) {
@@ -41,17 +42,16 @@ export default function InventoryManagementScreen() {
     };
 
     fetchData();
-  }, []);
+  }, [token]);
 
   const handleFormChange = (name: string, value: string) => {
     setForm({ ...form, [name]: value });
   };
 
-  
   const validateForm = () => {
     const { ItemName, Quantity, Price, Discount, Location, Barcode } = form;
     if (!ItemName || !Quantity || !Price || !Discount || !Location || !Barcode) {
-      alert( 'All fields are required');
+      alert('All fields are required');
       return false;
     }
     if (isNaN(parseInt(Quantity)) || isNaN(parseFloat(Price)) || isNaN(parseFloat(Discount))) {
@@ -86,7 +86,7 @@ export default function InventoryManagementScreen() {
       Barcode: form.Barcode,
       SupermarketID: supermarketID
     };
-    const response = await addShopInventory(newItem);
+    const response = await addShopInventory(token || '', newItem);
     newItem.InventoryID = response[0];
     setInventory([...inventory, newItem]);
     setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
@@ -106,10 +106,10 @@ export default function InventoryManagementScreen() {
         Barcode: form.Barcode
       };
 
-      await updateShopInventory(updatedItem);
+      await updateShopInventory(token || '', updatedItem);
 
-      const updatedInventory = inventory.map(item => 
-        item.InventoryID === currentItem.InventoryID 
+      const updatedInventory = inventory.map(item =>
+        item.InventoryID === currentItem.InventoryID
           ? updatedItem
           : item
       );
@@ -123,13 +123,13 @@ export default function InventoryManagementScreen() {
 
   const handleEditClick = (item: ShopInventory) => {
     setCurrentItem(item);
-    setForm({ 
-      ItemName: item.ItemName, 
-      Quantity: item.Quantity.toString(), 
-      Price: item.Price.toString(), 
-      Discount: item.Discount.toString(), 
-      Location: item.Location, 
-      Barcode: item.Barcode 
+    setForm({
+      ItemName: item.ItemName,
+      Quantity: item.Quantity.toString(),
+      Price: item.Price.toString(),
+      Discount: item.Discount.toString(),
+      Location: item.Location,
+      Barcode: item.Barcode
     });
     setIsEditing(true);
     setModalVisible(true);
@@ -142,7 +142,7 @@ export default function InventoryManagementScreen() {
 
   const confirmDeleteItem = async () => {
     if (itemToDelete) {
-      await deleteShopInventory(itemToDelete.InventoryID);
+      await deleteShopInventory(token || '',itemToDelete.InventoryID);
       setInventory(inventory.filter(i => i.InventoryID !== itemToDelete.InventoryID));
       setDeleteModalVisible(false);
       setItemToDelete(null);
@@ -162,7 +162,7 @@ export default function InventoryManagementScreen() {
     </View>
   );
 
-  const filteredInventory = inventory.filter(item => 
+  const filteredInventory = inventory.filter(item =>
     item.ItemName.toLowerCase().includes(filter.toLowerCase()) ||
     item.Barcode.includes(filter)
   );
@@ -181,25 +181,25 @@ export default function InventoryManagementScreen() {
         <ScrollView>
           <View style={styles.tableContainer}>
             <Table borderStyle={{ borderWidth: 1, borderColor: '#C1C0B9' }}>
-              <Row 
-                data={['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode', 'Actions']} 
-                style={styles.head} 
-                textStyle={styles.text} 
-                widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7]} 
+              <Row
+                data={['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode', 'Actions']}
+                style={styles.head}
+                textStyle={styles.text}
+                widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7]}
               />
               <TableWrapper style={styles.wrapper}>
-                <Rows 
+                <Rows
                   data={filteredInventory.map(item => [
-                    item.ItemName, 
-                    item.Quantity, 
-                    item.Price, 
-                    item.Discount, 
-                    item.Location, 
-                    item.Barcode, 
+                    item.ItemName,
+                    item.Quantity,
+                    item.Price,
+                    item.Discount,
+                    item.Location,
+                    item.Barcode,
                     renderEditButton(null, inventory.indexOf(item))
-                  ])} 
-                  textStyle={styles.text} 
-                  widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7]} 
+                  ])}
+                  textStyle={styles.text}
+                  widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7]}
                 />
               </TableWrapper>
             </Table>
@@ -220,20 +220,20 @@ export default function InventoryManagementScreen() {
             {['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode'].map((placeholder, index) => (
               <View style={styles.inputContainer} key={index}>
                 <Text style={styles.label}>{placeholder}</Text>
-                <TextInput 
-                  placeholder={placeholder} 
-                  value={form[placeholder.replace(' ', '')]} 
-                  onChangeText={(value) => handleFormChange(placeholder.replace(' ', ''), value)} 
-                  style={styles.input} 
-                  keyboardType={placeholder === 'Quantity' || placeholder === 'Price' || placeholder === 'Discount' ? 'numeric' : 'default'} 
+                <TextInput
+                  placeholder={placeholder}
+                  value={form[placeholder.replace(' ', '')]}
+                  onChangeText={(value) => handleFormChange(placeholder.replace(' ', ''), value)}
+                  style={styles.input}
+                  keyboardType={placeholder === 'Quantity' || placeholder === 'Price' || placeholder === 'Discount' ? 'numeric' : 'default'}
                 />
               </View>
             ))}
 
             <View style={styles.buttonRow}>
-              <Button 
-                title={isEditing ? "Update Item" : "Add Item"} 
-                onPress={isEditing ? handleEditItem : handleAddItem} 
+              <Button
+                title={isEditing ? "Update Item" : "Add Item"}
+                onPress={isEditing ? handleEditItem : handleAddItem}
               />
               <Button
                 title="Cancel"
@@ -247,12 +247,12 @@ export default function InventoryManagementScreen() {
                 onPress={toggleIsScannedDataOpen}
               />
               <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
-              <TouchableOpacity style={styles.modalOverlay} onPress={toggleIsScannedDataOpen}>
-                <View style={styles.modal} onStartShouldSetResponder={() => true}>
-                  <ScanItem handleData={handleScannedBarcode}/>
-                </View>
-              </TouchableOpacity>
-            </Modal>
+                <TouchableOpacity style={styles.modalOverlay} onPress={toggleIsScannedDataOpen}>
+                  <View style={styles.modal} onStartShouldSetResponder={() => true}>
+                    <ScanItem handleData={handleScannedBarcode} />
+                  </View>
+                </TouchableOpacity>
+              </Modal>
             </View>
           </View>
         </View>
@@ -270,9 +270,9 @@ export default function InventoryManagementScreen() {
           <View style={styles.modalView}>
             <Text style={styles.modalText}>Are you sure you want to delete this item?</Text>
             <View style={styles.buttonRow}>
-              <Button 
-                title="Delete" 
-                onPress={confirmDeleteItem} 
+              <Button
+                title="Delete"
+                onPress={confirmDeleteItem}
                 color="red"
               />
               <Button
@@ -363,7 +363,6 @@ const styles = StyleSheet.create({
   },
   buttonGroup: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   modalText: {
     marginBottom: 15,
