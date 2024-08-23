@@ -43,6 +43,9 @@ export const getSupermarketByUserId = async (): Promise<Supermarket[]> => {
   return await executeFunction<Supermarket[]>( 'getSupermarketByUserId', {});
 };
 
+export const updateSupermarketDetails = async (supermarket: Supermarket): Promise<void> => {
+  await executeFunction<void>('updateSupermarketDetailsQuery', supermarket);
+};
 export const getSupermarketBySupermarketId = async ( supermarketId: string): Promise<Supermarket[]> => {
   return await executeFunction<Supermarket[]>( 'getSupermarketBySupermarketId', { supermarketId });
 };

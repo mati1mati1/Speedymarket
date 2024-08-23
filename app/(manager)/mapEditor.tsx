@@ -44,7 +44,7 @@ const ManagerMapEditor: React.FC = () => {
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
-        setIsLoading(false); // Set loading to false after data is fetched
+        setIsLoading(false); 
       }
     };
 

@@ -44,3 +44,5 @@ VALUES
 ((SELECT UserID FROM Users WHERE Email = 'mike.johnson@example.com'), '[{"ItemName": "item-006", "ItemName": "Tomatoes", "Quantity": 3, "Price": 7.99}, {"ItemName": "item-007", "ItemName": "Cucumbers", "Quantity": 1, "Price": 8.49}]', 36.96, (SELECT SellerID FROM Sellers WHERE BranchName = 'Market Plaza')),
 ((SELECT UserID FROM Users WHERE Email = 'mike.johnson@example.com'), '[{"ItemName": "item-006", "ItemName": "Tomatoes", "Quantity": 2, "Price": 7.99}, {"ItemName": "item-007", "ItemName": "Cucumbers", "Quantity": 2, "Price": 8.49}]', 40.96, (SELECT SellerID FROM Sellers WHERE BranchName = 'Market Plaza')),
 ((SELECT UserID FROM Users WHERE Email = 'mike.johnson@example.com'), '[{"ItemName": "item-006", "ItemName": "Tomatoes", "Quantity": 1, "Price": 7.99}, {"ItemName": "item-007", "ItemName": "Cucumbers", "Quantity": 3, "Price": 8.49}]', 46.96, (SELECT SellerID FROM Sellers WHERE BranchName = 'Market Plaza'));
+
+

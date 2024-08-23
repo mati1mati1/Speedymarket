@@ -28,10 +28,12 @@ module.exports = async function (context, req) {
   //   };
   // }
   const { username } = req.body;
+  context.log('Username:', username);
   const user = await getUserByUserName(username);
-
+  context.log('User:', user);
   if (user ) { 
     const token = jwt.sign({ userId: user.UserID, username: user.UserName, role: user.UserType }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    console.log('Token:', token);
     context.res = {
       body: { token },
     };

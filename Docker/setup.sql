@@ -19,10 +19,14 @@ GO
 -- Create Supermarket Table
 CREATE TABLE Supermarket (
     SupermarketID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    UserID UNIQUEIDENTIFIER NOT NULL,
+    UserID UNIQUEIDENTIFIER UNIQUE NOT NULL,
     BranchName NVARCHAR(100) NOT NULL,
-    Barcode NVARCHAR(100) ,
-    BranchAddress NVARCHAR(255) NOT NULL,
+    Barcode NVARCHAR(100),
+    OperatingHours NVARCHAR(MAX),
+    Country NVARCHAR(100),
+    City NVARCHAR(100),
+    Street NVARCHAR(100),
+    StreetNumber NVARCHAR(10),
     BranchMap NVARCHAR(MAX) NOT NULL,
     Location NVARCHAR(255) NOT NULL,
     WiFiPassword NVARCHAR(255) NOT NULL,
@@ -109,35 +113,44 @@ VALUES
 GO
 
 -- Insert mock data into Supermarket table using the UserID of sellers
-INSERT INTO Supermarket (UserID, BranchName, BranchAddress, BranchMap, Location, WiFiPassword, WiFiSSID)
+INSERT INTO Supermarket (UserID, BranchName, BranchMap, Location, WiFiPassword, WiFiSSID)
 VALUES 
-((SELECT UserID FROM [User] WHERE Email = 'jane.smith@example.com'), 'Main Street Store', '123 Main St', '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"name":"מדף","left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"name":"מדף","left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"name":"מדף","left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"name":"מדף","left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"name":"מדף","left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"name":"מדף","left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"name":"מדף","left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"name":"מדף","left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"name":"מדף","left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"name":"מדף","left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"name":"מדף","left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"name":"מדף","left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"name":"מדף","left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"name":"מדף","left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 'Los Angeles', 'supermarket_password','supermarket_ssid'),
-((SELECT UserID FROM [User] WHERE Email = 'emily.davis@example.com'), 'Market Plaza', '456 Market St', '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 'San Francisco', 'market_password','supermarket_ssid');
+((SELECT UserID FROM [User] WHERE Email = 'jane.smith@example.com'), 'Main Street Store', '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"name":"מדף","left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"name":"מדף","left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"name":"מדף","left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"name":"מדף","left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"name":"מדף","left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"name":"מדף","left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"name":"מדף","left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"name":"מדף","left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"name":"מדף","left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"name":"מדף","left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"name":"מדף","left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"name":"מדף","left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"name":"מדף","left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"name":"מדף","left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 'Los Angeles', 'supermarket_password','supermarket_ssid'),
+((SELECT UserID FROM [User] WHERE Email = 'emily.davis@example.com'), 'Market Plaza', '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 'San Francisco', 'market_password','supermarket_ssid');
+GO
+
+-- Update Supermarket table with default operating hours and location details
+UPDATE Supermarket
+SET OperatingHours = '[{"day":"Sunday","openHour":"08:00","closeHour":"20:00"},{"day":"Monday","openHour":"08:00","closeHour":"20:00"},{"day":"Tuesday","openHour":"08:00","closeHour":"20:00"},{"day":"Wednesday","openHour":"08:00","closeHour":"20:00"},{"day":"Thursday","openHour":"08:00","closeHour":"20:00"},{"day":"Friday","openHour":"08:00","closeHour":"20:00"},{"day":"Saturday","openHour":"08:00","closeHour":"20:00"}]',
+    Country = 'Unknown',
+    City = 'Unknown',
+    Street = 'Unknown',
+    StreetNumber = '0';
 GO
 
 -- Insert mock data into ShopInventory
 INSERT INTO ShopInventory (SupermarketID, ItemName, Quantity, Price, Discount, Location, Barcode)
 VALUES 
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'item-001', 100, 10.99, 0.99, 1, 'barcode-001'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'item-002', 200, 5.49, 0.49, 2, 'barcode-002'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'item-003', 150, 7.99, 0.79, 3, 'barcode-003'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'item-004', 80, 12.99, 1.29, 4, 'barcode-004'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'item-005', 50, 15.99, 2.49, 5, 'barcode-005'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'item-006', 90, 6.99, 0.69, 6, 'barcode-006'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'item-007', 120, 8.49, 0.89, 7, 'barcode-007'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'item-008', 110, 9.99, 1.09, 8, 'barcode-008'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'item-009', 140, 4.99, 0.49, 9, 'barcode-009'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'item-010', 130, 3.99, 0.39, 10, 'barcode-010'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'item-001', 100, 10.99, 0.99, 1, 'barcode-011'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'item-002', 200, 5.49, 0.49, 2, 'barcode-012'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'item-003', 150, 7.99, 0.79, 3, 'barcode-013'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'item-004', 80, 12.99, 1.29, 4, 'barcode-014'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'item-005', 50, 15.99, 2.49, 5, 'barcode-015'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'item-006', 90, 6.99, 0.69, 6, 'barcode-016'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'item-007', 120, 8.49, 0.89, 7, 'barcode-017'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'item-008', 110, 9.99, 1.09, 8, 'barcode-018'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'item-009', 140, 4.99, 0.49, 9, 'barcode-019'),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'item-010', 130, 3.99, 0.39, 10, 'barcode-020');
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Apple', 100, 1.99, 0.10, 1, 'barcode-001'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Banana', 150, 0.99, 0.05, 2, 'barcode-002'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Milk', 200, 2.49, 0.20, 3, 'barcode-003'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Bread', 100, 1.50, 0.10, 4, 'barcode-004'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Butter', 80, 3.99, 0.50, 5, 'barcode-005'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Cheese', 120, 4.99, 0.30, 6, 'barcode-006'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Chicken', 90, 5.99, 0.40, 7, 'barcode-007'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Beef', 70, 8.99, 0.70, 8, 'barcode-008'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Fish', 60, 7.99, 0.60, 9, 'barcode-009'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Eggs', 110, 2.99, 0.20, 10, 'barcode-010'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Orange', 120, 1.49, 0.10, 1, 'barcode-011'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Grapes', 100, 2.99, 0.20, 2, 'barcode-012'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Yogurt', 140, 1.99, 0.10, 3, 'barcode-013'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Juice', 80, 3.49, 0.30, 4, 'barcode-014'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Cereal', 60, 4.99, 0.40, 5, 'barcode-015'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Rice', 90, 2.49, 0.15, 6, 'barcode-016'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Pasta', 130, 1.99, 0.10, 7, 'barcode-017'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Tomato', 150, 1.79, 0.10, 8, 'barcode-018'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Potato', 200, 0.99, 0.05, 9, 'barcode-019'),
+((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Onion', 170, 1.29, 0.10, 10, 'barcode-020');
 GO
 
 -- Insert mock data into ShoppingList and ShoppingListItem
@@ -154,18 +167,18 @@ GO
 -- Insert mock data into ShoppingListItem
 INSERT INTO ShoppingListItem (ListID, ItemName, Quantity)
 VALUES 
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List1'), 'item-001',  2),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List1'), 'item-002',  1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List2'), 'item-006',  3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List2'), 'item-007',  1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List3'), 'item-001',  2),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List3'), 'item-002',  1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List4'), 'item-006',  3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List4'), 'item-007',  1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List5'), 'item-006',  3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List5'), 'item-007',  1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List6'), 'item-006',  3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List6'), 'item-007',  1);
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List1'), 'Apple', 2),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List1'), 'Banana', 1),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List2'), 'Milk', 3),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List2'), 'Bread', 1),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List3'), 'Butter', 2),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List3'), 'Cheese', 1),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List4'), 'Chicken', 3),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List4'), 'Beef', 1),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List5'), 'Fish', 3),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List5'), 'Eggs', 1),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List6'), 'Orange', 3),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'List6'), 'Grapes', 1);
 GO
 
 -- Insert mock data into BuyerOrder and BuyerOrderItem
@@ -181,18 +194,18 @@ GO
 
 INSERT INTO BuyerOrderItem (OrderID, ItemID, ItemName, Quantity, Price)
 VALUES 
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 27.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-001', 'Product A1', 2, 10.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 27.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-002', 'Product A2', 1, 5.49),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 21.97 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-001', 'Product A1', 1, 10.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 21.97 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-002', 'Product A2', 2, 5.49),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 38.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-001', 'Product A1', 3, 10.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 38.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-002', 'Product A2', 1, 5.49),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 36.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-006', 'Product B1', 3, 7.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 36.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-007', 'Product B2', 1, 12.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 40.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-006', 'Product B1', 2, 7.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 40.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-007', 'Product B2', 2, 12.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 46.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-006', 'Product B1', 1, 7.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 46.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-007', 'Product B2', 3, 12.99);
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 27.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-001', 'Apple', 2, 1.99),
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 27.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-002', 'Banana', 1, 0.99),
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 21.97 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-001', 'Apple', 1, 1.99),
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 21.97 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-002', 'Banana', 2, 0.99),
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 38.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-001', 'Apple', 3, 1.99),
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 38.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-002', 'Banana', 1, 0.99),
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 36.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-006', 'Cheese', 3, 4.99),
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 36.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-007', 'Chicken', 1, 5.99),
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 40.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-006', 'Cheese', 2, 4.99),
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 40.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-007', 'Chicken', 2, 5.99),
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 46.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-006', 'Cheese', 1, 4.99),
+((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 46.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-007', 'Chicken', 3, 5.99);
 GO
 
 -- Insert mock data into ESP32Position
