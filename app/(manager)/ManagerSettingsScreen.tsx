@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Modal, Dimensions, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
-import useAuth from '../../src/hooks/useAuth';
-import { getSupermarketByUserId, updateSupermarketDetails } from '../../src/api/api';
 import { getCountries, getCities, getStreets } from '../../src/api/locationApi';
 import { Country, City, dailyHours, Street, Supermarket } from '../../src/models';
+import { useAuth } from '../../src/context/AuthContext';
+import { getSupermarketByUserId, updateSupermarketDetails } from '../../src/api/api';
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -33,7 +33,7 @@ const ManagerSettingsScreen = () => {
     useEffect(() => {
         const fetchSupermarketDetails = async () => {
             try {
-                const fetchedSupermarket = await getSupermarketByUserId(token);
+                const fetchedSupermarket = await getSupermarketByUserId();
                 if (fetchedSupermarket && fetchedSupermarket.length > 0) {
                     const supermarketDetails = fetchedSupermarket[0];
                     setSupermarket(supermarketDetails);

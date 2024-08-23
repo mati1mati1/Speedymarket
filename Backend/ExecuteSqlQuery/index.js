@@ -46,6 +46,8 @@ const getQueryByName = (functionName, params) => {
             return queries.updateShopInventoryQuery(params.shopInventory);
         case 'deleteShopInventory':
             return queries.deleteShopInventoryQuery(params.inventoryId);
+        case 'updateSupermarketDetailsQuery':
+            return queries.updateSupermarketDetailsQuery(params.supermarket);
         default:
             throw new Error('Invalid function name');
     }
