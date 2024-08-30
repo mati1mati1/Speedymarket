@@ -1,8 +1,9 @@
 const sql = require('mssql');
 const jwt = require('jsonwebtoken');
-const queries = require('./queries'); // Import your queries module
+const queries = require('./queries'); 
+const axios = require('axios');
 
-const getQueryByName = (functionName, params) => {
+const getQueryByName = async (functionName, params) => {
     switch (functionName) {
         case 'getUserById':
             return queries.getUserByIdQuery(params.userId);
@@ -47,11 +48,38 @@ const getQueryByName = (functionName, params) => {
         case 'deleteShopInventory':
             return queries.deleteShopInventoryQuery(params.inventoryId);
         case 'updateSupermarketDetailsQuery':
-            return queries.updateSupermarketDetailsQuery(params.supermarket);
+            const address = `${params.Street?.name}, ${params.City?.name}, ${params.Country?.name}`;
+            console.log(address);
+            const coordinates = await getCoordinatesFromAzureMaps(address);
+            params.Latitude = coordinates.latitude;
+            params.Longitude = coordinates.longitude;
+            return queries.updateSupermarketDetailsQuery(params);
+
         default:
             throw new Error('Invalid function name');
     }
 };
+async function getCoordinatesFromAzureMaps(address) {
+    const response = await axios.get(`https://atlas.microsoft.com/search/address/json`, {
+      params: {
+        'api-version': '1.0',
+        'subscription-key': 'BO42TKpTwoUXPHMelZ8m922mkYOAUGKOPknUSMbdJiczaocLoB8GJQQJ99AHAC5RqLJPSPD9AAAgAZMPBGJy',
+        'query': address,
+        'limit': '1',
+      },
+    });
+    console.log(response.data);
+    if (response.data.results.length > 0) {
+      const location = response.data.results[0].position;
+      console.log(location);
+      return {
+        latitude: location.lat,
+        longitude: location.lon,
+      };
+    } else {
+      throw new Error('No results found');
+    }
+  }
 
 module.exports = async function (context, req) {
     const token = req.headers.authorization?.split(' ')[1];
@@ -91,7 +119,7 @@ module.exports = async function (context, req) {
         await sql.connect(config);
         const request = new sql.Request();
         console.log("userID" + decoded.userId);
-        const queryObject = getQueryByName(functionName, params);
+        const queryObject = await getQueryByName(functionName, params);
         console.log(queryObject.query);
         for (const param of queryObject.params) {
             if(param.name === 'userId' || param.name === 'buyerId' || param.name === 'sellerId'){

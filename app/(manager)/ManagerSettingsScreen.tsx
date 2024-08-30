@@ -38,13 +38,12 @@ const ManagerSettingsScreen = () => {
                     const supermarketDetails = fetchedSupermarket[0];
                     setSupermarket(supermarketDetails);
                     setName(supermarketDetails.BranchName);
-                    setCountry(supermarketDetails.Country || null);
-                    setCity(supermarketDetails.City || null);
-                    setStreet(supermarketDetails.Street || null);
                     setStreetNumber(supermarketDetails.StreetNumber || 0);
                     setWiFiSSID(supermarketDetails.WiFiSSID);
                     setWiFiPassword(supermarketDetails.WiFiPassword);
-
+                    setCountry(supermarketDetails.Country ? JSON.parse(supermarketDetails.Country as unknown as string) : null);
+                    setCity(supermarketDetails.City ? JSON.parse(supermarketDetails.City as unknown as string) : null);
+                    setStreet(supermarketDetails.Street ? JSON.parse(supermarketDetails.Street as unknown as string) : null);
                     let operatingHoursArray: dailyHours[];
                     try {
                         operatingHoursArray = JSON.parse(supermarketDetails.OperatingHours as unknown as string);

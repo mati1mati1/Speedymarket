@@ -65,7 +65,6 @@ export interface Supermarket {
   WiFiPassword: string;
   WiFiSSID: string;
   OperatingHours: dailyHours[];
-
 }
 
 export interface Location {
