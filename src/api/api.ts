@@ -101,3 +101,66 @@ export const updateShopInventory = async ( shopInventory: ShopInventory): Promis
 export const deleteShopInventory = async ( inventoryId: string): Promise<void> => {
   return await executeFunction<void>( 'deleteShopInventory', { inventoryId });
 };
+
+  
+interface AIResponse {
+  success: boolean;
+  list: string[];
+}
+export const uploadGroceryListImage = async (imageFile: string): Promise<AIResponse> => {
+  console.log("this is the image file", imageFile);
+  const response = await fetch('https://readimage.azurewebsites.net/api/readImage?', {
+    method: 'POST',
+    // headers: {
+    //   'Content-Type': 'application/json',
+    // },
+    body: imageFile,
+  });
+  const data = await response.json();
+  if (data) {
+    const lines = data.readResult.blocks[0].lines
+    const textLines = lines.map((line: { text: any; }) => line.text)
+    return {
+      success: true,
+      list: textLines,
+    };
+  } else {
+    return {
+      success: false,
+      list: JSON.parse(""),
+    };
+  }
+}
+
+export const uploadRecipeUrl = async (recipeUrl: string): Promise<AIResponse>=>{
+  const key = process.env.RECIPE_FUNCTION_KEY;
+  //MATAN make sure u put the key in the env file with the value i sent in the group chat
+  const response = await fetch(`https://readimage.azurewebsites.net/api/readRecipeURL?code=${key}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    }, 
+    body: JSON.stringify({ url: recipeUrl })
+  });
+  try {
+    const data = await response.json();
+    if (data.success) {
+      return {
+        success: true,
+        list: data.ingredients,
+      };
+    } else {
+      return {
+        success: false,
+        list: [],
+      };
+    }
+  }
+  catch (error) {
+    console.error('An error occurred during uploadRecipeUrl', error);
+    return {
+      success: false,
+      list: [],
+    }
+  }
+}

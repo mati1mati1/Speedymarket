@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator, Modal, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { createShoppingList, getShoppingListsByBuyerId, deleteShoppingList } from '../../../src/api/api';
+import { createShoppingList, getShoppingListsByBuyerId, deleteShoppingList, uploadGroceryListImage, uploadRecipeUrl } from '../../../src/api/api';
 import { ShoppingList } from '../../../src/models';
 import { useAuth } from 'src/context/AuthContext';
+import { launchImageLibrary } from 'react-native-image-picker';
+import Toast from 'react-native-toast-message';
 
 const ShoppingCartListScreen = () => {
   const router = useRouter();
@@ -15,6 +17,11 @@ const ShoppingCartListScreen = () => {
   const [selectedCartId, setSelectedCartId] = useState('');
   const { authState } = useAuth();
   const token = authState.token;
+  
+  const [listItems, setListItems] = useState<string[]>([]);
+  const [newItem, setNewItem] = useState<string>('');
+  const [image, setImage] = useState<{ uri: string } | null>(null);
+  const [recipeUrl, setRecipeUrl] = useState<string>('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,6 +94,49 @@ const ShoppingCartListScreen = () => {
     }
   };
 
+  const handleUploadImage = () => {
+    launchImageLibrary({ mediaType: 'photo' }, async (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorMessage) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+      } else if (response.assets && response.assets.length > 0) {
+        const source = { uri: response.assets[0].uri as string };
+        setImage(source);
+        try {
+          const res = await uploadGroceryListImage(source.uri);
+          if (res.success) {
+            const items = res.list;
+            setListItems(items);
+          } else {
+            Toast.show({
+              type: 'error',
+              text1: 'Please try again with a different image',
+            });
+          }
+        } catch (error) {
+          Toast.show({
+            type: 'error',
+            text1: 'Please try again later, we had a problem',
+          });
+        }
+      }
+    });
+  };
+
+  const handleRecipe = async () => {
+    const res = await uploadRecipeUrl(recipeUrl);
+    if (res.success) {
+      setListItems(res.list);
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Please try again with a different URL',
+      });
+    }
+    setRecipeUrl('');
+  };
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -115,7 +165,7 @@ const ShoppingCartListScreen = () => {
         )}
       />
       <Pressable style={styles.button} onPress={handleAddCart}>
-        <Text style={styles.buttonText}>Add Shopping Cart</Text>
+        <Text style={styles.buttonText}>+ New List</Text>
       </Pressable>
 
       <Modal
@@ -125,21 +175,71 @@ const ShoppingCartListScreen = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Add Shopping List</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter list name"
-              value={newListName}
-              onChangeText={setNewListName}
-            />
-            <View style={styles.modalButtons}>
-              <Pressable style={[styles.modalButton, styles.addButton]} onPress={handleAdd}>
-                <Text style={styles.buttonText}>Add</Text>
+            <ScrollView>
+              <Text style={styles.modalTitle}>Add a New Shopping List</Text>
+              <View style={[styles.modalButtons]}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter list name"
+                  value={newListName}
+                  onChangeText={setNewListName}
+                />
+                <Pressable style={[styles.modalButton, styles.addButton]} onPress={handleAdd}>
+                  <Text style={styles.buttonText}>Add</Text>
+                </Pressable>
+              </View>
+              <View style={[styles.inputContainer, styles.borderBottom]}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Add new item"
+                  value={newItem}
+                  onChangeText={setNewItem}
+                />
+                <Pressable onPress={() => {
+                  if (newItem.trim()) {
+                    setListItems([...listItems, newItem.trim()]);
+                    setNewItem('');
+                  }
+                }}>
+                  <Text>Add</Text>
+                </Pressable>
+              </View>
+              <Text style={styles.modalTitle}>Add a list from an image:</Text>
+              <Pressable style={styles.bigButton} onPress={handleUploadImage}>
+                <Text style={styles.buttonText}>Upload Image</Text>
               </Pressable>
-              <Pressable style={[styles.modalButton, styles.cancelButton]} onPress={handleCancel}>
-                <Text style={styles.buttonText}>Cancel</Text>
-              </Pressable>
-            </View>
+              <View style={styles.borderBottom}></View>
+              <View style={styles.modalButtons}>
+                <Text style={styles.modalTitle}>Add a list from a recipe URL:</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter Recipe URL"
+                  value={recipeUrl}
+                  onChangeText={setRecipeUrl}
+                />
+              </View>
+              <TouchableOpacity style={styles.bigButton} onPress={handleRecipe}>
+                <Text style={styles.buttonText}>Get Grocery Ingredients</Text>
+              </TouchableOpacity>
+              <View style={styles.borderBottom}></View>
+              {image && <Image source={image} style={styles.image} />}
+
+              {listItems.length > 0 && (
+                <View style={styles.listContainer}>
+                  <Text style={styles.listTitle}>Your Items:</Text>
+                  {listItems.map((item, index) => (
+                    <Text key={index} style={styles.listItem}>{item}</Text>
+                  ))}
+                </View>
+              )}
+
+              <View style={styles.modalButtons}>
+              
+                <Pressable style={[styles.modalButton, styles.cancelButton]} onPress={handleCancel}>
+                  <Text style={styles.buttonText}>Cancel</Text>
+                </Pressable>
+              </View>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -168,6 +268,7 @@ const ShoppingCartListScreen = () => {
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -184,6 +285,13 @@ const styles = StyleSheet.create({
   },
   item: {
     flex: 1,
+  },
+  bigButton: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    marginVertical: 10,
+    borderRadius: 5,
+    alignItems: 'center',
   },
   deleteButton: {
     backgroundColor: 'red',
@@ -214,14 +322,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
-    alignItems: 'center',
+    // alignItems: 'center',
   },
   modalTitle: {
     fontSize: 20,
     marginBottom: 20,
   },
   input: {
-    width: '100%',
+    width: '70%',
     padding: 10,
     borderWidth: 1,
     borderColor: '#ccc',
@@ -233,20 +341,52 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
+  borderBottom : {
+    borderBottomColor: '#ccc',
+    borderBottomWidth: 1,
+    marginBottom: 20,
+  },
   modalButton: {
     flex: 1,
     padding: 10,
     alignItems: 'center',
     borderRadius: 5,
+    height: 40,
+    marginLeft: 10,
   },
   addButton: {
     backgroundColor: '#007bff',
     marginRight: 5,
+    width: '30%',
+    maxWidth: '30%'
   },
   cancelButton: {
     backgroundColor: '#ccc',
     marginLeft: 5,
   },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  listContainer: {
+    marginTop: 20,
+  },
+  listTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  listItem: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  image: {
+    width: '100%',
+    height: 200,
+    marginBottom: 20,
+  },
+
 });
 
 export default ShoppingCartListScreen;
