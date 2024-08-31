@@ -22,7 +22,6 @@ export default function CustomerLayout() {
           },
         })}
       >
-        <Tabs.Screen name="supermarketMapsScreean" options={{title:"Supermarket Maps"}}/>
         <Tabs.Screen name="purchaseHistory" options={{title:"Purchase History"}}/>
         <Tabs.Screen name="shoppingList" options={{title:"shopping List"}}/>
         <Tabs.Screen name="shopping" options={{title:"Start Shopping"}} />

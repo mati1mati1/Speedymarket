@@ -2,21 +2,24 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Platform, View, Text, Button, Pressable, StyleSheet, Modal } from 'react-native';
 import MapView, { Marker, Callout, Region } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome
-import { getSupermarkets } from '../../src/api/api';
-import { ShoppingList, Supermarket } from '../../src/models';
-import SelectListModal from '../../src/components/SelectListModal';
+import { FontAwesome } from '@expo/vector-icons'; 
+import { getSupermarkets } from '../../../src/api/api';
+import { ShoppingList, Supermarket } from '../../../src/models';
+import SelectListModal from '../../../src/components/SelectListModal';
+import SelectSupermarketModal from '../../../src/components/SelectSupermarketModal';
 import { router } from 'expo-router';
 
 const SupermarketMapsScreen = () => {
   const [supermarkets, setSupermarkets] = useState<Supermarket[]>([]);
   const [region, setRegion] = useState<Region | undefined>(undefined);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
+  const [supermarketModalVisible, setSupermarketModalVisible] = useState(false);
   const [selectedSupermarket, setSelectedSupermarket] = useState<Supermarket | null>(null);
   const [listModalVisible, setListModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isListLoading, setIsListLoading] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<Location.LocationObject | null>(null);
+  const [isSupermarketLoading, setIsSupermarketLoading] = useState(false);
   const mapRef = useRef<MapView>(null);
 
   const handleSelectList = () => {
@@ -26,20 +29,43 @@ const SupermarketMapsScreen = () => {
   const closeListModal = (selectedList: ShoppingList | null) => {
     setSelectedList(selectedList);
     setListModalVisible(false);
+    startShopping();
   };
 
   const handleStartWithoutList = () => {
     setSelectedList(null);
+    startShopping();
+  };
+  const closeSupermarketModal = (selectedSupermarket: Supermarket | null) => {
+    setSupermarketModalVisible(false);
+    if (selectedSupermarket != null) {
+      setSelectedSupermarket(selectedSupermarket);
+      setListModalVisible(true);
+    }
   };
 
-  const startShopping = (supermarket: Supermarket) => {
-    disconnectMap();
-    router.push({
-      pathname: '/shopping/shoppingMap',
-      params: { supermarketId: supermarket?.SupermarketID, listId: selectedList?.ListID },
-    });
+  // const startShopping = (supermarket: Supermarket) => {
+  //   disconnectMap();
+  //   router.push({
+  //     pathname: '/shopping/shoppingMap',
+  //     params: { supermarketId: supermarket?.SupermarketID, listId: selectedList?.ListID },
+  //   });
+  // };
+  const startShopping = () => {
+    if (selectedSupermarket != null) {
+      router.push({
+        pathname: '/shopping/shoppingMap',
+        params: { supermarketId: selectedSupermarket?.SupermarketID, listId: selectedList?.ListID }
+      });
+  }
+    else {
+      alert('Please select a supermarket before starting shopping.');
+    }
   };
 
+  const handleSelectSupermarket = () => {
+    setSupermarketModalVisible(true);
+  };
   useEffect(() => {
     const fetchSupermarkets = async () => {
       setIsLoading(true);
@@ -165,12 +191,12 @@ const SupermarketMapsScreen = () => {
                       ) : (
                         <Text>No operating hours available</Text>
                       )}
-                      <Pressable style={styles.button} onPress={handleSelectList}>
-                        <Text style={styles.buttonText}>Select List</Text>
+                      <Pressable style={styles.button} onPress={() => closeSupermarketModal(supermarket)}>
+                        <Text style={styles.buttonText}>Start Shopping</Text>
                       </Pressable>
-                      <Pressable style={styles.button} onPress={() => startShopping(supermarket)}>
+                      {/* <Pressable style={styles.button} onPress={() => startShopping(supermarket)}>
                         <Text style={styles.buttonText}>Start shopping</Text>
-                      </Pressable>
+                      </Pressable> */}
                     </View>
                   </Callout>
                 </Marker>
@@ -179,7 +205,12 @@ const SupermarketMapsScreen = () => {
         </MapView>
       )}
       <View style={{ position: 'absolute', bottom: 20, right: 20 }}>
-        <Button title="Center on Location" onPress={centerOnLocation} />
+        <Pressable  style={styles.button} onPress={centerOnLocation}>        
+          <Text style={styles.buttonText}>Center on Location</Text>
+        </Pressable>
+        <Pressable style={styles.button} onPress={handleSelectSupermarket}>
+          <Text style={styles.buttonText}>Select supermarket from list</Text>
+        </Pressable>
       </View>
       <Modal
         animationType="slide"
@@ -196,6 +227,25 @@ const SupermarketMapsScreen = () => {
               isLoading={isListLoading}
             />
             <Pressable style={styles.closeButton} onPress={() => closeListModal(null)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={supermarketModalVisible}
+        onRequestClose={() => closeSupermarketModal(null)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <SelectSupermarketModal
+              closeModal={closeSupermarketModal}
+              setIsLoading={setIsSupermarketLoading}
+              isLoading={isSupermarketLoading}
+            />
+            <Pressable style={styles.closeButton} onPress={() => closeSupermarketModal(null)}>
               <Text style={styles.closeButtonText}>Close</Text>
             </Pressable>
           </View>
