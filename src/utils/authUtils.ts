@@ -1,9 +1,10 @@
 import { jwtDecode } from "jwt-decode";
+import { Role } from "src/models";
 
 interface DecodedToken {
   userId: string;
   username: string;
-  role: string;
+  role: Role;
   exp: number;
 }
 

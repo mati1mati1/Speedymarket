@@ -5,9 +5,12 @@ export interface User {
   LastName: string;
   Email: string;
   PhoneNumber: string;
-  UserType: string; // Buyer or Seller
+  Role: string; // Buyer or Seller
 }
-
+export enum Role{
+  Buyer = "Buyer",
+  Seller = "Seller",
+}
 export interface BuyerOrder {
   OrderID: string;
   BuyerID: string;
@@ -54,11 +57,15 @@ export interface Supermarket {
   SupermarketID: string;
   UserID: string;
   BranchName: string;
-  BranchAddress: string;
   BranchMap: string;
-  Location: string;
-  WiFiPassword : string;
-  WiFiSSID : string;
+  StreetNumber: number;
+  Street: Street | null;
+  City: City | null;
+  Country: Country | null;
+  WiFiPassword: string;
+  WiFiSSID: string;
+  OperatingHours: dailyHours[];
+
 }
 
 export interface Location {
@@ -70,4 +77,26 @@ export interface ESP32Info {
   Esp32Id: string;
   Ssid: string;
   Location: Location;
+}
+
+export interface Country{
+  id : number;
+  name: string;
+  iso2: string;
+}
+export interface  Street{
+  id : number;
+  name: string;
+}
+
+export interface City{
+  id : number;
+  name: string;
+}
+
+export interface  dailyHours{
+  day: string;
+  openHour: string;
+  closeHour: string;
+  
 }

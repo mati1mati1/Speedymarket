@@ -1,22 +1,38 @@
 import React from 'react';
-import { useToken } from '../context/TokenContext';
+import { useAuth } from '../context/AuthContext';
+import { Pressable, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Pressable, Text } from 'react-native';
 
 const LogoutButton = () => {
-  const { logout } = useToken();
+  const { authState, onLogout } = useAuth();
   const router = useRouter();
 
   const handleLogout = () => {
-    logout();
+    onLogout();
     router.push('/login');
   };
 
   return (
-    <Pressable onPress={handleLogout}>
-        <Text>Logout</Text>
+    <Pressable onPress={handleLogout} style={styles.button}>
+        <Text style={styles.buttonText}>Logout</Text>
     </Pressable>
   );
 };
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
 
 export default LogoutButton;

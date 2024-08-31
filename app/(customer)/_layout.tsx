@@ -6,7 +6,7 @@ import LogoutButton from '../../src/components/LogoutButton';
 const iconMap = {
   purchaseHistory: 'history',
   shoppingList: 'list',
-  startShopping: 'shopping-bag',
+  shopping: 'shopping-bag',
 };
 
 export default function CustomerLayout() {
@@ -20,9 +20,9 @@ export default function CustomerLayout() {
           },
         })}
       >
-        <Tabs.Screen name="purchaseHistory" options={{ headerShown: false }}/>
-        <Tabs.Screen name="shoppingList" options={{ headerShown: false }}/>
-        <Tabs.Screen name="startShopping" options={{ headerShown: false }}/>
+        <Tabs.Screen name="purchaseHistory"/>
+        <Tabs.Screen name="shoppingList"/>
+        <Tabs.Screen name="shopping" />
       </Tabs>
       <LogoutButton />
     </>

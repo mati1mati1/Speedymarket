@@ -1,14 +1,18 @@
 import WifiManager from 'react-native-wifi-reborn';
 import axios from 'axios';
 
-export const fetchCurrentLocation = async (supermarketId: string): Promise<{ x: number; y: number }> => {
+export const fetchCurrentLocation = async (supermarketId: string): Promise<{ x: number; y: number } | undefined> => {
+  if (!WifiManager || !WifiManager.loadWifiList) {
+    console.error('WifiManager is undefined or loadWifiList function does not exist');
+    return undefined;
+  }
   const networks = await WifiManager.loadWifiList();
   const wifiData = networks.map(network => ({
     ssid: network.SSID,
     rssi: network.level,
   }));
 
-  const response = await axios.post('http://localhost:7071/api/calculateLocation', {
+  const response = await axios.post('http://10.100.102.7:7071/api/calculateLocation', {
     supermarketId,
     wifiData
   });

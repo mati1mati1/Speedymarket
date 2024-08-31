@@ -14,14 +14,29 @@
     "moduleResolution": "node",
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react"
+    "jsx": "react",
+    "baseUrl": ".",
+    // "paths": {
+    //   "@components": ["src/components/*"],
+    //   "@styles": ["src/styles/*"],
+    //   "@services": ["src/services/*"],
+    //   "@api": ["src/api/*"],
+    //   "@models": ["src/models/*"]
+    // }
   },
   "include": [
     "src",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-,   "src/App.tsx"
-, "app/(customer)/purchaseHistory.tsx", "app/(customer)/shoppingList/shoppingCartList.tsx", "app/(customer)/startShopping.tsx", "app/map-viewer/[customerMapViewer].tsx"  ],
+    "expo-env.d.ts",
+    "src/components/**/*.tsx",
+    "src/services/**/*.ts",
+    "src/api/**/*.ts",
+    "src/styles/**/*.css",
+    "app/(customer)/purchaseHistory.tsx",
+    "app/(customer)/shoppingList/shoppingCartList.tsx",
+    "app/(customer)/shopping/selectSupermarketAndList.tsx",
+    "app/(customer)/shoppingList/map-viewer/[customerMapViewer].tsx"
+  ],
   "exclude": [
     "node_modules"
   ],

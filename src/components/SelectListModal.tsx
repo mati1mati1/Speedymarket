@@ -1,69 +1,88 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Modal, Pressable } from 'react-native';
-import { getShoppingListsByBuyerId } from '../api/api';
-import { ShoppingList } from '../models';
-import useAuth from '../hooks/useAuth';
-
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, Modal, Pressable, ActivityIndicator } from 'react-native';
+import { getShoppingListsByBuyerId } from 'src/api/api';
+import { useAuth } from 'src/context/AuthContext';
+import { ShoppingList } from 'src/models'; // Ensure this is correctly imported
 
 interface SelectListModalProps {
-  visible: boolean;
-  closeModal: () => void;
+  closeModal: (selectedList: ShoppingList | null) => void;
+  continueWithoutList: () => void;
+  setIsLoading: (isLoading: boolean) => void;
+  isLoading: boolean;
 }
 
-const SelectListModal: React.FC<SelectListModalProps> = ({ visible, closeModal }) => {
+const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueWithoutList, setIsLoading, isLoading }) => {
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
   const [selectedList, setSelectedList] = useState<ShoppingList | null>(null);
-  const token = useAuth();
+  const { authState } = useAuth();
+  const token = authState.token;
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    if (!token) {
+      console.error('Token not found');
+      return;
+    }
+    try {
+      const fetchedShoppingLists = await getShoppingListsByBuyerId(token || '');
+      if (fetchedShoppingLists) {
+        setShoppingLists(fetchedShoppingLists);
+      }
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-          const fetchedShoppingLists = await getShoppingListsByBuyerId(token);
-          if (fetchedShoppingLists) {
-            setShoppingLists(fetchedShoppingLists);
-        }
-      } catch (error) {
-        console.error('Failed to fetch data:', error);
-      }
-    };
-
     fetchData();
-  }, []);
+  }, [token]);
 
   const handleSelectList = (list: ShoppingList) => {
     setSelectedList(list);
   };
 
   const handleConfirmSelection = () => {
-    if (selectedList) {
-      closeModal(); // Close the modal
-    }
+    closeModal(selectedList);
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={closeModal}>
-      <View style={styles.modalContainer}>
+    <Modal animationType="slide" transparent={true} onRequestClose={() => closeModal(null)}>
+      <View style={styles.container}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>Select Shopping List</Text>
-          <FlatList
-            data={shoppingLists}
-            keyExtractor={(item) => item.ListID}
-            renderItem={({ item }) => (
-              <Pressable
-                style={styles.item}
-                onPress={() => handleSelectList(item)}
-              >
-                <Text style={selectedList?.ListID === item.ListID ? styles.selectedItem : styles.itemText}>
-                  {item.ListName}
-                </Text>
-              </Pressable>
-            )}
-          />
-          <Pressable onPress={handleConfirmSelection} disabled={!selectedList}>
-            <Text style={styles.buttonText}>Select List</Text>
+          <Text style={styles.title}>Select a Shopping List</Text>
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : (
+            <FlatList
+              data={shoppingLists}
+              keyExtractor={(item) => item.ListID}
+              renderItem={({ item }) => (
+                <Pressable
+                  style={[styles.listItem, selectedList?.ListID === item.ListID && styles.selectedItem]}
+                  onPress={() => handleSelectList(item)}
+                >
+                  <Text style={styles.listItemText}>
+                    {item.ListName}
+                  </Text>
+                </Pressable>
+              )}
+              ListEmptyComponent={<Text>No Shopping Lists Available</Text>}
+            />
+          )}
+          <Pressable
+            style={[styles.button, !selectedList && styles.buttonDisabled]}
+            onPress={handleConfirmSelection}
+            disabled={!selectedList}
+          >
+            <Text style={styles.buttonText}>Confirm Selection</Text>
           </Pressable>
-          <Pressable onPress={closeModal}>
-            <Text style={styles.buttonText}>Close</Text>
+          <Pressable style={[styles.button, styles.continueButton]} onPress={continueWithoutList}>
+            <Text style={styles.buttonText}>Continue Without List</Text>
+          </Pressable>
+          <Pressable onPress={() => closeModal(null)}>
+            <Text style={styles.closeText}>Close</Text>
           </Pressable>
         </View>
       </View>
@@ -72,7 +91,7 @@ const SelectListModal: React.FC<SelectListModalProps> = ({ visible, closeModal }
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
+  container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -83,27 +102,49 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     marginBottom: 20,
-    textAlign: 'center',
   },
-  item: {
-    padding: 10,
-    borderBottomColor: '#ccc',
+  listItem: {
+    padding: 15,
     borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    width: '100%',
   },
-  itemText: {
+  listItemText: {
     fontSize: 18,
+    color: 'black',
   },
   selectedItem: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'blue',
+    backgroundColor: '#dcdcdc',
+  },
+  button: {
+    backgroundColor: '#007bff',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 10,
+    width: '80%',
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  continueButton: {
+    backgroundColor: '#0000ff',
   },
   buttonText: {
-    fontSize: 18,
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  closeText: {
+    color: 'red',
+    marginTop: 10,
+    fontSize: 16,
   },
 });
 

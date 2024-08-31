@@ -1,30 +1,22 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome } from '@expo/vector-icons';
-import { useToken } from '../../src/context/TokenContext';
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Platform } from 'react-native';
 import InventoryManagementScreen from './inventory';
 import OrderManagementScreen from './orders';
-import ManagerMapEditor from './map-editor';
-import { Tabs } from 'expo-router';
+import LogoutButton from '../../src/components/LogoutButton';
+import ManagerSettingsScreen from './ManagerSettingsScreen';
+import ManagerMapEditor from './mapEditor';
 
 const Tab = createBottomTabNavigator();
 
 const iconMap = {
-  InventoryManagement: 'cubes',
+  "Inventory Management": 'cubes',
   OrderManagement: 'clipboard',
   SupermarketMap: 'map',
+  Settings: 'cog',
 };
 
-const LogoutButton = () => {
-  const { logout } = useToken();
-
-  return (
-    <Pressable onPress={logout} style={styles.logoutButton}>
-      <Text style={styles.logoutButtonText}>Logout</Text>
-    </Pressable>
-  );
-};
 
 export default function ManagerScreen() {
   return (
@@ -40,26 +32,12 @@ export default function ManagerScreen() {
       >
         <Tab.Screen name="Inventory Management" component={InventoryManagementScreen} />
         <Tab.Screen name="OrderManagement" component={OrderManagementScreen} />
+        {Platform.OS === 'web' ?
         <Tab.Screen name="SupermarketMap" component={ManagerMapEditor} />
+        : null}
+        <Tab.Screen name="Settings" component={ManagerSettingsScreen} />
       </Tab.Navigator>
       <LogoutButton />
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  logoutButton: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    backgroundColor: '#007bff',
-    padding: 10,
-    borderRadius: 5,
-  },
-  logoutButtonText: {
-    color: 'white',
-    fontSize: 16,
-  },
-});
-
-

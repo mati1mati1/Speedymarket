@@ -10,7 +10,7 @@ interface EntranceProps {
   top: number;
 }
 
-const Entrance: React.FC<EntranceProps> = ({ left, top }) => {
+const WebEntrance: React.FC<EntranceProps> = ({ left, top }) => {
   const [{ isDraggingItem }, drag] = useDrag(() => ({
     type: ItemTypes.ENTRANCE,
     item: { type: ItemTypes.ENTRANCE, left, top },
@@ -37,4 +37,4 @@ const Entrance: React.FC<EntranceProps> = ({ left, top }) => {
   );
 };
 
-export default Entrance;
+export default WebEntrance;

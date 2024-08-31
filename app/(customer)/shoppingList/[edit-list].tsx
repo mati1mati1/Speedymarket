@@ -2,31 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useNavigation } from '@react-navigation/native';
-import useAuth from '../../../src/hooks/useAuth';
 import { ShoppingListItem } from '../../../src/models';
-import { addOrUpdateShoppingListByBuyerId, getShoppingListItemByCardId } from '../../../src/api/api';
+import { updateShoppingListItems, getShoppingListItemByCardId } from '../../../src/api/api';
+import { useAuth } from '../../../src/context/AuthContext';
 
 export default function EditListScreen() {
-  const { cardId,ListName} = useLocalSearchParams<{ cardId: string; ListName?: string }>();  const token = useAuth();
+  let { cardId, ListName } = useLocalSearchParams<{ cardId: string; ListName?: string }>();  
+  const { authState } = useAuth();
+  const token = authState.token;
   const navigation = useNavigation();
   const [items, setItems] = useState<ShoppingListItem[]>([]);
   const [newItem, setNewItem] = useState('');
+  const [newQuantity, setNewQuantity] = useState('1');
   const [loading, setLoading] = useState(true);
   const [listName, setListName] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!token) {
+        console.error('Token not found');
+        return;
+      }
       try {
         console.log("cardId:", cardId);
         console.log("ListName:", ListName);
 
-        if (cardId !== '0') {
-          const fetchedItems = await getShoppingListItemByCardId(cardId || '');
+        if (cardId! && cardId !== '0' && cardId !== '') {
+          const fetchedItems = await getShoppingListItemByCardId( cardId || '');
           setItems(fetchedItems);
         }
         console.log("cardId:", cardId);
         if (ListName !== '') {
-          debugger
           setListName(ListName || '');
         }
       } catch (error) {
@@ -37,22 +43,32 @@ export default function EditListScreen() {
     };
 
     fetchData();
-  }, [cardId, ListName]);
+  }, [cardId, ListName, token]);
 
   const addItem = () => {
     if (newItem.trim() !== '') {
       setItems([...items, {
-        ItemID: Date.now().toString(), ItemName: newItem, Quantity: 1,
+        ItemID: Date.now().toString(), ItemName: newItem, Quantity: parseInt(newQuantity),
         ListItemID: '',
         ListID: ''
       }]);
       setNewItem('');
+      setNewQuantity('1');
     }
   };
 
+  const removeItem = (itemId: string) => {
+    setItems(items.filter(item => item.ItemID !== itemId));
+  };
+
   const saveList = async () => {
-    // const listId = localParams["cartId"] || Date.now().toString();
-    // await addOrUpdateShoppingListByBuyerId(listId, JSON.stringify(items), token);
+    if (items.length > 0) {
+      await updateShoppingListItems(cardId || '', items);  
+    }  
+    else {
+      alert('A shopping list must have at least one item.');
+      return;
+    }
     navigation.goBack();
   };
 
@@ -75,24 +91,34 @@ export default function EditListScreen() {
           <Text style={styles.topButtonText}>Save</Text>
         </Pressable>
       </View>
-      <TextInput
-        style={styles.input}
-        value={listName}
-        onChangeText={setListName}
-        placeholder="Enter list name"
-      />
+      <Text style={styles.input}>{listName}</Text>
       <TextInput
         style={styles.input}
         value={newItem}
         onChangeText={setNewItem}
         placeholder="Enter item"
       />
+      <TextInput
+        style={styles.input}
+        value={newQuantity}
+        onChangeText={setNewQuantity}
+        placeholder="Enter quantity"
+        keyboardType="numeric"
+      />
       <Pressable style={styles.button} onPress={addItem}>
         <Text style={styles.buttonText}>Add</Text>
       </Pressable>
       <FlatList
         data={items}
-        renderItem={({ item }) => <Text style={styles.item}>{item.ItemName}</Text>}
+        renderItem={({ item }) => (
+          <View style={styles.itemContainer}>
+            <Text style={styles.item}>{item.ItemName}</Text>
+            <Text style={styles.quantity}>Quantity: {item.Quantity}</Text>
+            <Pressable style={styles.deleteButton} onPress={() => removeItem(item.ItemID)}>
+              <Text style={styles.buttonText}>Remove</Text>
+            </Pressable>
+          </View>
+        )}
         keyExtractor={(item) => item.ItemID}
       />
     </View>
@@ -127,10 +153,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
   },
-  item: {
+  itemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  item: {
     fontSize: 18,
-    height: 44,
+  },
+  quantity: {
+    fontSize: 18,
   },
   button: {
     backgroundColor: '#007bff',
@@ -142,5 +177,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
+  },
+  deleteButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
   },
 });

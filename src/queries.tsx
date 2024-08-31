@@ -1,4 +1,4 @@
-import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ESP32Info } from './models';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ESP32Info, ShoppingListItem } from './models';
 
 export interface QueryParam {
   name: string;
@@ -69,6 +69,16 @@ export const getSupermarketByUserIdQuery = (userId: string): Query => ({
     { name: 'userId', type: 'UniqueIdentifier', value: userId }
   ]
 });
+export const getSupermarketBybarcodeQuery = (barcode: string): Query => ({
+  query: `
+    SELECT sm.*
+    FROM Supermarket sm
+    WHERE sm.Barcode = @barcode
+  `,
+  params: [
+    { name: 'barcode', type: 'NVarChar', value: barcode }
+  ]
+});
 
 export const getShoppingListsByBuyerIdQuery = (buyerId: string): Query => ({
   query: 'SELECT * FROM ShoppingList WHERE BuyerID = @buyerId',
@@ -76,23 +86,62 @@ export const getShoppingListsByBuyerIdQuery = (buyerId: string): Query => ({
     { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }
   ]
 });
+export const updateSupermarketDetailsQuery = (supermarket: Supermarket): Query => ({
+  query: `
+    UPDATE Supermarket
+    SET BranchName = @branchName,
+        BranchMap = @branchMap,
+        StreetNumber = @streetNumber,
+        Street = @street,
+        City = @city,
+        Country = @country,
+        WiFiSSID = @wifiSSID,
+        WiFiPassword = @wifiPassword,
+        OperatingHours = @operatingHours
+    WHERE SupermarketID = @supermarketId
+  `,
+  params: [
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarket.SupermarketID },
+    { name: 'branchName', type: 'NVarChar', value: supermarket.BranchName },
+    { name: 'branchMap', type: 'NVarChar', value: supermarket.BranchMap },
+    { name: 'streetNumber', type: 'Int', value: supermarket.StreetNumber },
+    { name: 'street', type: 'NVarChar', value: supermarket.Street?.name },
+    { name: 'city', type: 'NVarChar', value: supermarket.City?.name },
+    { name: 'country', type: 'NVarChar', value: supermarket.Country?.name },
+    { name: 'wifiSSID', type: 'NVarChar', value: supermarket.WiFiSSID },
+    { name: 'wifiPassword', type: 'NVarChar', value: supermarket.WiFiPassword },
+    { name: 'operatingHours', type: 'NVarChar', value: JSON.stringify(supermarket.OperatingHours) },
+  ],
+});
+
+export const deleteShoppingListQuery = (listId: string): Query => ({
+  query: 'DELETE FROM ShoppingList WHERE ListID = @listId',
+  params: [
+    { name: 'listId', type: 'UniqueIdentifier', value: listId }
+  ]
+});
 export const getShoppingListItemsByListIdQuery = (listId: string): Query => ({
-  query: 'SELECT ItemID,ItemName,Quantity FROM ShoppingListItem WHERE ListID = @listId',
+  query: 'SELECT * FROM ShoppingListItem WHERE ListID = @listId',
   params: [
     { name: 'listId', type: 'UniqueIdentifier', value: listId }
   ]
 });
 
-export const addOrUpdateShoppingListByBuyerIdQuery = (listId: string, buyerId: string, items: string): Query => ({
-  query: `IF EXISTS (SELECT * FROM ShoppingList WHERE ListID = @listId)
-            UPDATE ShoppingList SET Items = @items WHERE ListID = @listId
-          ELSE
-            INSERT INTO ShoppingList (ListID, BuyerID, Items) VALUES (@listId, @buyerId, @items)`,
+export const updateShoppingListItemsQuery = (listId: string, items: ShoppingListItem[]): Query => ({
+  query: `BEGIN TRANSACTION;
+            DELETE FROM ShoppingListItem WHERE ListID = @listId;
+
+            INSERT INTO ShoppingListItem (ItemID, ListID, ItemName, Quantity)
+            VALUES ${items.map((_, index) => `(NEWID(), @listId, @itemName${index}, @quantity${index})`).join(", ")};
+
+            COMMIT;`,
   params: [
     { name: 'listId', type: 'UniqueIdentifier', value: listId },
-    { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId },
-    { name: 'items', type: 'NVarChar', value: items }
-  ]
+    ...items.flatMap((item, index) => [
+      { name: `itemName${index}`, type: 'NVarChar', value: item.ItemName },
+      { name: `quantity${index}`, type: 'Int', value: item.Quantity },
+    ]),
+  ],
 });
 
 export const getOrdersByBuyerIdQuery = (buyerId: string): Query => ({
@@ -114,14 +163,27 @@ export const getItemBySupermarketIdAndItemNameQuery = (supermarketId: string, It
   ]
 });
 
-export const addOrUpdateShopInventoryQuery = (inventory: ShopInventory): Query => ({
+export const addShopInventoryQuery = (inventory: ShopInventory): Query => ({
+  query: `
+    INSERT INTO ShopInventory (SupermarketID, ItemName, Quantity, Price, Discount, Location, Barcode)
+    OUTPUT inserted.InventoryID
+    VALUES (@supermarketId, @ItemName, @quantity, @price, @discount, @location, @barcode)
+  `,
+  params: [
+    { name: 'supermarketId', type: 'UniqueIdentifier', value: inventory.SupermarketID },
+    { name: 'ItemName', type: 'NVarChar', value: inventory.ItemName },
+    { name: 'quantity', type: 'Int', value: inventory.Quantity },
+    { name: 'price', type: 'Decimal', value: inventory.Price },
+    { name: 'discount', type: 'Decimal', value: inventory.Discount },
+    { name: 'location', type: 'NVarChar', value: inventory.Location },
+    { name: 'barcode', type: 'NVarChar', value: inventory.Barcode }
+  ]
+});
+export const updateShopInventoryQuery = (inventory: ShopInventory): Query => ({
   query: `IF EXISTS (SELECT * FROM ShopInventory WHERE InventoryID = @inventoryId)
             UPDATE ShopInventory
             SET SupermarketID = @supermarketId, ItemName = @ItemName, Quantity = @quantity, Price = @price, Discount = @discount, Location = @location, Barcode = @barcode
-            WHERE InventoryID = @inventoryId
-          ELSE
-            INSERT INTO ShopInventory (InventoryID, SupermarketID, ItemName, Quantity, Price, Discount, Location, Barcode)
-            VALUES (@inventoryId, @supermarketId, @ItemName, @quantity, @price, @discount, @location, @barcode)`,
+            WHERE InventoryID = @inventoryId`,
   params: [
     { name: 'inventoryId', type: 'UniqueIdentifier', value: inventory.InventoryID },
     { name: 'supermarketId', type: 'UniqueIdentifier', value: inventory.SupermarketID },
@@ -133,6 +195,13 @@ export const addOrUpdateShopInventoryQuery = (inventory: ShopInventory): Query =
     { name: 'barcode', type: 'NVarChar', value: inventory.Barcode }
   ]
 });
+export const deleteShopInventoryQuery = (inventoryId: string): Query => ({
+  query: `DELETE FROM ShopInventory WHERE InventoryID = @inventoryId`,
+  params: [
+    { name: 'inventoryId', type: 'UniqueIdentifier', value: inventoryId }
+  ]
+});
+
 
 export const getItemBySupermarketIdAndBarcodeQuery = (supermarketId: string, barcode: string): Query => ({
   query: 'SELECT * FROM ShopInventory WHERE SupermarketID = @supermarketId AND Barcode = @barcode',
@@ -161,5 +230,25 @@ export const addOrUpdateESP32DataQuery = (esp32Data: ESP32Info,supermarketId: st
     { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId},
     { name: 'ssid', type: 'NVarChar', value: esp32Data.Ssid },
     { name: 'location', type: 'NVarChar', value: JSON.stringify(esp32Data.Location) }
+  ]
+});
+
+export const createShoppingListQuery = (listName: string, userId: string): Query => ({
+  query: `INSERT INTO ShoppingList (ListName, BuyerID) 
+          OUTPUT inserted.ListID 
+          VALUES (@listName, @userId)`,
+  params: [
+    { name: 'listName', type: 'NVarChar', value: listName },
+    { name: 'userId', type: 'UniqueIdentifier', value: userId },
+  ]
+});
+
+export const changeShoppingListQuery = (listName: string, listId: string): Query => ({
+  query: `UPDATE ShoppingList
+          SET ListName = @listName
+          WHERE ListID = @listId`,
+  params: [
+    { name: 'listName', type: 'NVarChar', value: listName },
+    { name: 'listId', type: 'UniqueIdentifier', value: listId },
   ]
 });

@@ -1,64 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { login } from '../src/api/auth';
-import { useToken } from '../src/context/TokenContext';
-import { jwtDecode } from 'jwt-decode';
 import Input from '../src/components/Input';
-import { decodedToken } from '../src/utils/authUtils';
+import { useAuth } from '../src/context/AuthContext';
+import { Role } from '../src/models';
 
-interface DecodedToken {
-  username: string;
-  role: string;
-  exp: number;
-}
 
 export default function LoginScreen() {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const { token, setToken } = useToken();
   const router = useRouter();
+  const { onLogin } = useAuth();
 
-  useEffect(() => {
-    if (token) {
-      const role = decodedToken(token)?.role;
-      if (role === 'manager') {
-        if (Platform.OS !== 'web') {
-          router.replace('/error');
-        } else {
-          router.replace('/(manager)/inventory');
-        }
-      } else {
-        router.replace('/(customer)/purchaseHistory');
-      }
-    }
-  }, [token, router]);
+
 
   const handleLogin = async () => {
     console.log("handleLogin called with:", username, password); // Debugging
-
     try {
-      if (username === "achinoam") {
-        setToken("fake-token");
-        router.replace('/(customer)/purchaseHistory');
-      }
-      // } else {
-      const data = await login(username, password);
-      console.log("Login response:", data);
-
-      if (data && data.success && data.token) {
-        setToken(data.token);
-        const decoded: DecodedToken = jwtDecode(data.token);
-        if (decoded.role === 'manager') {
-          if (Platform.OS !== 'web') {
-            router.replace('/error');
-          } else {
+      const response = await onLogin!(username, password);
+      if (response.success) {
+        if (response.role === Role.Seller) {
             router.replace('/(manager)/inventory');
           }
-        } else {
+        else if (response.role === Role.Buyer) {
           router.replace('/(customer)/purchaseHistory');
         }
-      } else {
+        else{
+          Alert.alert('Login failed', 'uknow role');
+        }
+      }
+       else {
         Alert.alert('Login failed', 'Please check your username and password.');
       }
     } catch (error) {

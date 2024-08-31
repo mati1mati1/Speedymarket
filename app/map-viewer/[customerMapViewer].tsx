@@ -1,15 +1,14 @@
+import { useLocalSearchParams } from 'expo-router';
 import React, { useState, useRef, useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import Section from '../../src/components/Section';
-import Entrance from '../../src/components/Entrance';
-import '../../src/styles/MapEditor.css';
 import { Pressable } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { fetchCurrentLocation } from '../../src/services/locationService';
-import { connectToWifi } from '../../src/services/wifiService';
-import { EntranceType, loadMapAndPath, SectionType } from '../../src/services/mapService';
 import { getSupermarketBySupermarketID } from '../../src/api/api';
+import Entrance from '../../src/components/WebEntrance';
+import Section from '../../src/components/WebSection';
+import { fetchCurrentLocation } from '../../src/services/locationService';
+import { SectionType, EntranceType, loadMapAndPath } from '../../src/services/mapService';
+import { connectToWifi } from '../../src/services/wifiService';
 
 
 const CustomerMapViewer: React.FC = () => {
@@ -42,7 +41,7 @@ const CustomerMapViewer: React.FC = () => {
     const updateLocation = async () => {
       try {
         const location = await fetchCurrentLocation(supermarketId || '');
-        setUserLocation(location);
+        //setUserLocation(location);
       } catch (error: any) {
         console.error('Error fetching location:', error);
       }
