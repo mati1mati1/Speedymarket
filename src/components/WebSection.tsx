@@ -40,6 +40,9 @@ const WebSection: React.FC<SectionProps> = ({ id,  left, top, rotation, currentO
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: '#007bff',
+        borderColor: '#0056b3',
+        borderWidth: 1,
         fontSize: '10px'
       }}
     >

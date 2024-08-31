@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
+import { StyleSheet } from 'react-native'; // Assuming you are using React Native
 
 const ItemTypes = {
   ENTRANCE: 'entrance'
@@ -27,6 +28,12 @@ const WebEntrance: React.FC<EntranceProps> = ({ left, top }) => {
         position: 'absolute',
         left,
         top,
+        display: 'flex',
+        alignItems: 'center',
+        borderColor: '#004d00',
+        borderWidth: 1,
+        justifyContent: 'center',
+        backgroundColor: 'green',
         width: '50px',
         height: '50px',
         opacity: isDraggingItem ? 0.5 : 1
