@@ -44,7 +44,6 @@ const SupermarketMapsScreen = () => {
     setSupermarketModalVisible(false);
     setSelectedSupermarket(selectedSupermarket);
   };
-
   const startShopping = (supermarket: Supermarket | null, list: ShoppingList | null) => {
     disconnectMap();
     if (supermarket != null) {
@@ -200,22 +199,19 @@ const SupermarketMapsScreen = () => {
             })}
         </MapView>
       )}
+      <Pressable style={styles.locationIcon} onPress={centerOnLocation}>        
+        <FontAwesome name="location-arrow" size={24} color="#007bff" />
+      </Pressable>
       <View style={{ position: 'absolute', bottom: 20, right: 20 }}>
-        <Pressable  style={styles.button} onPress={centerOnLocation}>        
-          <Text style={styles.buttonText}>Center on Location</Text>
-        </Pressable>
         <Pressable style={styles.button} onPress={handleSelectSupermarket}>
-          <Text style={styles.buttonText}>Select supermarket from list</Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={()=>handleSelectList(null)}>
-        <Text style={styles.buttonText}>Select shopping list</Text>
+          <Text style={styles.buttonText}>Select Supermarket</Text>
         </Pressable>
         <Pressable
         style={[
           styles.button,
           selectedSupermarket == null && { backgroundColor: 'gray', opacity: 0.5 }
         ]}
-        onPress={() => startShopping(selectedSupermarket, selectedList)}
+        onPress={() => handleSelectList(selectedSupermarket)}
         disabled={selectedSupermarket == null}
       >
         <Text style={styles.buttonText}>Start shopping</Text>
@@ -340,6 +336,20 @@ const styles = StyleSheet.create({
   calloutButtonText: {
     color: '#fff',
     fontSize: 14,
+  },
+  locationIcon: {
+    position: 'absolute',
+    left: 10, // Adjust to move further left or right
+    top: '95%', // Center vertically
+    transform: [{ translateY: -12 }], // Offset the icon to truly center it vertically
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 5,
   },
 });
 
