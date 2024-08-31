@@ -55,11 +55,13 @@ const CustomerMapViewer: React.FC = () => {
         setPath(data.path || []);
         setItemFoundList(data.itemsWithLocations || []);
         setItemMissingList(data.missingItems || []);
-        const initialCheckedItems = data.itemsWithLocations.reduce((acc: { [key: string]: boolean }, item: ItemWithLocation) => {
-          acc[item.ListItemID] = false;
-          return acc;
-        }, {});
-        setCheckedItems(initialCheckedItems);
+        if(data.missingItems?.length > 0){
+          const initialCheckedItems = data.itemsWithLocations.reduce((acc: { [key: string]: boolean }, item: ItemWithLocation) => {
+            acc[item.ListItemID] = false;
+            return acc;
+          }, {});
+          setCheckedItems(initialCheckedItems);
+        }
       } catch (error: any) {
         alert(error.message);
       }

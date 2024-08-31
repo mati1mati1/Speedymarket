@@ -22,40 +22,35 @@ const SupermarketMapsScreen = () => {
   const [isSupermarketLoading, setIsSupermarketLoading] = useState(false);
   const mapRef = useRef<MapView>(null);
 
-  const handleSelectList = () => {
-    setListModalVisible(true);
+  const handleSelectList = (supermarket: Supermarket | null) => {
+    if(supermarket != null){
+      setSelectedSupermarket(supermarket);
+    }
+      setListModalVisible(true);
   };
 
-  const closeListModal = (selectedList: ShoppingList | null) => {
+  const closeListModal = async (selectedList: ShoppingList | null) => {
     setSelectedList(selectedList);
-    setListModalVisible(false);
-    startShopping();
+    await setListModalVisible(false);
+    if (selectedSupermarket){
+      startShopping(selectedSupermarket, selectedList);
+    }
   };
 
   const handleStartWithoutList = () => {
     setSelectedList(null);
-    startShopping();
   };
   const closeSupermarketModal = (selectedSupermarket: Supermarket | null) => {
     setSupermarketModalVisible(false);
-    if (selectedSupermarket != null) {
-      setSelectedSupermarket(selectedSupermarket);
-      setListModalVisible(true);
-    }
+    setSelectedSupermarket(selectedSupermarket);
   };
 
-  // const startShopping = (supermarket: Supermarket) => {
-  //   disconnectMap();
-  //   router.push({
-  //     pathname: '/shopping/shoppingMap',
-  //     params: { supermarketId: supermarket?.SupermarketID, listId: selectedList?.ListID },
-  //   });
-  // };
-  const startShopping = () => {
-    if (selectedSupermarket != null) {
+  const startShopping = (supermarket: Supermarket | null, list: ShoppingList | null) => {
+    disconnectMap();
+    if (supermarket != null) {
       router.push({
         pathname: '/shopping/shoppingMap',
-        params: { supermarketId: selectedSupermarket?.SupermarketID, listId: selectedList?.ListID }
+        params: { supermarketId: supermarket?.SupermarketID, listId: list?.ListID }
       });
   }
     else {
@@ -96,7 +91,7 @@ const SupermarketMapsScreen = () => {
       
       setRegion(newRegion);
     }
-    if (currentLocation) {
+    if (currentLocation  && currentLocation.coords) {
       mapRef.current?.animateToRegion({
         latitude: currentLocation.coords.latitude,
         longitude: currentLocation.coords.longitude,
@@ -117,7 +112,7 @@ const SupermarketMapsScreen = () => {
     });
   };
   useEffect(() => {
-    if (!region) {
+    if (region === undefined) {
     const getLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -166,6 +161,10 @@ const SupermarketMapsScreen = () => {
           )}
           {!isLoading &&
             supermarkets.map((supermarket) => {
+              if (!supermarket.Latitude || !supermarket.Longitude) {
+                console.warn(`Invalid coordinates for supermarket: ${supermarket.BranchName}`);
+                return null;  // Skip rendering this marker
+              }
               const operatingHours = Array.isArray(supermarket.OperatingHours)
                 ? supermarket.OperatingHours
                 : JSON.parse(supermarket.OperatingHours);
@@ -191,12 +190,9 @@ const SupermarketMapsScreen = () => {
                       ) : (
                         <Text>No operating hours available</Text>
                       )}
-                      <Pressable style={styles.button} onPress={() => closeSupermarketModal(supermarket)}>
-                        <Text style={styles.buttonText}>Start Shopping</Text>
-                      </Pressable>
-                      {/* <Pressable style={styles.button} onPress={() => startShopping(supermarket)}>
+                      <Pressable style={styles.button} onPress={() => handleSelectList(supermarket)}>
                         <Text style={styles.buttonText}>Start shopping</Text>
-                      </Pressable> */}
+                      </Pressable>
                     </View>
                   </Callout>
                 </Marker>
@@ -211,6 +207,19 @@ const SupermarketMapsScreen = () => {
         <Pressable style={styles.button} onPress={handleSelectSupermarket}>
           <Text style={styles.buttonText}>Select supermarket from list</Text>
         </Pressable>
+        <Pressable style={styles.button} onPress={()=>handleSelectList(null)}>
+        <Text style={styles.buttonText}>Select shopping list</Text>
+        </Pressable>
+        <Pressable
+        style={[
+          styles.button,
+          selectedSupermarket == null && { backgroundColor: 'gray', opacity: 0.5 }
+        ]}
+        onPress={() => startShopping(selectedSupermarket, selectedList)}
+        disabled={selectedSupermarket == null}
+      >
+        <Text style={styles.buttonText}>Start shopping</Text>
+      </Pressable>
       </View>
       <Modal
         animationType="slide"
