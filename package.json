@@ -14,12 +14,10 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@azure/data-tables": "^13.2.2",
     "@azure/msal-browser": "^3.18.0",
     "@azure/msal-react": "^2.0.20",
     "@expo/vector-icons": "^14.0.2",
     "@react-native-async-storage/async-storage": "^1.23.1",
-    "@react-native-picker/picker": "^2.7.7",
     "@react-navigation/bottom-tabs": "^6.6.0",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.4.0",
@@ -60,6 +58,7 @@
     "react-native-screens": "^3.31.1",
     "react-native-svg": "15.2.0",
     "react-native-table-component": "^1.2.2",
+    "react-native-toast-message": "^2.2.0",
     "react-native-web": "~0.19.10",
     "react-native-wifi-reborn": "^4.12.1",
     "react-navigation": "^5.0.0",

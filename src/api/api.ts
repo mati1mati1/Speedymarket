@@ -133,16 +133,34 @@ export const uploadGroceryListImage = async (imageFile: string): Promise<AIRespo
 }
 
 export const uploadRecipeUrl = async (recipeUrl: string): Promise<AIResponse>=>{
-  const response = await fetch("", {
+  const key = process.env.RECIPE_FUNCTION_KEY;
+  //MATAN make sure u put the key in the env file with the value i sent in the group chat
+  const response = await fetch(`https://readimage.azurewebsites.net/api/readRecipeURL?code=${key}`, {
     method: 'POST',
-    body: recipeUrl
+    headers: {
+      'Content-Type': 'application/json',
+    }, 
+    body: JSON.stringify({ url: recipeUrl })
   });
-  const data = await response.json();
-  if (data){
-    console.log(data);
+  try {
+    const data = await response.json();
+    if (data.success) {
+      return {
+        success: true,
+        list: data.ingredients,
+      };
+    } else {
+      return {
+        success: false,
+        list: [],
+      };
+    }
   }
-  return {
-    success: false,
-    list: JSON.parse(""),
-  };
+  catch (error) {
+    console.error('An error occurred during uploadRecipeUrl', error);
+    return {
+      success: false,
+      list: [],
+    }
+  }
 }

@@ -40,7 +40,7 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
 
-  export const updateSupermarketDetailsQuery = (supermarket) => ({
+  const updateSupermarketDetailsQuery = (supermarket) => ({
     query: `
       UPDATE Supermarket
       SET BranchName = @branchName,
@@ -236,6 +236,7 @@ const getUserByIdQuery = (userId) => ({
     changeShoppingListQuery,
     addShopInventoryQuery,
     updateShopInventoryQuery,
-    deleteShopInventoryQuery
+    deleteShopInventoryQuery,
+    updateSupermarketDetailsQuery
   };
   

@@ -20,9 +20,9 @@ export default function CustomerLayout() {
           },
         })}
       >
-        <Tabs.Screen name="purchaseHistory"/>
-        <Tabs.Screen name="shoppingList"/>
-        <Tabs.Screen name="shopping" />
+        <Tabs.Screen name="purchaseHistory"options={{ headerShown: false}}/>
+        <Tabs.Screen name="shoppingList"options={{ headerShown: false}}/>
+        <Tabs.Screen name="shopping" options={{ headerShown: false}}/>
       </Tabs>
       <LogoutButton />
     </>
