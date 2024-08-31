@@ -38,7 +38,9 @@ const StartShoppingScreen = () => {
   };
 
   const closeListModal = (selectedList: ShoppingList | null) => {
+    if (selectedList != null) {
     setSelectedList(selectedList);
+    }
     setListModalVisible(false);
   };
 

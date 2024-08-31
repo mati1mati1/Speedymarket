@@ -32,18 +32,34 @@ const SupermarketMapsScreen = () => {
   const closeListModal = async (selectedList: ShoppingList | null) => {
     setSelectedList(selectedList);
     await setListModalVisible(false);
+    if(selectedList != null){
+      if (selectedSupermarket){
+        startShopping(selectedSupermarket, selectedList);
+      }
+    }
+  };
+
+  const handleStartWithoutList = async () => {
+    setSelectedList(null);
+    await setListModalVisible(false);
     if (selectedSupermarket){
       startShopping(selectedSupermarket, selectedList);
     }
   };
-
-  const handleStartWithoutList = () => {
-    setSelectedList(null);
-  };
   const closeSupermarketModal = (selectedSupermarket: Supermarket | null) => {
     setSupermarketModalVisible(false);
     setSelectedSupermarket(selectedSupermarket);
+    if(selectedSupermarket != null){
+      handleSelectList(selectedSupermarket);
+    }
   };
+  useEffect(() => {
+    console.log(listModalVisible, selectedSupermarket);
+    if (selectedList && selectedSupermarket !== null) {   
+      handleSelectList(selectedSupermarket)
+    }
+  }, [listModalVisible]);
+
   const startShopping = (supermarket: Supermarket | null, list: ShoppingList | null) => {
     disconnectMap();
     if (supermarket != null) {
@@ -161,7 +177,7 @@ const SupermarketMapsScreen = () => {
           {!isLoading &&
             supermarkets.map((supermarket) => {
               if (!supermarket.Latitude || !supermarket.Longitude) {
-                console.warn(`Invalid coordinates for supermarket: ${supermarket.BranchName}`);
+                console.log(`Invalid coordinates for supermarket: ${supermarket.BranchName}`);
                 return null;  // Skip rendering this marker
               }
               const operatingHours = Array.isArray(supermarket.OperatingHours)
