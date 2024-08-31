@@ -28,7 +28,6 @@ CREATE TABLE Supermarket (
     Street NVARCHAR(100),
     StreetNumber NVARCHAR(10),
     BranchMap NVARCHAR(MAX) NOT NULL,
-    Location NVARCHAR(255) NOT NULL,
     WiFiPassword NVARCHAR(255) NOT NULL,
     WiFiSSID NVARCHAR(255) NOT NULL,
     FOREIGN KEY (UserID) REFERENCES [User](UserID)

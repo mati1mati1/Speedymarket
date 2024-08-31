@@ -168,35 +168,35 @@ const SupermarketMapsScreen = () => {
               const operatingHours = Array.isArray(supermarket.OperatingHours)
                 ? supermarket.OperatingHours
                 : JSON.parse(supermarket.OperatingHours);
-              return (
-                <Marker
-                  key={supermarket.SupermarketID}
-                  coordinate={{
-                    latitude: supermarket.Latitude,
-                    longitude: supermarket.Longitude,
-                  }}
-                >
-                  <FontAwesome name="shopping-cart" size={30} color="red" />
-                  <Callout>
-                    <View>
-                      <Text>{supermarket.BranchName}</Text>
-                      <Text>Open Hours:</Text>
-                      {Array.isArray(operatingHours) ? (
-                        operatingHours.map((hours, index) => (
-                          <Text key={index}>
-                            {hours.day}: {hours.openHour} - {hours.closeHour}
-                          </Text>
-                        ))
-                      ) : (
-                        <Text>No operating hours available</Text>
-                      )}
-                      <Pressable style={styles.button} onPress={() => handleSelectList(supermarket)}>
-                        <Text style={styles.buttonText}>Start shopping</Text>
-                      </Pressable>
-                    </View>
-                  </Callout>
-                </Marker>
-              );
+                return (
+                  <Marker
+                    key={supermarket.SupermarketID}
+                    coordinate={{
+                      latitude: supermarket.Latitude,
+                      longitude: supermarket.Longitude,
+                    }}
+                  >
+                    <FontAwesome name="shopping-cart" size={30} color="red" />
+                    <Callout tooltip>
+                      <View style={styles.calloutContainer}>
+                        <Text style={styles.calloutTitle}>{supermarket.BranchName}</Text>
+                        <Text style={styles.calloutSubtitle}>Open Hours:</Text>
+                        {Array.isArray(operatingHours) ? (
+                          operatingHours.map((hours, index) => (
+                            <Text key={index} style={styles.calloutText}>
+                              {hours.day}: {hours.openHour} - {hours.closeHour}
+                            </Text>
+                          ))
+                        ) : (
+                          <Text style={styles.calloutText}>No operating hours available</Text>
+                        )}
+                        <Pressable style={styles.calloutButton} onPress={() => handleSelectList(supermarket)}>
+                          <Text style={styles.calloutButtonText}>Start shopping</Text>
+                        </Pressable>
+                      </View>
+                    </Callout>
+                  </Marker>
+                );
             })}
         </MapView>
       )}
@@ -277,21 +277,23 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#007bff',
-    padding: 10,
-    marginVertical: 10,
+    paddingVertical: 8, // Reduced padding
+    paddingHorizontal: 12, // Adjusted padding for better mobile fit
+    marginVertical: 5, // Reduced margin
     borderRadius: 5,
     alignItems: 'center',
+    minWidth: 150, // Ensures the button has a minimum width
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 14, // Reduced font size
   },
   closeButton: {
     marginTop: 10,
     alignSelf: 'flex-end',
   },
   closeButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     color: 'red',
   },
   modalContainer: {
@@ -306,6 +308,40 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
   },
+  calloutContainer: {
+    width: 200,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  calloutTitle: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  calloutSubtitle: {
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  calloutText: {
+    fontSize: 12,
+    marginBottom: 2,
+  },
+  calloutButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 6, // Adjusted for smaller buttons
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  calloutButtonText: {
+    color: '#fff',
+    fontSize: 14,
+  },
 });
+
 
 export default SupermarketMapsScreen;
