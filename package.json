@@ -16,6 +16,7 @@
     "axios": "^1.7.5",
     "expo": "~51.0.22",
     "expo-camera": "^15.0.15",
+    "expo-location": "^17.0.1",
     "expo-router": "^3.5.23",
     "expo-secure-store": "^13.0.2",
     "jwt-decode": "^4.0.0",
