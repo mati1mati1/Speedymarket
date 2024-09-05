@@ -10,7 +10,6 @@ export default function RegisterScreen() {
   const router = useRouter();
 
   const handleRegister = async () => {
-    console.log("handleRegister called with:", username, password, role); // Debugging
 
     try {
       // Here, you would typically call an API to register the user

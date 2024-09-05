@@ -54,7 +54,6 @@ const SupermarketMapsScreen = () => {
     }
   };
   useEffect(() => {
-    console.log(listModalVisible, selectedSupermarket);
     if (selectedList && selectedSupermarket !== null) {   
       handleSelectList(selectedSupermarket)
     }

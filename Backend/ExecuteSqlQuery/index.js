@@ -49,7 +49,6 @@ const getQueryByName = async (functionName, params) => {
             return queries.deleteShopInventoryQuery(params.inventoryId);
         case 'updateSupermarketDetailsQuery':
             const address = `${params.Street?.name}, ${params.City?.name}, ${params.Country?.name}`;
-            console.log(address);
             const coordinates = await getCoordinatesFromAzureMaps(address);
             params.Latitude = coordinates.latitude;
             params.Longitude = coordinates.longitude;
