@@ -118,4 +118,46 @@ export default StyleSheet.create({
     borderRadius: 10,
     padding: 20,
   },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginVertical: 10,
+    paddingHorizontal: 10,
+    width: '100%', // Ensures it stretches to fill available space
+  },
+  addButton: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  addButtonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: 'blue',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  listItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  listItemText: {
+    flex: 1,
+  },
 });

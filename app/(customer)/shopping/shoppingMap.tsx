@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Modal, TouchableOpacity, Text, Platform, ScrollView, Animated, Alert } from 'react-native';
+import { View, StyleSheet, Modal, TouchableOpacity, Text, Platform, ScrollView, Animated, Alert, Pressable } from 'react-native';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import WebSection from '../../../src/components/WebSection';
@@ -9,7 +9,7 @@ import NativeEntrance from '../../../src/components/NativeEntrance';
 import Svg, { Line, Defs, Marker, Path, Circle } from 'react-native-svg';
 import { useLocalSearchParams } from 'expo-router';
 import { EntranceType, loadMapAndPath, SectionType, ItemWithLocation } from '../../../src/services/mapService';
-import { getItemBySupermarketIdAndBarcode, getSupermarketBySupermarketId } from '../../../src/api/api';
+import { getItemBySupermarketIdAndBarcode, getItemBySupermarketIdAndItemName, getSupermarketBySupermarketId } from '../../../src/api/api';
 import { ShopInventory, ShoppingListItem } from '../../../src/models';
 import MissingItemsModal from '../../../src/components/MissingItemsModal';
 import FoundItemsModal from '../../../src/components/FoundItemsModal';
@@ -81,7 +81,7 @@ const ShoppingMap: React.FC = () => {
     setScannedData(data);
     try {
       const item: ShopInventory[] = await getItemBySupermarketIdAndBarcode(supermarketId || '', data);
-      if (item.length > 0) {
+      if (item.length > 0 && item[0].Quantity > 0) {
         setSelectedItem(item[0]); // Set the selected item
         setIsQuantityModalVisible(true); // Show the QuantityModal
       } else {
@@ -95,11 +95,57 @@ const ShoppingMap: React.FC = () => {
 
   const handleAddToCart = (quantity: number) => {
     if (selectedItem) {
-      const itemWithQuantity = { ...selectedItem, quantity };
-      setShoppingCart((prevCart) => [...prevCart, itemWithQuantity]);
+      setShoppingCart((prevCart) => updateCart(prevCart, selectedItem, quantity));
+      setSelectedItem(null);
       setIsQuantityModalVisible(false);
+    } else {
+      Alert.alert('Item Not Found', 'No item in the supermarket.', [{ text: 'OK' }]);
     }
   };
+  
+  const handleAddItemToCart = async (itemName: string, quantity: number) => {
+    if (itemName) {
+      try {
+        const item: ShopInventory[] = await getItemBySupermarketIdAndItemName(supermarketId || '', itemName);
+        if (item.length > 0) {
+          const selectedItem = item[0];
+          setShoppingCart((prevCart) => updateCart(prevCart, selectedItem, quantity));
+          setIsQuantityModalVisible(false);
+        } else {
+          Alert.alert('Item Not Found', 'No item in the supermarket.', [{ text: 'OK' }]);
+        }
+      } catch (error) {
+        console.error('Error fetching item:', error);
+        Alert.alert('Error', 'There was an error fetching the item. Please try again.', [{ text: 'OK' }]);
+      }
+    }
+  };
+const handleUpdateCart = (updatedCart: ShopInventory[]) => {
+  setShoppingCart(updatedCart);
+};
+const updateCart = (cart: ShopInventory[], newItem: ShopInventory, quantity: number): ShopInventory[] => {
+  const existingItemIndex = cart.findIndex((cartItem) => cartItem.ItemName === newItem.ItemName);
+
+  let totalQuantity = quantity;
+
+  if (existingItemIndex !== -1) {
+    const existingItem = cart[existingItemIndex];
+    totalQuantity += existingItem.Quantity;
+  }
+
+  if (totalQuantity > newItem.Quantity) { 
+    Alert.alert('Not enough stock', 'Not enough stock in the supermarket.', [{ text: 'OK' }]);
+    return cart; 
+  }
+
+  if (existingItemIndex !== -1) {
+    const updatedCart = [...cart];
+    updatedCart[existingItemIndex].Quantity = totalQuantity;
+    return updatedCart;
+  }
+  newItem.Quantity = totalQuantity;
+  return [...cart, newItem];
+};
 
   const toggleFoundItemsModal = () => {
     setIsFoundItemsModalOpen(!isFoundItemsModalOpen);
@@ -252,6 +298,7 @@ const ShoppingMap: React.FC = () => {
                 items={itemFoundList}
                 checkedItems={checkedItems}
                 onCheckboxChange={handleCheckboxChange}
+                addToCart={handleAddItemToCart}
               />
             </View>
           </TouchableOpacity>
@@ -273,7 +320,11 @@ const ShoppingMap: React.FC = () => {
         <Modal visible={isShoppingCartOpen} transparent={true} onRequestClose={toggleShoppingCart}>
           <TouchableOpacity style={styles.modalOverlay} onPress={toggleShoppingCart}>
             <View style={styles.modal} onStartShouldSetResponder={() => true}>
-              <ShoppingCart isOpen={isShoppingCartOpen} onRequestClose={toggleShoppingCart} itemInCard={shoppingCart} />
+            <ShoppingCart
+                isOpen={isShoppingCartOpen}
+                onRequestClose={toggleShoppingCart}
+                itemInCard={shoppingCart}
+                onUpdateCart={handleUpdateCart}/>
             </View>
           </TouchableOpacity>
         </Modal>
@@ -316,6 +367,13 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: 'blue',
     borderRadius: 5,
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center', // Center align items inside the modal
   },
   menuToggleText: {
     color: 'white',
