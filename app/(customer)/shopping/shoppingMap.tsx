@@ -21,7 +21,7 @@ import QuantityModal from '../../../src/components/QuantityModal';
 const Entrance = Platform.OS === 'web' ? WebEntrance : NativeEntrance;
 const Section = Platform.OS === 'web' ? WebSection : NativeSection;
 
-const CustomerMapViewer: React.FC = () => {
+const ShoppingMap: React.FC = () => {
   const { supermarketId, listId } = useLocalSearchParams<{ supermarketId: string; listId?: string }>();
   const [sections, setSections] = useState<SectionType[]>([]);
   const [entrance, setEntrance] = useState<EntranceType | null>(null);
@@ -296,7 +296,7 @@ const CustomerMapViewer: React.FC = () => {
   );
 };
 
-export default CustomerMapViewer;
+export default ShoppingMap;
 
 const styles = StyleSheet.create({
   viewerContainer: {
