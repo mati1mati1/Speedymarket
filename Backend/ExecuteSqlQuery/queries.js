@@ -51,22 +51,26 @@ const getUserByIdQuery = (userId) => ({
           Country = @country,
           WiFiSSID = @wifiSSID,
           WiFiPassword = @wifiPassword,
-          OperatingHours = @operatingHours
-      WHERE SupermarketID = @supermarketId
-    `,
-    params: [
-      { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarket.SupermarketID },
-      { name: 'branchName', type: 'NVarChar', value: supermarket.BranchName },
-      { name: 'branchMap', type: 'NVarChar', value: supermarket.BranchMap },
-      { name: 'streetNumber', type: 'Int', value: supermarket.StreetNumber },
-      { name: 'street', type: 'NVarChar', value: supermarket.Street?.name },
-      { name: 'city', type: 'NVarChar', value: supermarket.City?.name },
-      { name: 'country', type: 'NVarChar', value: supermarket.Country?.name },
-      { name: 'wifiSSID', type: 'NVarChar', value: supermarket.WiFiSSID },
-      { name: 'wifiPassword', type: 'NVarChar', value: supermarket.WiFiPassword },
-      { name: 'operatingHours', type: 'NVarChar', value: JSON.stringify(supermarket.OperatingHours) },
-    ],
-  });
+          OperatingHours = @operatingHours,
+          Latitude = @latitude,
+          Longitude = @longitude
+          WHERE SupermarketID = @supermarketId
+          `,
+          params: [
+            { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarket.SupermarketID },
+            { name: 'branchName', type: 'NVarChar', value: supermarket.BranchName },
+            { name: 'branchMap', type: 'NVarChar', value: supermarket.BranchMap },
+            { name: 'streetNumber', type: 'Int', value: supermarket.StreetNumber },
+            { name: 'street', type: 'NVarChar', value: JSON.stringify(supermarket.Street) },
+            { name: 'city', type: 'NVarChar', value: JSON.stringify(supermarket.City) },
+            { name: 'country', type: 'NVarChar', value: JSON.stringify(supermarket.Country) },
+            { name: 'wifiSSID', type: 'NVarChar', value: supermarket.WiFiSSID },
+            { name: 'wifiPassword', type: 'NVarChar', value: supermarket.WiFiPassword },
+            { name: 'operatingHours', type: 'NVarChar', value: JSON.stringify(supermarket.OperatingHours) },
+            { name: 'latitude', type: 'Float', value: supermarket.Latitude },
+            { name: 'longitude', type: 'Float', value: supermarket.Longitude }
+          ],
+          });
   
   const getMapBySupermarketIdQuery = (supermarketId) => ({
     query: 'SELECT * FROM Supermarket WHERE SupermarketID = @supermarketId',

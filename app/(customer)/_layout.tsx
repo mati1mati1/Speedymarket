@@ -2,11 +2,13 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import LogoutButton from '../../src/components/LogoutButton';
+import { Platform } from 'react-native';
 
 const iconMap = {
   purchaseHistory: 'history',
   shoppingList: 'list',
   shopping: 'shopping-bag',
+  supermarketMapsScreean: 'map',
 };
 
 export default function CustomerLayout() {
@@ -20,11 +22,11 @@ export default function CustomerLayout() {
           },
         })}
       >
-        <Tabs.Screen name="purchaseHistory"options={{ headerShown: false}}/>
-        <Tabs.Screen name="shoppingList"options={{ headerShown: false}}/>
-        <Tabs.Screen name="shopping" options={{ headerShown: false}}/>
+        <Tabs.Screen name="purchaseHistory" options={{title:"Purchase History" ,headerShown: false}}/>
+        <Tabs.Screen name="shoppingList" options={{title:"Shopping List" ,headerShown: false}}/>
+        <Tabs.Screen name="shopping" options={{title:"Start Shopping" ,headerShown: false}} />
       </Tabs>
-      <LogoutButton />
+    <LogoutButton />
     </>
   );
 }

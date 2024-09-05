@@ -21,7 +21,7 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
   const fetchSupermarkets = async () => {
     setIsLoading(true);
     try {
-      const fetchedSupermarkets = await getSupermarkets(token || '');
+      const fetchedSupermarkets = await getSupermarkets();
       if (fetchedSupermarkets) {
         setSupermarkets(fetchedSupermarkets);
       }
@@ -45,7 +45,7 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
 
   const handleScannedBarcode = async (data: string) => {
     try{
-      let response = await getSupermarketByBarcode(token || '' , data);
+      let response = await getSupermarketByBarcode( data);
       if(response.length > 0){
         setSelectedSupermarket(response[0]);
         setScannedDataModalOpen(false);

@@ -1,0 +1,87 @@
+import { StyleSheet } from 'react-native';
+
+const styles = StyleSheet.create({
+  mapEditor: {
+    width: 800,
+    height: 600,
+    borderColor: 'black',
+    borderWidth: 1,
+    position: 'relative',
+    marginVertical: 20,
+    marginHorizontal: 'auto',
+    backgroundColor: '#f0f0f0',
+  },
+  sidebar: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    padding: 20,
+    backgroundColor: '#ddd',
+    height: '100%',
+  },
+  section: {
+    width: 100,
+    height: 50,
+    backgroundColor: '#007bff',
+    color: 'white',
+    textAlign: 'center',
+    lineHeight: 50,
+    borderColor: '#0056b3',
+    borderWidth: 1,
+    position: 'relative',
+  },
+  arrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 10,
+    borderRightWidth: 10,
+    borderTopWidth: 10,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: 'white',
+    position: 'absolute',
+    top: -10,
+    left: 45,
+  },
+  entrance: {
+    width: 100,
+    height: 50,
+    backgroundColor: 'green',
+    color: 'white',
+    textAlign: 'center',
+    lineHeight: 50,
+    borderColor: '#004d00',
+    borderWidth: 1,
+  },
+  aisle: {
+    backgroundColor: 'yellow',
+    borderColor: '#cccc00',
+    borderWidth: 1,
+    position: 'absolute',
+    cursor: 'pointer', // 'cursor' doesn't exist in RN, but you can use TouchableOpacity for a similar effect
+  },
+  modalOverlay: {
+    position: 'absolute', // 'fixed' doesn't exist in RN; use 'absolute' instead and adjust positioning
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    paddingTop: 20,
+  },
+  modal: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    maxWidth: '90%',
+    maxHeight: '90%',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10, // 'gap' is not supported in RN, use margin or padding
+    marginBottom: 20,
+  },
+});

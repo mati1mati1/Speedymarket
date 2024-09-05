@@ -6,8 +6,8 @@ function ShoppingListLayout() {
   return (
     <Stack>
       <Stack.Screen 
-        name="selectSupermarketAndList" 
-        options={{ headerShown: false , headerTitle: ''}} 
+        name="supermarketMapsScreean" 
+        options={{ headerShown: false , headerTitle: '',title:"Supermarket Maps"}} 
       />
       <Stack.Screen 
         name="shoppingMap" 

@@ -24,14 +24,11 @@ export default function EditListScreen() {
         return;
       }
       try {
-        console.log("cardId:", cardId);
-        console.log("ListName:", ListName);
 
         if (cardId! && cardId !== '0' && cardId !== '') {
           const fetchedItems = await getShoppingListItemByCardId( cardId || '');
           setItems(fetchedItems);
         }
-        console.log("cardId:", cardId);
         if (ListName !== '') {
           setListName(ListName || '');
         }

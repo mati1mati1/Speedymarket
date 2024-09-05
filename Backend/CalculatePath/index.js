@@ -245,11 +245,11 @@ function mapToGridPoint(point, mapWidth, mapHeight, gridWidth, gridHeight) {
 module.exports = async function (context, req) {
     const { supermarketId, listId } = req.body;
     const token = req.headers.authorization?.split(' ')[1];
-
-    if (!supermarketId || !listId) {
+    console.log( req.body);
+    if (!supermarketId) {
         context.res = {
             status: 400,
-            body: "Please pass a supermarketId and listId in the request body"
+            body: "Please pass a supermarketId in the request body"
         };
         return;
     }
@@ -269,7 +269,14 @@ module.exports = async function (context, req) {
         } catch (err) {
             throw new Error(`Error fetching map data: ${err.message}`);
         }
-
+        console.log("listId " +  listId);
+        if(!listId || listId === ''){
+            context.res = {
+                status: 200,
+                body: { map: branchMap}
+            };
+            return;
+        }
         try {
             const listQuery = `SELECT * FROM ShoppingListItem WHERE ListID = @listId`;
             const listRequest = new sql.Request();

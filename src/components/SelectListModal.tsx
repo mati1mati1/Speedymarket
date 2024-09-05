@@ -24,7 +24,7 @@ const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueW
       return;
     }
     try {
-      const fetchedShoppingLists = await getShoppingListsByBuyerId(token || '');
+      const fetchedShoppingLists = await getShoppingListsByBuyerId();
       if (fetchedShoppingLists) {
         setShoppingLists(fetchedShoppingLists);
       }

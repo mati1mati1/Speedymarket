@@ -65,7 +65,8 @@ export interface Supermarket {
   WiFiPassword: string;
   WiFiSSID: string;
   OperatingHours: dailyHours[];
-
+  Latitude: number;
+  Longitude: number;
 }
 
 export interface Location {

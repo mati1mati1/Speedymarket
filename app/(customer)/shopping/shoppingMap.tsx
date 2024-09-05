@@ -8,8 +8,6 @@ import NativeSection from '../../../src/components/NativeSection';
 import NativeEntrance from '../../../src/components/NativeEntrance';
 import Svg, { Line, Defs, Marker, Path, Circle } from 'react-native-svg';
 import { useLocalSearchParams } from 'expo-router';
-import { fetchCurrentLocation } from '../../../src/services/locationService';
-import { connectToWifi } from '../../../src/services/wifiService';
 import { EntranceType, loadMapAndPath, SectionType, ItemWithLocation } from '../../../src/services/mapService';
 import { getItemBySupermarketIdAndBarcode, getSupermarketBySupermarketId } from '../../../src/api/api';
 import { ShopInventory, ShoppingListItem } from '../../../src/models';
@@ -18,9 +16,7 @@ import FoundItemsModal from '../../../src/components/FoundItemsModal';
 import Payments from '../../../src/components/Payments';
 import ShoppingCart from '../../../src/components/ShoppingCart';
 import ScanItem from '../../../src/components/Scanner';
-import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
-import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import QuantityModal from '../../../src/components/QuantityModal'; // Import the QuantityModal component
+import QuantityModal from '../../../src/components/QuantityModal'; 
 
 const Entrance = Platform.OS === 'web' ? WebEntrance : NativeEntrance;
 const Section = Platform.OS === 'web' ? WebSection : NativeSection;
@@ -59,11 +55,13 @@ const CustomerMapViewer: React.FC = () => {
         setPath(data.path || []);
         setItemFoundList(data.itemsWithLocations || []);
         setItemMissingList(data.missingItems || []);
-        const initialCheckedItems = data.itemsWithLocations.reduce((acc: { [key: string]: boolean }, item: ItemWithLocation) => {
-          acc[item.ListItemID] = false;
-          return acc;
-        }, {});
-        setCheckedItems(initialCheckedItems);
+        if(data.missingItems?.length > 0){
+          const initialCheckedItems = data.itemsWithLocations.reduce((acc: { [key: string]: boolean }, item: ItemWithLocation) => {
+            acc[item.ListItemID] = false;
+            return acc;
+          }, {});
+          setCheckedItems(initialCheckedItems);
+        }
       } catch (error: any) {
         alert(error.message);
       }
