@@ -134,7 +134,7 @@ const getUserByIdQuery = (userId) => ({
     query: `BEGIN TRANSACTION;
               DELETE FROM ShoppingListItem WHERE ListID = @listId;
   
-              INSERT INTO ShoppingListItem (ItemID, ListID, ItemName, Quantity)
+              INSERT INTO ShoppingListItem (ListItemID, ListID, ItemName, Quantity)
               VALUES ${items.map((_, index) => `(NEWID(), @listId, @itemName${index}, @quantity${index})`).join(", ")};
   
               COMMIT;`,

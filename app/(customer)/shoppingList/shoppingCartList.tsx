@@ -64,8 +64,8 @@ const ShoppingCartListScreen = () => {
       setShoppingLists(prevLists => [...prevLists, response[0]]);
       setNewListName('');
       router.push({
-        pathname: '/shoppingList/[edit-list]',
-        params: { 'edit-list': '', cardId: response[0].ListID, ListName: newListName }
+        pathname: '/shoppingList/[listId]',
+        params: { 'listId': response[0].ListID, ListName: newListName }
       });
     } catch (error) {
       console.error('Error creating shopping list:', error);
@@ -73,9 +73,10 @@ const ShoppingCartListScreen = () => {
   };
 
   const handleEditCart = (cartId: string, listName: string) => {
+    debugger
     router.push({
-      pathname: '/shoppingList/[edit-list]',
-      params: { 'edit-list': '', cardId: cartId, ListName: listName }
+      pathname: '/shoppingList/[listId]',
+      params: { 'listId': cartId, ListName: listName }
     });
   };
 

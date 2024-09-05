@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { useNavigation } from '@react-navigation/native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { ShoppingListItem } from '../../../src/models';
 import { updateShoppingListItems, getShoppingListItemByCardId } from '../../../src/api/api';
 import { useAuth } from '../../../src/context/AuthContext';
 
 export default function EditListScreen() {
-  let { cardId, ListName } = useLocalSearchParams<{ cardId: string; ListName?: string }>();  
+  debugger;
+  let { listId, ListName } = useLocalSearchParams<{ listId: string; ListName?: string }>();  
   const { authState } = useAuth();
   const token = authState.token;
-  const navigation = useNavigation();
   const [items, setItems] = useState<ShoppingListItem[]>([]);
   const [newItem, setNewItem] = useState('');
   const [newQuantity, setNewQuantity] = useState('1');
@@ -25,8 +24,8 @@ export default function EditListScreen() {
       }
       try {
 
-        if (cardId! && cardId !== '0' && cardId !== '') {
-          const fetchedItems = await getShoppingListItemByCardId( cardId || '');
+        if (listId! && listId !== '0' && listId !== '') {
+          const fetchedItems = await getShoppingListItemByCardId( listId || '');
           setItems(fetchedItems);
         }
         if (ListName !== '') {
@@ -40,7 +39,7 @@ export default function EditListScreen() {
     };
 
     fetchData();
-  }, [cardId, ListName, token]);
+  }, [listId, ListName, token]);
 
   const addItem = () => {
     if (newItem.trim() !== '') {
@@ -60,14 +59,14 @@ export default function EditListScreen() {
 
   const saveList = async () => {
     if (items.length > 0) {
-      await updateShoppingListItems(cardId || '', items);  
+      await updateShoppingListItems(listId || '', items);  
     }  
     else {
       alert('A shopping list must have at least one item.');
       return;
     }
-    navigation.goBack();
-  };
+    router.push("/shoppingList/shoppingCartList")
+    };
 
   if (loading) {
     return (
@@ -80,7 +79,7 @@ export default function EditListScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Pressable style={styles.topButton} onPress={() => navigation.goBack()}>
+        <Pressable style={styles.topButton} onPress={() => router.push("/shoppingList/shoppingCartList")}>
           <Text style={styles.topButtonText}>Back</Text>
         </Pressable>
         <Text style={styles.title}>Edit Shopping List</Text>
