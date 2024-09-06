@@ -49,15 +49,7 @@ const SupermarketMapsScreen = () => {
   const closeSupermarketModal = (selectedSupermarket: Supermarket | null) => {
     setSupermarketModalVisible(false);
     setSelectedSupermarket(selectedSupermarket);
-    if(selectedSupermarket != null){
-      handleSelectList(selectedSupermarket);
-    }
   };
-  useEffect(() => {
-    if (selectedList && selectedSupermarket !== null) {   
-      handleSelectList(selectedSupermarket)
-    }
-  }, [listModalVisible]);
 
   const startShopping = (supermarket: Supermarket | null, list: ShoppingList | null) => {
     disconnectMap();

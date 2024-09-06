@@ -12,7 +12,8 @@
     "@azure/functions": "^4.0.0",
     "fastpriorityqueue": "^0.7.5",
     "jsonwebtoken": "^9.0.2",
-    "mssql": "^11.0.1"
+    "mssql": "^11.0.1",
+    "stripe": "^16.10.0"
   },
   "devDependencies": {
     "azure-functions-core-tools": "^4.x"

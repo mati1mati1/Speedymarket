@@ -16,7 +16,8 @@ module.exports = api => {
             ...(platform === 'web' ? {
               "react-native": "react-native-web",
               "react-native-maps": "@teovilla/react-native-web-maps"
-            } : {})
+            } : 
+              {"@stripe/stripe-js": "@stripe/stripe-react-native"})
           },
           "extensions": [".web.js", ".web.ts", ".web.tsx", ".js", ".ts", ".tsx",".css"]
         },
