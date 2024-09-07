@@ -20,13 +20,13 @@ module.exports = (async () => {
     if (platform === "web") {
       if (moduleName.endsWith("/Libraries/Components/TextInput/TextInputState")) {
         return {
-          filePath: require.resolve("identity-obj-proxy"), // mock module
+          filePath: require.resolve("identity-obj-proxy"), 
           type: "sourceFile"
         };
       }
       if (moduleName.endsWith("RCTExport")) {
         return {
-          filePath: require.resolve("identity-obj-proxy"), // mock module
+          filePath: require.resolve("identity-obj-proxy"),
           type: "sourceFile"
         };
       }

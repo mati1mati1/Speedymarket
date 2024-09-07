@@ -25,7 +25,7 @@ export default function LoginScreen() {
           router.replace('/(customer)/purchaseHistory');
         }
         else{
-          Alert.alert('Login failed', 'uknow role');
+          Alert.alert('Login failed', 'uknown role');
         }
       }
        else {

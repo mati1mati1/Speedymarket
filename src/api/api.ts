@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem } from '../models';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem } from '../models';
 
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
   try {
@@ -46,6 +46,13 @@ export const getItemBySupermarketIdAndBarcode = async ( supermarketId: string, b
 export const getMapBySupermarketId = async ( supermarketId: string): Promise<string[]> => {
   return await executeDbFunction<string[]>( 'getMapBySupermarketId', { supermarketId });
 };
+export const getOrderDetailsByOrderId = async ( orderId: string): Promise<BuyerOrderItem[]> => {
+  return await executeDbFunction<BuyerOrderItem[]>( 'getOrderDetailsById', { orderId });
+};
+export const getOrderByBuyerIdOrderId = async ( orderId: string): Promise<BuyerOrder> => {
+  return await executeDbFunction<BuyerOrder>( 'getOrderByBuyerIdAndOrderId', { orderId });
+};
+
 
 export const updateMap = async ( supermarketId: string, BranchMap: string): Promise<string[]> => {
   return await executeDbFunction<string[]>( 'updateMap', { supermarketId, BranchMap });
