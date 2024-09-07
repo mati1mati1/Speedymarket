@@ -5,8 +5,7 @@ import { ShopInventory } from 'src/models';
 import { executePaymentFunction } from 'src/api/api';
 import PurchaseSummary from './PurchaseSummary';
 
-// Load Stripe outside of the render method
-const stripePromise = loadStripe('pk_test_51PvlZ3KWQ0uKuoXnujEJuj5KA30Wv7UHIHghn8XNWggo01RtK0gRDGiv3kdBMfVvjOtZysRKRt8sPgCwaulYAVBl00EUEnnefi'); // Replace with your real Stripe public key
+const stripePromise = loadStripe(process.env.EXPO_PUBLIC_STRIPE_PUBLIC_KEY || ''); 
 
 interface PaymentsWebProps {
   isOpen: boolean;

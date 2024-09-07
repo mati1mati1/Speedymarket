@@ -28,7 +28,7 @@ const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items,supermark
 
 
   const fetchPublishableKey = async () => {
-    const key = 'pk_test_51PvlZ3KWQ0uKuoXnujEJuj5KA30Wv7UHIHghn8XNWggo01RtK0gRDGiv3kdBMfVvjOtZysRKRt8sPgCwaulYAVBl00EUEnnefi'; 
+    const key = process.env.EXPO_PUBLIC_STRIPE_PUBLIC_KEY || ''; 
     setPublishableKey(key);
   };
 
