@@ -23,7 +23,16 @@ const getUserByIdQuery = (userId) => ({
       { name: 'userId', type: 'UniqueIdentifier', value: userId }
     ]
   });
-  
+  const getOrderDetailsByIdQuery = (orderId) => ({
+    query: `
+      SELECT *
+      FROM BuyerOrderItem
+      WHERE OrderID = @orderId
+    `,
+    params: [
+      { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
+    ]
+  });
   const getItemBySupermarketIdAndItemNameQuery = (supermarketId, ItemName) => ({
     query: 'SELECT * FROM ShopInventory WHERE SupermarketID = @supermarketId AND ItemName = @ItemName',
     params: [
@@ -153,6 +162,18 @@ const getUserByIdQuery = (userId) => ({
       { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }
     ]
   });
+  const getOrderByBuyerIdAndOrderIdQuery = (buyerId, orderId) => ({
+    query: `
+      SELECT bo.*, sm.BranchName AS SupermarketName
+      FROM BuyerOrder bo
+      JOIN Supermarket sm ON bo.SupermarketID = sm.SupermarketID
+      WHERE bo.BuyerID = @buyerId AND bo.OrderID = @orderId
+    `,
+    params: [
+      { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId },
+      { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
+    ]
+  });
   
   const getSupermarketsQuery = () => ({
     query: 'SELECT * FROM Supermarket',
@@ -258,6 +279,8 @@ const getUserByIdQuery = (userId) => ({
   });
   
   module.exports = {
+    getOrderByBuyerIdAndOrderIdQuery,
+    getOrderDetailsByIdQuery,
     createPurchaseQuery,
     getUserByIdQuery,
     getUserByUserNameQuery,

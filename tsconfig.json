@@ -33,7 +33,7 @@
     "src/services/**/*.ts",
     "src/api/**/*.ts",
     "src/styles/**/*.css",
-    "app/(customer)/purchaseHistory.tsx",
+    "app/(customer)/purchaseHistory/purchaseHistory.tsx",
     "app/(customer)/shoppingList/shoppingCartList.tsx",
     "app/(customer)/shopping/selectSupermarketAndList.tsx",
     "app/(customer)/shoppingList/map-viewer/[customerMapViewer].tsx"
