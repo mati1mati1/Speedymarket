@@ -14,7 +14,6 @@ export default function LoginScreen() {
 
 
   const handleLogin = async () => {
-    console.log("handleLogin called with:", username, password); // Debugging
     try {
       const response = await onLogin!(username, password);
       if (response.success) {
@@ -23,6 +22,8 @@ export default function LoginScreen() {
           }
         else if (response.role === Role.Buyer) {
           router.replace('/(customer)/purchaseHistory');
+        } else if (response.role === Role.Supplier) {
+          router.replace('/(supplier)/orders');
         }
         else{
           Alert.alert('Login failed', 'uknow role');

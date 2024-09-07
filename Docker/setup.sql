@@ -12,7 +12,7 @@ CREATE TABLE [User] (
     LastName NVARCHAR(100) NOT NULL,
     Email NVARCHAR(100) NOT NULL,
     PhoneNumber NVARCHAR(15),
-    UserType NVARCHAR(50) NOT NULL -- Buyer or Seller
+    UserType NVARCHAR(50) NOT NULL -- Buyer or Seller or Supplier
 );
 GO
 
@@ -102,12 +102,44 @@ CREATE TABLE ESP32Position (
 );
 GO
 
+-- Create Supplier Table
+CREATE TABLE Supplier (
+    SupplierID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserID UNIQUEIDENTIFIER UNIQUE NOT NULL,
+    SupplierName NVARCHAR(100) NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES [User](UserID)
+);
+
+-- Create table for the Suppliers Orders (contains the order id, total amount, date, status, supplier id and supermarket id)
+CREATE TABLE SupplierOrder (
+    OrderID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserID UNIQUEIDENTIFIER NOT NULL,
+    TotalAmount DECIMAL(18, 2) NOT NULL,
+    CreationDate DATETIME DEFAULT GETDATE() NOT NULL,
+    SupermarketID UNIQUEIDENTIFIER NOT NULL,
+    Status NVARCHAR(50) NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES User(UserID),
+    FOREIGN KEY (SupermarketID) REFERENCES Supermarket(SupermarketID)
+);
+
+-- Create table for the Supplier Order Items (contains the order id, item id, item name, quantity, price)
+CREATE TABLE SupplierOrderItem (
+    OrderItemID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    OrderID UNIQUEIDENTIFIER NOT NULL,
+    ItemID NVARCHAR(50) NOT NULL,
+    ItemName NVARCHAR(255) NOT NULL,
+    Quantity INT NOT NULL,
+    Price DECIMAL(18, 2) NOT NULL,
+    FOREIGN KEY (OrderID) REFERENCES SupplierOrder(OrderID)
+);
+
 -- Insert mock data into User table
 INSERT INTO [User] (UserName, FirstName, LastName, Email, PhoneNumber, UserType)
 VALUES 
 ('john.doe', 'John', 'Doe', 'john.doe@example.com', '1234567890', 'Buyer'),
 ('jane.smith', 'Jane', 'Smith', 'jane.smith@example.com', '0987654321', 'Seller'),
 ('mike.johnson', 'Mike', 'Johnson', 'mike.johnson@example.com', '1122334455', 'Buyer'),
+('tal.sabel', 'Tal', 'Sabel', 'talsabel@example.com', '5566778899', 'Supplier'),
 ('emily.davis', 'Emily', 'Davis', 'emily.davis@example.com', '5566778899', 'Seller');
 GO
 
@@ -241,4 +273,37 @@ VALUES
 ((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'esp32_2', 0, 600),
 ((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'esp32_3', 800, 0),
 ((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'esp32_4', 800, 600);
+GO
+
+-- Insert mock data into Supplier table
+INSERT INTO Supplier (UserID, SupplierName)
+VALUES 
+((SELECT UserID FROM [User] WHERE Email = 'talsabel@example.com'), 'Tal Sabel');
+GO
+
+-- Insert mock data into SupplierOrder and SupplierOrderItem
+INSERT INTO SupplierOrder (SupplierID, TotalAmount, SupermarketID, Status)
+VALUES 
+((SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel'), 27.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Done'),
+((SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel'), 21.97, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Pending'),
+((SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel'), 38.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'Cancelled'),
+((SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel'), 36.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Done'),
+((SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel'), 40.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Pending'),
+((SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel'), 46.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'Pending');
+GO
+
+INSERT INTO SupplierOrderItem (OrderID, ItemID, ItemName, Quantity, Price)
+VALUES 
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 27.47 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-001', 'Apple', 2, 1.99),
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 27.47 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-002', 'Banana', 1, 0.99),
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 21.97 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-001', 'Apple', 1, 1.99),
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 21.97 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-002', 'Banana', 2, 0.99),
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 38.47 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-001', 'Apple', 3, 1.99),
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 38.47 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-002', 'Banana', 1, 0.99),
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 36.96 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-006', 'Cheese', 3, 4.99),
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 36.96 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-007', 'Chicken', 1, 5.99),
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 40.96 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-006', 'Cheese', 2, 4.99),
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 40.96 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-007', 'Chicken', 2, 5.99),
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 46.96 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-006', 'Cheese', 1, 4.99),
+((SELECT OrderID FROM SupplierOrder WHERE TotalAmount = 46.96 AND SupplierID = (SELECT SupplierID FROM Supplier WHERE SupplierName = 'Tal Sabel')), 'item-007', 'Chicken', 3, 5.99);
 GO

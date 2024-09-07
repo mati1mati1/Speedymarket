@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem } from '../models';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, SupplierOrder, ProductsList } from '../models';
 
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
   try {
@@ -127,13 +127,19 @@ export const deleteShopInventory = async ( inventoryId: string): Promise<void> =
   return await executeDbFunction<void>( 'deleteShopInventory', { inventoryId });
 };
 
+export const getOrderDetailsByOrderId = async ( orderId: string): Promise<ProductsList[]> => {
+  return await executeDbFunction<ProductsList[]>( 'getOrderDetailsByOrderId', { orderId });
+}
+
+export const getOrdersBySupplierId = async (): Promise<SupplierOrder[]> => {
+  return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySupplierId', {});
+};
   
 interface AIResponse {
   success: boolean;
   list: string[];
 }
 export const uploadGroceryListImage = async (imageFile: string): Promise<AIResponse> => {
-  console.log("this is the image file", imageFile);
   const response = await fetch('https://readimage.azurewebsites.net/api/readImage?', {
     method: 'POST',
     // headers: {

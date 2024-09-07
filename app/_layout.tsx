@@ -45,15 +45,18 @@ function RootLayoutNav() {
     <DndProvider backend={HTML5Backend}>
       <Stack>
         {authState?.authenticated && authState.role === Role.Seller ? (
-          <Stack.Screen name="(manager)" options={{ headerShown: false, headerTitleAlign: 'center' }} />
-        ) : authState?.authenticated && authState.role === Role.Buyer ? (
-          <Stack.Screen name="(customer)" options={{ headerShown: false }} />
-        ) : (
-          <>
-            <Stack.Screen name="index" options={{ headerShown: false, headerTitle: 'SpeedyMarket' }} />
-            <Stack.Screen name="register" options={{ headerShown: false, headerTitleAlign: 'center' }} />
-            <Stack.Screen name="login" options={{ headerShown: false, headerTitleAlign: 'center' }} />
-          </>
+        <Stack.Screen name="(manager)" options={{ headerShown: false, headerTitleAlign: 'center' }} />
+      ) : authState?.authenticated && authState.role === Role.Buyer ? (
+        <Stack.Screen name="(customer)" options={{ headerShown: false }} />
+      ) : authState?.authenticated && authState.role === Role.Supplier ? (
+        <Stack.Screen name="(supplier)" options={{ headerShown: false }} />
+      )
+      :
+        (
+        <><Stack.Screen name="index" options={{ headerShown: false}} />
+        <Stack.Screen name="register" options={{ headerShown: false}} />
+        <Stack.Screen name="login" options={{ headerShown: false}} />
+        </>
         )}
       </Stack>
     </DndProvider>

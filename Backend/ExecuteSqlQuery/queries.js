@@ -256,6 +256,24 @@ const getUserByIdQuery = (userId) => ({
       { name: 'inventoryId', type: 'UniqueIdentifier', value: inventoryId }
     ]
   });
+
+  const getOrderDetailsByOrderIdQuery = (orderId) => ({
+    query: `
+      SELECT * FROM SupplierOrderItem WHERE OrderID = @orderId
+    `,
+    params: [
+      { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
+    ]
+  });
+
+  const getOrdersBySupplierIdQuery = (userId) => ({
+    query: `
+      SELECT * FROM SupplierOrder WHERE UserID = @userId
+    `,
+    params: [
+      { name: 'userId', type: 'UniqueIdentifier', value: userId }
+    ]
+  });
   
   module.exports = {
     createPurchaseQuery,
@@ -279,6 +297,8 @@ const getUserByIdQuery = (userId) => ({
     addShopInventoryQuery,
     updateShopInventoryQuery,
     deleteShopInventoryQuery,
-    updateSupermarketDetailsQuery
+    updateSupermarketDetailsQuery,
+    getOrderDetailsByOrderIdQuery,
+    getOrdersBySupplierIdQuery
   };
   

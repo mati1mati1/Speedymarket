@@ -10,6 +10,7 @@ export interface User {
 export enum Role{
   Buyer = "Buyer",
   Seller = "Seller",
+  Supplier = "Supplier"
 }
 export interface BuyerOrder {
   OrderID: string;
@@ -17,6 +18,22 @@ export interface BuyerOrder {
   TotalAmount: number;
   CreationDate: string;
   SupermarketID: string;
+}
+
+export interface SupplierOrder {
+  OrderID: string;
+  SupplierID: string;
+  TotalAmount: number;
+  CreationDate: string;
+  SupermarketID: string;
+  Status: string;
+}
+
+export interface ProductsList {
+  ItemID: string;
+  ItemName: string;
+  Quantity: number;
+  Price: number;
 }
 
 export interface BuyerOrderItem {
