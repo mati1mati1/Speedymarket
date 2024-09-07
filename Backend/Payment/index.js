@@ -1,4 +1,4 @@
-const stripe = require('stripe')('sk_test_51PvlZ3KWQ0uKuoXn1DFv2Prp3bLJOJFVyxchrlzdpm8ZDJYCKRJMzbzUlYcHsKvSXbZ6EQO1xn3oql8V26bmw3XQ00orKTPmSX');
+const stripe = require('stripe')(process.env.stripeSecretKey);
 
 module.exports = async function (context, req) {
   const { amount, paymentType } = req.body; 
