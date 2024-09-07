@@ -31,7 +31,6 @@ const FoundItemsModal: React.FC<FoundItemsModalProps> = ({ isOpen, onRequestClos
       Alert.alert('Invalid Quantity', 'Please select a valid quantity.');
       return;
     }
-    debugger
     addToCart(selectedItem.ItemName, parseInt(quantity)); // Call the addToCart function passed as a prop
     setQuantityModalOpen(false);
   };

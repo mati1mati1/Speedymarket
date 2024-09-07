@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 
+
 const purchases = [
   { id: '1', date: '2023-07-01', total: 100.0 },
   { id: '2', date: '2023-07-15', total: 50.0 },

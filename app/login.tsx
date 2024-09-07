@@ -5,7 +5,6 @@ import Input from '../src/components/Input';
 import { useAuth } from '../src/context/AuthContext';
 import { Role } from '../src/models';
 
-
 export default function LoginScreen() {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');

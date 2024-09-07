@@ -22,10 +22,11 @@
       "@services": ["src/services/*"],
       "@api": ["src/api/*"],
       "@models": ["src/models/*"]
-    }
+        }
   },
   "include": [
     "src",
+    "src/**/*",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "src/components/**/*.tsx",

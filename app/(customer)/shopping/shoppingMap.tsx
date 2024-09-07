@@ -13,10 +13,10 @@ import { getItemBySupermarketIdAndBarcode, getItemBySupermarketIdAndItemName, ge
 import { ShopInventory, ShoppingListItem } from '../../../src/models';
 import MissingItemsModal from '../../../src/components/MissingItemsModal';
 import FoundItemsModal from '../../../src/components/FoundItemsModal';
-import Payments from '../../../src/components/Payments';
 import ShoppingCart from '../../../src/components/ShoppingCart';
 import ScanItem from '../../../src/components/Scanner';
-import QuantityModal from '../../../src/components/QuantityModal'; 
+import QuantityModal from '../../../src/components/QuantityModal'; ;
+import Payment from '../../../src/components/Payment';
 
 const Entrance = Platform.OS === 'web' ? WebEntrance : NativeEntrance;
 const Section = Platform.OS === 'web' ? WebSection : NativeSection;
@@ -42,9 +42,12 @@ const ShoppingMap: React.FC = () => {
   const [zoomLevel, setZoomLevel] = useState(new Animated.Value(1));
   const [isQuantityModalVisible, setIsQuantityModalVisible] = useState(false); // State for QuantityModal visibility
   const [selectedItem, setSelectedItem] = useState<ShopInventory | null>(null); // State for selected item
-
   const mapWidth = 800;
   const mapHeight = 600;
+
+
+
+
 
   useEffect(() => {
     const fetchMapAndPath = async () => {
@@ -235,6 +238,7 @@ const updateCart = (cart: ShopInventory[], newItem: ShopInventory, quantity: num
   );
 
   return (
+
     <DndProvider backend={HTML5Backend}>
       <View style={styles.viewerContainer}>
         <TouchableOpacity style={styles.menuToggle} onPress={toggleMenu}>
@@ -332,7 +336,12 @@ const updateCart = (cart: ShopInventory[], newItem: ShopInventory, quantity: num
         <Modal visible={isPaymentState} transparent={true} onRequestClose={togglePayment}>
           <TouchableOpacity style={styles.modalOverlay} onPress={togglePayment}>
             <View style={styles.modal} onStartShouldSetResponder={() => true}>
-              <Payments items={shoppingCart} />
+              <Payment 
+              items={shoppingCart}
+              isOpen={isPaymentState}
+              onRequestClose={togglePayment}
+              supermarketId={supermarketId}
+              />
             </View>
           </TouchableOpacity>
         </Modal>

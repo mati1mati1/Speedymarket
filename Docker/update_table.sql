@@ -18,3 +18,7 @@ GO
 ALTER TABLE Supermarket
 DROP COLUMN BranchAddress;
 Go
+
+
+  ALTER TABLE [MySuperMarketDb].[dbo].[BuyerOrder]
+  add SessionId NVARCHAR(250) UNIQUE;

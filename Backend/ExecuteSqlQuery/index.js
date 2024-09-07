@@ -53,7 +53,8 @@ const getQueryByName = async (functionName, params) => {
             params.Latitude = coordinates.latitude;
             params.Longitude = coordinates.longitude;
             return queries.updateSupermarketDetailsQuery(params);
-
+        case 'createPurchaseQuery':
+            return queries.createPurchaseQuery(params.buyerId, params.supermarketId, params.totalAmount, params.items, params.sessionId);
         default:
             throw new Error('Invalid function name');
     }

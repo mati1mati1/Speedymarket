@@ -73,7 +73,6 @@ const ShoppingCartListScreen = () => {
   };
 
   const handleEditCart = (cartId: string, listName: string) => {
-    debugger
     router.push({
       pathname: '/shoppingList/[listId]',
       params: { 'listId': cartId, ListName: listName }

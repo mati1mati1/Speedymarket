@@ -6,7 +6,6 @@ import { updateShoppingListItems, getShoppingListItemByCardId } from '../../../s
 import { useAuth } from '../../../src/context/AuthContext';
 
 export default function EditListScreen() {
-  debugger;
   let { listId, ListName } = useLocalSearchParams<{ listId: string; ListName?: string }>();  
   const { authState } = useAuth();
   const token = authState.token;
