@@ -212,6 +212,43 @@ const getUserByIdQuery = (userId) => ({
       { name: 'barcode', type: 'NVarChar', value: inventory.Barcode }
     ]
   });
+  const createPurchaseQuery = (buyerId, supermarketId, totalAmount, items, sessionId) => ({
+    query: `
+      BEGIN TRANSACTION;
+      
+      -- Insert a new order into BuyerOrder
+      DECLARE @OrderID UNIQUEIDENTIFIER = NEWID();
+      INSERT INTO BuyerOrder (OrderID, BuyerID, SupermarketID, TotalAmount, CreationDate, SessionId)
+      VALUES (@OrderID, @buyerId, @supermarketId, @totalAmount, GETDATE(), @sessionId);
+  
+      -- Insert each item into BuyerOrderItem and update ShopInventory
+      ${items.map((item, index) => `
+        INSERT INTO BuyerOrderItem (OrderItemID, OrderID, ItemID, ItemName, Quantity, Price)
+        VALUES (NEWID(), @OrderID, @itemId${index}, @itemName${index}, @quantity${index}, @price${index});
+  
+        -- Update the inventory for each item
+        UPDATE ShopInventory
+        SET Quantity = Quantity - @quantity${index}
+        WHERE InventoryID = @itemId${index};
+      `).join('')}
+      
+      COMMIT;
+      SELECT @OrderID AS OrderID;
+    `,
+    params: [
+      { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId },
+      { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId },
+      { name: 'totalAmount', type: 'Decimal', value: totalAmount },
+      { name: 'sessionId', type: 'NVarChar', value: sessionId },
+      ...items.flatMap((item, index) => [
+        { name: `itemId${index}`, type: 'UniqueIdentifier', value: item.InventoryID },
+        { name: `itemName${index}`, type: 'NVarChar', value: item.ItemName },
+        { name: `quantity${index}`, type: 'Int', value: item.Quantity },
+        { name: `price${index}`, type: 'Decimal', value: item.Price*item.Discount },
+      ]),
+    ],
+  });
+  
   
   const deleteShopInventoryQuery = (inventoryId) => ({
     query: `DELETE FROM ShopInventory WHERE InventoryID = @inventoryId`,
@@ -221,6 +258,7 @@ const getUserByIdQuery = (userId) => ({
   });
   
   module.exports = {
+    createPurchaseQuery,
     getUserByIdQuery,
     getUserByUserNameQuery,
     getShopInventoryQuery,

@@ -340,6 +340,7 @@ const updateCart = (cart: ShopInventory[], newItem: ShopInventory, quantity: num
               items={shoppingCart}
               isOpen={isPaymentState}
               onRequestClose={togglePayment}
+              supermarketId={supermarketId}
               />
             </View>
           </TouchableOpacity>

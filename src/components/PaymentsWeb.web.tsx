@@ -1,7 +1,9 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
 import { ShopInventory } from 'src/models';
+import { executePaymentFunction } from 'src/api/api';
+import PurchaseSummary from './PurchaseSummary';
 
 // Load Stripe outside of the render method
 const stripePromise = loadStripe('pk_test_51PvlZ3KWQ0uKuoXnujEJuj5KA30Wv7UHIHghn8XNWggo01RtK0gRDGiv3kdBMfVvjOtZysRKRt8sPgCwaulYAVBl00EUEnnefi'); // Replace with your real Stripe public key
@@ -9,39 +11,47 @@ const stripePromise = loadStripe('pk_test_51PvlZ3KWQ0uKuoXnujEJuj5KA30Wv7UHIHghn
 interface PaymentsWebProps {
   isOpen: boolean;
   items: ShopInventory[];
+  supermarketId: string;
   onRequestClose: () => void;
 }
 
-const PaymentsWeb: React.FC<PaymentsWebProps> = ({ isOpen, items, onRequestClose }) => {
-  // Calculate total price from items in the cart
+const PaymentsWeb: React.FC<PaymentsWebProps> = ({ isOpen, items, supermarketId, onRequestClose }) => {
+  const [isComplete, setIsComplete] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  const handleComplete = () => setIsComplete(true);
+
   const calculateTotalPrice = () => {
-    return items.reduce((total, item) => total + item.Price * item.Quantity, 0);
+    return items.reduce((total, item) => {
+      const discount = item.Discount || 0;
+      const priceAfterDiscount = item.Price * (1 - discount / 100);
+      return total + priceAfterDiscount * item.Quantity;
+    }, 0).toFixed(2);
   };
 
   // Fetch client secret from your backend
-  const fetchClientSecret = useCallback(() => {
-    const totalAmount = calculateTotalPrice() * 100; 
-    return fetch('http://localhost:7071/api/Payment', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ amount: totalAmount,paymentType: 'checkout'}), // Amount in cents
-    })
-      .then((res) => res.json())
-      .then((data) => data.clientSecret);
+  const fetchClientSecret = useCallback(async () => {
+    const totalAmount = calculateTotalPrice(); 
+    var response: any = await executePaymentFunction(totalAmount, 'checkout', items);
+    setSessionId(response.sessionId);
+    return response.clientSecret;
   }, [items]);
 
   const options = { fetchClientSecret };
 
-  return isOpen ? (
-    <div id="checkout">
-      <EmbeddedCheckoutProvider stripe={stripePromise} options={options}>
-        <EmbeddedCheckout />
-      </EmbeddedCheckoutProvider>
-      <button onClick={onRequestClose}>Close Payment</button>
-    </div>
-  ) : null;
+  return isComplete ? (
+      <PurchaseSummary sessionId={sessionId} items={items} supermarketId={supermarketId} totalAmount={calculateTotalPrice()} />
+    ) : (
+    <EmbeddedCheckoutProvider
+      stripe={stripePromise}
+      options={{
+        ...options,
+        onComplete: handleComplete
+      }}
+    >
+      <EmbeddedCheckout />
+    </EmbeddedCheckoutProvider>
+  )
 };
 
 export default PaymentsWeb;

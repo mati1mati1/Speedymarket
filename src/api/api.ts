@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem } from '../models';
 
-export const executeFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
+export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
   try {
     const response = await axios.post<T>('http://localhost:7071/api/ExecuteSqlQuery', {
       functionName,
@@ -13,93 +13,118 @@ export const executeFunction = async <T>(functionName: string, params: Record<st
     throw error;
   }
 };
-
+export const executePaymentFunction = async <T>(amount: string, paymentType: string, items: ShopInventory[]): Promise<T> => {
+  try {
+    const response = await axios.post<T>('http://localhost:7071/api/Payment', {
+      amount,
+      paymentType,
+      items
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error executing function:', error);
+    throw error;
+  }
+};
 // Example usage
 export const getUserById = async (): Promise<User[]> => {
-  return await executeFunction<User[]>( 'getUserById', {});
+  return await executeDbFunction<User[]>( 'getUserById', {});
 };
 
 export const getUserByUserName = async ( userName: string): Promise<User | null> => {
-  return await executeFunction<User | null>( 'getUserByUserName', { userName });
+  return await executeDbFunction<User | null>( 'getUserByUserName', { userName });
 };
 
 export const getItemBySupermarketIdAndItemName = async ( supermarketId: string, ItemName: string): Promise<ShopInventory[]> => {
-  return await executeFunction<ShopInventory[]>( 'getItemBySupermarketIdAndItemName', { supermarketId, ItemName });
+  return await executeDbFunction<ShopInventory[]>( 'getItemBySupermarketIdAndItemName', { supermarketId, ItemName });
 };
 
 export const getItemBySupermarketIdAndBarcode = async ( supermarketId: string, barcode: string): Promise<ShopInventory[]> => {
-  return await executeFunction<ShopInventory[]>( 'getItemBySupermarketIdAndBarcode', { supermarketId, barcode });
+  return await executeDbFunction<ShopInventory[]>( 'getItemBySupermarketIdAndBarcode', { supermarketId, barcode });
 };
 
 export const getMapBySupermarketId = async ( supermarketId: string): Promise<string[]> => {
-  return await executeFunction<string[]>( 'getMapBySupermarketId', { supermarketId });
+  return await executeDbFunction<string[]>( 'getMapBySupermarketId', { supermarketId });
 };
 
 export const updateMap = async ( supermarketId: string, BranchMap: string): Promise<string[]> => {
-  return await executeFunction<string[]>( 'updateMap', { supermarketId, BranchMap });
+  return await executeDbFunction<string[]>( 'updateMap', { supermarketId, BranchMap });
 };
 
 export const getSupermarketByUserId = async (): Promise<Supermarket[]> => {
-  return await executeFunction<Supermarket[]>( 'getSupermarketByUserId', {});
+  return await executeDbFunction<Supermarket[]>( 'getSupermarketByUserId', {});
 };
 
 export const updateSupermarketDetails = async (supermarket: Supermarket): Promise<void> => {
-  await executeFunction<void>('updateSupermarketDetailsQuery', supermarket);
+  await executeDbFunction<void>('updateSupermarketDetailsQuery', supermarket);
 };
 export const getSupermarketBySupermarketId = async ( supermarketId: string): Promise<Supermarket[]> => {
-  return await executeFunction<Supermarket[]>( 'getSupermarketBySupermarketId', { supermarketId });
+  return await executeDbFunction<Supermarket[]>( 'getSupermarketBySupermarketId', { supermarketId });
 };
 
 export const getSupermarketByBarcode = async ( barcode: string): Promise<Supermarket[]> => {
-  return await executeFunction<Supermarket[]>( 'getSupermarketByBarcode', { barcode });
+  return await executeDbFunction<Supermarket[]>( 'getSupermarketByBarcode', { barcode });
 };
 
 export const deleteShoppingList = async ( listId: string): Promise<void> => {
-  return await executeFunction<void>( 'deleteShoppingList', { listId });
+  return await executeDbFunction<void>( 'deleteShoppingList', { listId });
 };
 
 export const getShoppingListsByBuyerId = async (): Promise<ShoppingList[]> => {
-  return await executeFunction<ShoppingList[]>( 'getShoppingListsByBuyerId', {});
+  return await executeDbFunction<ShoppingList[]>( 'getShoppingListsByBuyerId', {});
 };
 
 export const getShoppingListItemByCardId = async ( listId: string): Promise<ShoppingListItem[]> => {
-  return await executeFunction<ShoppingListItem[]>( 'getShoppingListItemsByListId', { listId });
+  return await executeDbFunction<ShoppingListItem[]>( 'getShoppingListItemsByListId', { listId });
 };
 
 export const getShopInventory = async (): Promise<ShopInventory[]> => {
-  return await executeFunction<ShopInventory[]>( 'getShopInventory', {});
+  return await executeDbFunction<ShopInventory[]>( 'getShopInventory', {});
 };
 
 export const updateShoppingListItems = async ( listId: string, items: ShoppingListItem[]): Promise<void> => {
-  return await executeFunction<void>( 'updateShoppingListItems', { listId, items });
+  return await executeDbFunction<void>( 'updateShoppingListItems', { listId, items });
 };
 
 export const getOrdersByBuyerId = async (): Promise<BuyerOrder[]> => {
-  return await executeFunction<BuyerOrder[]>( 'getOrdersByBuyerId', {});
+  return await executeDbFunction<BuyerOrder[]>( 'getOrdersByBuyerId', {});
 };
 
 export const getSupermarkets = async (): Promise<Supermarket[]> => {
-  return await executeFunction<Supermarket[]>( 'getSupermarkets', {});
+  return await executeDbFunction<Supermarket[]>( 'getSupermarkets', {});
 };
 
 export const createShoppingList = async ( listName: string): Promise<ShoppingList[]> => {
-  return await executeFunction<ShoppingList[]>( 'createShoppingList', { listName });
+  return await executeDbFunction<ShoppingList[]>( 'createShoppingList', { listName });
+};
+
+export const createPurchaseQuery = async ( items: ShopInventory[], supermarketId: string,sessionId: string | null, totalAmount: string): Promise<string> => {
+  const response = await executeDbFunction<{ OrderID: string }[]>(
+    'createPurchaseQuery', 
+    { items, supermarketId, sessionId, totalAmount }
+  );
+
+  if (response && response.length > 0) {
+    return response[0].OrderID;
+  } else {
+    throw new Error('OrderID not found');
+  }
 };
 
 export const changeShoppingListName = async ( listName: string, listId: string): Promise<ShoppingList[]> => {
-  return await executeFunction<ShoppingList[]>( 'changeShoppingListName', { listName, listId });
+  return await executeDbFunction<ShoppingList[]>( 'changeShoppingListName', { listName, listId });
 };
 
 export const addShopInventory = async ( shopInventory: ShopInventory): Promise<string> => {
-  return await executeFunction<string>( 'addShopInventory', { shopInventory });
+  return await executeDbFunction<string>( 'addShopInventory', { shopInventory });
 };
 
 export const updateShopInventory = async ( shopInventory: ShopInventory): Promise<void> => {
-  return await executeFunction<void>( 'updateShopInventory', { shopInventory });
+  return await executeDbFunction<void>( 'updateShopInventory', { shopInventory });
 };
 
 export const deleteShopInventory = async ( inventoryId: string): Promise<void> => {
-  return await executeFunction<void>( 'deleteShopInventory', { inventoryId });
+  return await executeDbFunction<void>( 'deleteShopInventory', { inventoryId });
 };
 
   

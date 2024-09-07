@@ -1,11 +1,12 @@
 import React from 'react';
 import { Platform } from 'react-native';
+import { ShopInventory } from 'src/models';
 
-// Define props type here, customize as per your requirement
 interface PaymentProps {
   isOpen: boolean;
+  items: ShopInventory[];
+  supermarketId: string;
   onRequestClose: () => void;
-  items: any[];  // Replace `any` with proper type if you have defined it
 }
 
 const PaymentComponent: React.FC<PaymentProps> = (props: PaymentProps) => {

@@ -1,10 +1,13 @@
+import { executePaymentFunction } from 'src/api/api';
 import React, { useState, useEffect } from 'react';
 import { Button, Alert, View, StyleSheet, Pressable, Text, Modal } from 'react-native';
 import { ShopInventory } from 'src/models'; 
+import PurchaseSummary from './PurchaseSummary';
 
 interface PaymentsMobileProps {
   isOpen: boolean;
-  items: ShopInventory[]; 
+  items: ShopInventory[];
+  supermarketId: string;
   onRequestClose: () => void;
 }
 
@@ -14,42 +17,40 @@ interface PaymentSheetParams {
   customer: string;
 } 
 
-const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items, onRequestClose }) => {
+const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items,supermarketId, onRequestClose }) => {
   const { initPaymentSheet, presentPaymentSheet } = require('@stripe/stripe-react-native').useStripe();
   const StripeProvider = require('@stripe/stripe-react-native').StripeProvider;
-  const [loading, setLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [paymentSheetParams, setPaymentSheetParams] = useState<PaymentSheetParams | null>(null);
   const [publishableKey, setPublishableKey] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
+
 
 
   const fetchPublishableKey = async () => {
     const key = 'pk_test_51PvlZ3KWQ0uKuoXnujEJuj5KA30Wv7UHIHghn8XNWggo01RtK0gRDGiv3kdBMfVvjOtZysRKRt8sPgCwaulYAVBl00EUEnnefi'; 
     setPublishableKey(key);
   };
+
   const calculateTotalPrice = () => {
-    return items.reduce((total, item) => total + item.Price * item.Quantity, 0);
+    return items.reduce((total, item) => {
+      const discount = item.Discount || 0;
+      const priceAfterDiscount = item.Price * (1 - discount / 100);
+      return total + priceAfterDiscount * item.Quantity;
+    }, 0).toFixed(2);
   };
   useEffect(() => {
     fetchPublishableKey();
   }, []); 
 
   const fetchPaymentSheetParams = async () => {
-    const totalAmount = calculateTotalPrice() * 100; 
-
-    const response = await fetch('http://localhost:7071/api/Payment', { 
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ amount: totalAmount, paymentType: 'paymentIntent' })
-    });
-
-    const { paymentIntent, ephemeralKey, customer } = await response.json();
-    
+    const totalAmount = calculateTotalPrice(); 
+    var response: any = await executePaymentFunction(totalAmount, 'paymentIntent', items);
+    setSessionId(response.customer);
     setPaymentSheetParams({
-      paymentIntentClientSecret: paymentIntent,
-      ephemeralKeySecret: ephemeralKey,
-      customer: customer,
+      paymentIntentClientSecret: response.paymentIntent,
+      ephemeralKeySecret: response.ephemeralKey,
+      customer: response.customer,
     });
   };
 
@@ -72,9 +73,7 @@ const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items, onReques
 
     if (error) {
       Alert.alert('Error', error.message);
-    } else {
-      setLoading(true);
-    }
+    } 
   };
   useEffect(() => {
     initializePaymentSheet();
@@ -87,11 +86,13 @@ const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items, onReques
       Alert.alert('Payment failed', error.message);
     } else {
       Alert.alert('Success', 'Your payment is confirmed!');
-      onRequestClose(); 
+      setIsComplete(true); 
     }
   };
 
-  return (
+  return isComplete ? (
+    <PurchaseSummary sessionId={sessionId} items={items} supermarketId={supermarketId} totalAmount={calculateTotalPrice()} />
+  ) : (
     <StripeProvider
       publishableKey={publishableKey}
       merchantIdentifier="merchant.identifier" 
@@ -108,7 +109,7 @@ const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items, onReques
             onPress={openPaymentSheet}
             disabled={!paymentSheetParams}
           >
-            <Text style={styles.buttonText}>Pay Now (${calculateTotalPrice().toFixed(2)})</Text>
+            <Text style={styles.buttonText}>Pay Now (${calculateTotalPrice()})</Text>
           </Pressable>
 
           <Pressable style={styles.closeButton} onPress={onRequestClose}>
