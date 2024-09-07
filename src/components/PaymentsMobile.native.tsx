@@ -23,7 +23,7 @@ const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items, onReques
 
 
   const fetchPublishableKey = async () => {
-    const key = 'sk_test_51PvlZ3KWQ0uKuoXn1DFv2Prp3bLJOJFVyxchrlzdpm8ZDJYCKRJMzbzUlYcHsKvSXbZ6EQO1xn3oql8V26bmw3XQ00orKTPmSX'; 
+    const key = 'pk_test_51PvlZ3KWQ0uKuoXnujEJuj5KA30Wv7UHIHghn8XNWggo01RtK0gRDGiv3kdBMfVvjOtZysRKRt8sPgCwaulYAVBl00EUEnnefi'; 
     setPublishableKey(key);
   };
   const calculateTotalPrice = () => {
@@ -41,7 +41,7 @@ const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items, onReques
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ amount: totalAmount })
+      body: JSON.stringify({ amount: totalAmount, paymentType: 'paymentIntent' })
     });
 
     const { paymentIntent, ephemeralKey, customer } = await response.json();
@@ -78,7 +78,7 @@ const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items, onReques
   };
   useEffect(() => {
     initializePaymentSheet();
-  }, []);
+  }, [paymentSheetParams]);
 
   const openPaymentSheet = async () => {
     const { error } = await presentPaymentSheet();
@@ -103,10 +103,10 @@ const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items, onReques
           <Pressable
             style={[
               styles.button,
-              loading && { backgroundColor: 'gray', opacity: 0.5 }
+              !paymentSheetParams && { backgroundColor: 'gray', opacity: 0.5 }
             ]}
             onPress={openPaymentSheet}
-            disabled={loading}
+            disabled={!paymentSheetParams}
           >
             <Text style={styles.buttonText}>Pay Now (${calculateTotalPrice().toFixed(2)})</Text>
           </Pressable>
