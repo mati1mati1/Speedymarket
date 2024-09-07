@@ -15,11 +15,12 @@ module.exports = api => {
             "@api": "./src/api",
             ...(platform === 'web' ? {
               "react-native": "react-native-web",
-              "react-native-maps": "@teovilla/react-native-web-maps"
-            } : 
-              {"@stripe/stripe-js": "@stripe/stripe-react-native"})
+              "react-native-maps": "@teovilla/react-native-web-maps",
+              "PaymentsMobile$": "./src/components/PaymentsWeb",
+              'react-native-web/Libraries': 'react-native/Libraries',
+            } : {}),
           },
-          "extensions": [".web.js", ".web.ts", ".web.tsx", ".js", ".ts", ".tsx",".css"]
+          "extensions": ['native.tsx', ".web.js", ".web.ts", ".web.tsx", ".js", ".ts", ".tsx",".css"]
         },
       ],
     ],
