@@ -1,11 +1,30 @@
 import axios from 'axios';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem } from '../models';
+import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+
+
+const TOKEN_KEY = 'token';
 
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
+  let token: string | null = null;
   try {
+    if (Platform.OS === 'web') {
+      token = await AsyncStorage.getItem(TOKEN_KEY);
+    } else {
+      token = await SecureStore.getItemAsync(TOKEN_KEY);
+    }
+    if (!token) {
+      throw new Error('Token not found');
+    }
     const response = await axios.post<T>('http://localhost:7071/api/ExecuteSqlQuery', {
       functionName,
       params
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
     return response.data;
   } catch (error) {
@@ -14,11 +33,24 @@ export const executeDbFunction = async <T>(functionName: string, params: Record<
   }
 };
 export const executePaymentFunction = async <T>(amount: string, paymentType: string, items: ShopInventory[]): Promise<T> => {
+  let token: string | null = null;
   try {
+    if (Platform.OS === 'web') {
+      token = await AsyncStorage.getItem(TOKEN_KEY);
+    } else {
+      token = await SecureStore.getItemAsync(TOKEN_KEY);
+    }
+    if (!token) {
+      throw new Error('Token not found');
+    }
     const response = await axios.post<T>('http://localhost:7071/api/Payment', {
       amount,
       paymentType,
       items
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
     return response.data;
   } catch (error) {

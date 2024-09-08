@@ -19,10 +19,6 @@ const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueW
 
   const fetchData = async () => {
     setIsLoading(true);
-    if (!token) {
-      console.error('Token not found');
-      return;
-    }
     try {
       const fetchedShoppingLists = await getShoppingListsByBuyerId();
       if (fetchedShoppingLists) {
@@ -37,7 +33,7 @@ const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueW
 
   useEffect(() => {
     fetchData();
-  }, [token]);
+  }, []);
 
   const handleSelectList = (list: ShoppingList) => {
     setSelectedList(list);

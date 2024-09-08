@@ -15,9 +15,7 @@ const ShoppingCartListScreen = () => {
   const [newListName, setNewListName] = useState('');
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [selectedCartId, setSelectedCartId] = useState('');
-  const { authState } = useAuth();
-  const token = authState.token;
-  
+  const { authState } = useAuth();  
   const [listItems, setListItems] = useState<string[]>([]);
   const [newItem, setNewItem] = useState<string>('');
   const [image, setImage] = useState<{ uri: string } | null>(null);
@@ -25,10 +23,6 @@ const ShoppingCartListScreen = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!token) {
-        console.error('Token not found');
-        return;
-      }
       try {
         const storedShoppingLists = await getShoppingListsByBuyerId();
         if (storedShoppingLists) {
@@ -42,7 +36,7 @@ const ShoppingCartListScreen = () => {
     };
 
     fetchData();
-  }, [token]);
+  }, []);
 
   const handleAddCart = () => {
     setIsModalVisible(true);
