@@ -41,6 +41,7 @@ CREATE TABLE BuyerOrder (
     TotalAmount DECIMAL(18, 2) NOT NULL,
     CreationDate DATETIME DEFAULT GETDATE() NOT NULL,
     SupermarketID UNIQUEIDENTIFIER NOT NULL,
+    SessionId NVARCHAR(250) UNIQUE,
     FOREIGN KEY (BuyerID) REFERENCES [User](UserID),
     FOREIGN KEY (SupermarketID) REFERENCES Supermarket(SupermarketID)
 );
@@ -82,7 +83,7 @@ CREATE TABLE ShopInventory (
     InventoryID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     SupermarketID UNIQUEIDENTIFIER NOT NULL,
     ItemName NVARCHAR(50) NOT NULL,
-    Quantity INT NOT NULL,
+    Quantity INT NOT NULL CHECK (Quantity > 0)
     Price DECIMAL(18, 2) NOT NULL,
     Discount DECIMAL(18, 2) NOT NULL,
     Location INT NOT NULL,
