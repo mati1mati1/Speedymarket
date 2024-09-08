@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem } from '../models';
-import { Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import { router } from 'expo-router';
 
 
 const TOKEN_KEY = 'token';
@@ -16,23 +17,27 @@ export const executeDbFunction = async <T>(functionName: string, params: Record<
       token = await SecureStore.getItemAsync(TOKEN_KEY);
     }
     if (!token) {
-      throw new Error('Token not found');
+      console.error('Token not found');
+      router.replace('/login'); 
+      throw new Error('Token not found, redirecting to login.'); 
     }
-    const response = await axios.post<T>('http://localhost:7071/api/ExecuteSqlQuery', {
-      functionName,
-      params
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    return response.data;
+    else {
+      const response = await axios.post<T>('http://localhost:7071/api/ExecuteSqlQuery', {
+        functionName,
+        params
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      return response.data;
+    }
   } catch (error) {
     console.error('Error executing function:', error);
     throw error;
   }
 };
-export const executePaymentFunction = async <T>(amount: string, paymentType: string, items: ShopInventory[]): Promise<T> => {
+export const executePaymentFunction = async <T>(amount: string, paymentType: string, items: ShopInventory[]): Promise<T | null> => {
   let token: string | null = null;
   try {
     if (Platform.OS === 'web') {
@@ -41,8 +46,12 @@ export const executePaymentFunction = async <T>(amount: string, paymentType: str
       token = await SecureStore.getItemAsync(TOKEN_KEY);
     }
     if (!token) {
-      throw new Error('Token not found');
+      console.error('Token not found');
+      router.replace('/login'); 
+      Alert.alert('Authentication error', 'Please log in again.');
+      return null;
     }
+    else {
     const response = await axios.post<T>('http://localhost:7071/api/Payment', {
       amount,
       paymentType,
@@ -53,6 +62,7 @@ export const executePaymentFunction = async <T>(amount: string, paymentType: str
       }
     });
     return response.data;
+  }
   } catch (error) {
     console.error('Error executing function:', error);
     throw error;

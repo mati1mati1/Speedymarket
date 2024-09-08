@@ -20,12 +20,10 @@ export default function InventoryManagementScreen() {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<ShopInventory | null>(null);
   const { authState } = useAuth();
-  const token = authState.token;
   const screenWidth = Dimensions.get('window').width;
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!token) return;
       try {
         const shopInventory = await getShopInventory();
         if (shopInventory) {
@@ -42,7 +40,7 @@ export default function InventoryManagementScreen() {
     };
 
     fetchData();
-  }, [token]);
+  }, []);
 
   const handleFormChange = (name: string, value: string) => {
     setForm({ ...form, [name]: value });
