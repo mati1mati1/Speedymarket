@@ -5,6 +5,7 @@ import Input from '../src/components/Input';
 import { useAuth } from '../src/context/AuthContext';
 import { Role } from '../src/models';
 import { ImageBackground } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState<string>('');
@@ -12,6 +13,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const { onLogin } = useAuth();
   const { width } = useWindowDimensions(); // Get the window width
+  const isWeb = Platform.OS === 'web' && width > 600; // Check if the platform is web and width is greater than 600
 
   const handleLogin = async () => {
     try {
@@ -24,25 +26,49 @@ export default function LoginScreen() {
           router.replace('/(customer)/shopping/supermarketMapsScreen');
         }
         else{
-          Alert.alert('Login failed', 'Unknown role');
+          if (isWeb) {
+            Toast.show({
+              type: 'error',
+              text1: 'Login failed',
+              text2: 'Unknown role',
+            });
+          } else {
+            Alert.alert('Login failed', 'Unknown role');
+          }
         }
       }
        else {
-        Alert.alert('Login failed', 'Please check your username and password.');
+        if (isWeb) {
+          Toast.show({
+            type: 'error',
+            text1: 'Login failed',
+            text2: 'Please check your username and password.',
+          });
+        } else {
+          Alert.alert('Login failed', 'Please check your username and password.');
+        }
       }
     } catch (error) {
       console.error('An error occurred during login', error);
-      Alert.alert('An error occurred during login', error.message);
+      if (isWeb) {
+        Toast.show({
+          type: 'error',
+          text1: 'Login failed',
+          text2: error.message,
+        });
+      } else {
+        Alert.alert('An error occurred during login', error.message);
+      }
     }
   };
 
-  const isWeb = Platform.OS === 'web' && width > 600; // Check if the platform is web and width is greater than 600
 
   return (
     <View style={styles.container}>
       {isWeb ? (
         <View style={styles.webLayout}>
           <View style={styles.formContainer}>
+            <Toast/>
             <View style={styles.loginForm}>
             <Text style={styles.title}>Welcome to SpeedyMarket</Text>
             <Text style={styles.subtitle}>Please login to continue</Text>
