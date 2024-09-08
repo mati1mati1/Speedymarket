@@ -1,57 +1,27 @@
 import axios from 'axios';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem } from '../models';
-import { Alert, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
-import { router } from 'expo-router';
-
-
-const TOKEN_KEY = 'token';
+import { getToken } from 'src/context/AuthContext'; 
 
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
-  let token: string | null = null;
+  const token = await getToken();
   try {
-    if (Platform.OS === 'web') {
-      token = await AsyncStorage.getItem(TOKEN_KEY);
-    } else {
-      token = await SecureStore.getItemAsync(TOKEN_KEY);
-    }
-    if (!token) {
-      console.error('Token not found');
-      router.replace('/login'); 
-      throw new Error('Token not found, redirecting to login.'); 
-    }
-    else {
-      const response = await axios.post<T>('http://localhost:7071/api/ExecuteSqlQuery', {
-        functionName,
-        params
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      return response.data;
-    }
+    const response = await axios.post<T>('http://localhost:7071/api/ExecuteSqlQuery', {
+      functionName,
+      params
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
   } catch (error) {
     console.error('Error executing function:', error);
     throw error;
   }
 };
-export const executePaymentFunction = async <T>(amount: string, paymentType: string, items: ShopInventory[]): Promise<T | null> => {
-  let token: string | null = null;
+export const executePaymentFunction = async <T>(amount: string, paymentType: string, items: ShopInventory[]): Promise<T> => {
+  const token = await getToken();
   try {
-    if (Platform.OS === 'web') {
-      token = await AsyncStorage.getItem(TOKEN_KEY);
-    } else {
-      token = await SecureStore.getItemAsync(TOKEN_KEY);
-    }
-    if (!token) {
-      console.error('Token not found');
-      router.replace('/login'); 
-      Alert.alert('Authentication error', 'Please log in again.');
-      return null;
-    }
-    else {
     const response = await axios.post<T>('http://localhost:7071/api/Payment', {
       amount,
       paymentType,
@@ -62,7 +32,6 @@ export const executePaymentFunction = async <T>(amount: string, paymentType: str
       }
     });
     return response.data;
-  }
   } catch (error) {
     console.error('Error executing function:', error);
     throw error;
@@ -238,3 +207,4 @@ export const uploadRecipeUrl = async (recipeUrl: string): Promise<AIResponse>=>{
     }
   }
 }
+

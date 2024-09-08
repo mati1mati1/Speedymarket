@@ -5,7 +5,8 @@ import axios from 'axios';
 import { decodedToken } from 'src/utils/authUtils';
 import { Role } from 'src/models';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
+import { router } from 'expo-router';
 
 export interface LoginResponse {
   success: boolean;
@@ -29,7 +30,7 @@ export const useAuth = () => {
   }
   return context;
 };
-const getToken = async () => {
+export const getToken = async () => {
   let token;
   if (Platform.OS === 'web') {
     token = await AsyncStorage.getItem(TOKEN_KEY);
@@ -37,7 +38,14 @@ const getToken = async () => {
   else{
     token = await SecureStore.getItemAsync(TOKEN_KEY);
   }
+  if (!token) {
+    console.error('Token not found');
+    router.replace('/login'); 
+    Alert.alert('Authentication error', 'Please log in again.');
+    return null;
+  }
   return token;
+    
 }
 
 export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {

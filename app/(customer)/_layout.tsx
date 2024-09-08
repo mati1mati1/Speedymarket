@@ -5,7 +5,7 @@ import LogoutButton from '../../src/components/LogoutButton';
 import { Platform } from 'react-native';
 
 const iconMap = {
-  purchaseHistory: 'history',
+  purchase: 'history',
   shoppingList: 'list',
   shopping: 'shopping-bag',
   supermarketMapsScreean: 'map',
@@ -24,7 +24,7 @@ export default function CustomerLayout() {
       >
         <Tabs.Screen name="shopping" options={{title:"Start Shopping" ,headerShown: false}} />
         <Tabs.Screen name="shoppingList" options={{title:"Shopping List" ,headerShown: false}}/>
-        <Tabs.Screen name="purchaseHistory" options={{title:"Purchase History" ,headerShown: false}}/>
+        <Tabs.Screen name="purchase" options={{title:"Purchase History" ,headerShown: false}}/>
       </Tabs>
     <LogoutButton />
     </>

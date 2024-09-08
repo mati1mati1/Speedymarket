@@ -20,7 +20,7 @@ const PurchaseHistoryScreen = () => {
 
   const viewToFullDetails = (orderId: string) => {
     router.push({
-      pathname: '/purchaseHistory/[purchaseId]',
+      pathname: '/purchase/[purchaseId]',
       params: { 'purchaseId': orderId}
     });
   }
