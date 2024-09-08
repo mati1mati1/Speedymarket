@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import Input from '../src/components/Input';
 import { useAuth } from '../src/context/AuthContext';
 import { Role } from '../src/models';
+import { ImageBackground } from 'react-native';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState<string>('');
@@ -13,7 +14,6 @@ export default function LoginScreen() {
   const { width } = useWindowDimensions(); // Get the window width
 
   const handleLogin = async () => {
-    console.log("handleLogin called with:", username, password); // Debugging
     try {
       const response = await onLogin!(username, password);
       if (response.success) {
@@ -61,7 +61,7 @@ export default function LoginScreen() {
               <Text style={styles.buttonText}>Login</Text>
             </Pressable>
             <Pressable onPress={() => router.replace('/register')} style={styles.link}>
-              <Text style={styles.link}>Register</Text>
+              <Text style={styles.link}>Don't have an account yet? Register here</Text>
             </Pressable>
             </View>
           </View>
@@ -70,8 +70,9 @@ export default function LoginScreen() {
           </View>
         </View>
       ) : (
+        <ImageBackground source={{ uri: "https://i.ibb.co/bzJcXC8/super-Market.png" }} style={styles.mobileLayout}>
         <View style={styles.mobileLayout}>
-          <View style={styles.formContainer}>
+          <View style={styles.mobileLayoutForm}>
             <Text style={styles.title}>Welcome to SpeedyMarket</Text>
             <Text style={styles.subtitle}>Please login to continue</Text>
             <Input
@@ -89,13 +90,11 @@ export default function LoginScreen() {
               <Text style={styles.buttonText}>Login</Text>
             </Pressable>
             <Pressable onPress={() => router.replace('/register')} style={styles.link}>
-              <Text style={styles.link}>Register</Text>
+              <Text style={styles.link}>Don't have an account yet? Register here</Text>
             </Pressable>
           </View>
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: "https://i.ibb.co/bzJcXC8/super-Market.png" }} style={styles.image} />
-          </View>
         </View>
+        </ImageBackground>
       )}
     </View>
   );
@@ -109,6 +108,11 @@ const styles = StyleSheet.create({
   webLayout: {
     flex: 1,
     flexDirection: 'row',
+  },
+  mobileLayoutForm: {
+    backgroundColor: 'white',
+    borderRadius: 5,
+    padding: 30,
   },
   mobileLayout: {
     flex: 1,
@@ -135,6 +139,7 @@ const styles = StyleSheet.create({
     width: '90%',
     alignSelf: 'center',
     height: '60%',
+    marginTop: '20%',
   },
   link: {
     marginTop: 10,
