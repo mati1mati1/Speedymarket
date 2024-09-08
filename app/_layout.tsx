@@ -51,7 +51,6 @@ function RootLayoutNav() {
         ) : (
           <>
             <Stack.Screen name="index" options={{ headerShown: false, headerTitle: 'SpeedyMarket' }} />
-            <Stack.Screen name="register" options={{ headerShown: false, headerTitleAlign: 'center' }} />
             <Stack.Screen name="login" options={{ headerShown: false, headerTitleAlign: 'center' }} />
           </>
         )}
