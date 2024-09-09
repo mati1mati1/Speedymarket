@@ -1,11 +1,17 @@
 import axios from 'axios';
 import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem } from '../models';
+import { getToken } from 'src/context/AuthContext'; 
 
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
+  const token = await getToken();
   try {
     const response = await axios.post<T>('http://localhost:7071/api/ExecuteSqlQuery', {
       functionName,
       params
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
     return response.data;
   } catch (error) {
@@ -14,11 +20,16 @@ export const executeDbFunction = async <T>(functionName: string, params: Record<
   }
 };
 export const executePaymentFunction = async <T>(amount: string, paymentType: string, items: ShopInventory[]): Promise<T> => {
+  const token = await getToken();
   try {
     const response = await axios.post<T>('http://localhost:7071/api/Payment', {
       amount,
       paymentType,
       items
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
     });
     return response.data;
   } catch (error) {
@@ -196,3 +207,4 @@ export const uploadRecipeUrl = async (recipeUrl: string): Promise<AIResponse>=>{
     }
   }
 }
+

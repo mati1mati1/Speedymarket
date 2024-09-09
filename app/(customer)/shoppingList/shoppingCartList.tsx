@@ -22,12 +22,13 @@ const ShoppingCartListScreen = () => {
   const token = authState.token;
   const { width } = useWindowDimensions(); // Get the window width
   const isWeb = Platform.OS === 'web' && width > 600;
+  const [listItems, setListItems] = useState<string[]>([]);
+  const [newItem, setNewItem] = useState<string>('');
+  const [image, setImage] = useState<{ uri: string } | null>(null);
+  const [recipeUrl, setRecipeUrl] = useState<string>('');
+
   useEffect(() => {
     const fetchData = async () => {
-      if (!token) {
-        console.error('Token not found');
-        return;
-      }
       try {
         const storedShoppingLists = await getShoppingListsByBuyerId();
         if (storedShoppingLists) {
@@ -41,7 +42,7 @@ const ShoppingCartListScreen = () => {
     };
 
     fetchData();
-  }, [token]);
+  }, []);
 
   const handleAddCart = () => {
     setIsModalVisible(true);

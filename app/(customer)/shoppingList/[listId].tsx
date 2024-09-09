@@ -14,7 +14,6 @@ import { Alert } from 'react-native';
 export default function EditListScreen() {
   let { listId, ListName } = useLocalSearchParams<{ listId: string; ListName?: string }>();
   const { authState } = useAuth();
-  const token = authState.token;
   const [items, setItems] = useState<ShoppingListItem[]>([]);
   const [newItem, setNewItem] = useState('');
   const [newQuantity, setNewQuantity] = useState('1');
@@ -24,10 +23,6 @@ export default function EditListScreen() {
   const [recipeUrl, setRecipeUrl] = useState<string>('');
   useEffect(() => {
     const fetchData = async () => {
-      if (!token) {
-        console.error('Token not found');
-        return;
-      }
       try {
         if (listId! && listId !== '0' && listId !== '') {
           const fetchedItems = await getShoppingListItemByCardId(listId || '');
@@ -44,7 +39,7 @@ export default function EditListScreen() {
     };
 
     fetchData();
-  }, [listId, ListName, token]);
+  }, [listId, ListName]);
 
   const handleUploadImage = () => {
     launchImageLibrary({ mediaType: 'photo' }, async (response) => {
