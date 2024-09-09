@@ -28,6 +28,8 @@ CREATE TABLE Supermarket (
     Street NVARCHAR(100),
     StreetNumber NVARCHAR(10),
     BranchMap NVARCHAR(MAX) NOT NULL,
+    Latitude DECIMAL(9, 5) NOT NULL,
+    Longitude DECIMAL(9, 5) NOT NULL,
     WiFiPassword NVARCHAR(255) NOT NULL,
     WiFiSSID NVARCHAR(255) NOT NULL,
     FOREIGN KEY (UserID) REFERENCES [User](UserID)
@@ -103,53 +105,70 @@ CREATE TABLE ESP32Position (
 );
 GO
 
--- Insert mock data into User table
 INSERT INTO [User] (UserName, FirstName, LastName, Email, PhoneNumber, UserType)
 VALUES 
-('john.doe', 'John', 'Doe', 'john.doe@example.com', '1234567890', 'Buyer'),
-('jane.smith', 'Jane', 'Smith', 'jane.smith@example.com', '0987654321', 'Seller'),
-('mike.johnson', 'Mike', 'Johnson', 'mike.johnson@example.com', '1122334455', 'Buyer'),
-('emily.davis', 'Emily', 'Davis', 'emily.davis@example.com', '5566778899', 'Seller');
+('johndoe', 'John', 'Doe', 'john.doe@example.com', '123-456-7890', 'Buyer'),
+('mikejohnson', 'Mike', 'Johnson', 'mike.johnson@example.com', '123-456-7891', 'Buyer'),
+('janesmith', 'Jane', 'Smith', 'jane.smith@example.com', '123-456-7892', 'Seller'),
+('emilydavis', 'Emily', 'Davis', 'emily@example.com', '987-456-7893', 'Seller');
 GO
 
+
 -- Insert mock data into Supermarket table using the UserID of sellers
-INSERT INTO Supermarket 
-    (UserID, BranchName, BranchMap, WiFiPassword, WiFiSSID, Country, City, Street, StreetNumber, Latitude, Longitude)
+-- INSERT INTO Supermarket 
+--     (UserID, BranchName, BranchMap, WiFiPassword, WiFiSSID, Country, City, Street, StreetNumber, Latitude, Longitude)
+-- VALUES 
+-- (
+--     (SELECT UserID FROM [User] WHERE Email = 'jane.smith@example.com'), 
+--     'Main Street Store', 
+--     '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"name":"מדף","left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"name":"מדף","left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"name":"מדף","left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"name":"מדף","left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"name":"מדף","left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"name":"מדף","left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"name":"מדף","left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"name":"מדף","left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"name":"מדף","left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"name":"מדף","left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"name":"מדף","left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"name":"מדף","left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"name":"מדף","left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"name":"מדף","left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 
+--     'supermarket_password', 
+--     'supermarket_ssid', 
+--     '{"id":106,"iso2":"IL","name":"Israel"', 
+--     '{"name":"Tel Aviv","id":57564}',
+--     '{"id":154741757,"name":"נצח ישראל"}', 
+--     '11', 
+--     32.07773, 
+--      34.77969
+-- ),
+-- (
+--     (SELECT UserID FROM [User] WHERE Email = 'emily.davis@example.com'), 
+--     'Market Plaza', 
+--     '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"name":"מדף","left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"name":"מדף","left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"name":"מדף","left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"name":"מדף","left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"name":"מדף","left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"name":"מדף","left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"name":"מדף","left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"name":"מדף","left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"name":"מדף","left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"name":"מדף","left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"name":"מדף","left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"name":"מדף","left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"name":"מדף","left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"name":"מדף","left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 
+--     'market_password', 
+--     'supermarket_ssid', 
+--     '{"id":106,"iso2":"IL","name":"Israel"', 
+--     '{"name":"Tel Aviv","id":57564}',
+--     '{"id":154741757,"name":"שדרות רוטשילד"}', 
+--     '10', 
+--     32.06662, 
+--     34.77745
+-- );
+INSERT INTO Supermarket (UserID, BranchName, Barcode, Country, City, Street, StreetNumber, BranchMap, Latitude, Longitude, WiFiPassword, WiFiSSID)
 VALUES 
-(
-    (SELECT UserID FROM [User] WHERE Email = 'jane.smith@example.com'), 
-    'Main Street Store', 
-    '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"name":"מדף","left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"name":"מדף","left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"name":"מדף","left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"name":"מדף","left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"name":"מדף","left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"name":"מדף","left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"name":"מדף","left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"name":"מדף","left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"name":"מדף","left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"name":"מדף","left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"name":"מדף","left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"name":"מדף","left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"name":"מדף","left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"name":"מדף","left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 
-    'supermarket_password', 
-    'supermarket_ssid', 
-    '{"id":106,"iso2":"IL","name":"Israel"', 
-    '{"name":"Tel Aviv","id":57564}',
-    '{"id":154741757,"name":"נצח ישראל"}', 
-    '11', 
-    32.07773, 
-     34.77969
-),
-(
-    (SELECT UserID FROM [User] WHERE Email = 'emily.davis@example.com'), 
-    'Market Plaza', 
-    '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"name":"מדף","left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"name":"מדף","left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"name":"מדף","left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"name":"מדף","left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"name":"מדף","left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"name":"מדף","left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"name":"מדף","left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"name":"מדף","left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"name":"מדף","left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"name":"מדף","left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"name":"מדף","left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"name":"מדף","left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"name":"מדף","left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"name":"מדף","left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 
-    'market_password', 
-    'supermarket_ssid', 
-    '{"id":106,"iso2":"IL","name":"Israel"', 
-    '{"name":"Tel Aviv","id":57564}',
-    '{"id":154741757,"name":"שדרות רוטשילד"}', 
-    '10', 
-    32.06662, 
-    34.77745
-);
--- Update Supermarket table with default operating hours and location details
-UPDATE Supermarket
-SET OperatingHours = '[{"day":"Sunday","openHour":"08:00","closeHour":"20:00"},{"day":"Monday","openHour":"08:00","closeHour":"20:00"},{"day":"Tuesday","openHour":"08:00","closeHour":"20:00"},{"day":"Wednesday","openHour":"08:00","closeHour":"20:00"},{"day":"Thursday","openHour":"08:00","closeHour":"20:00"},{"day":"Friday","openHour":"08:00","closeHour":"20:00"},{"day":"Saturday","openHour":"08:00","closeHour":"20:00"}]',
-    Country = 'Unknown',
-    City = 'Unknown',
-    Street = 'Unknown',
-    StreetNumber = '0';
+((SELECT UserID FROM [User] WHERE UserName = 'janesmith'), 'Main Street Store', '123456789', 'USA', 'New York', 'Main Street', '100', 'Map1', 40.7128, -74.0060, 'password123', 'MainStreetWiFi'),
+((SELECT UserID FROM [User] WHERE UserName = 'emilydavis'), 'Market Plaza', '987654321', 'USA', 'Los Angeles', 'Market Street', '200', 'Map2', 34.0522, -118.2437, 'password456', 'MarketPlazaWiFi');
 GO
+
+-- Update OperatingHours and other fields
+UPDATE Supermarket
+SET OperatingHours = '[{"day":"Sunday","openHour":"08:00","closeHour":"20:00"},{"day":"Monday","openHour":"08:00","closeHour":"20:00"},{"day":"Tuesday","openHour":"08:00","closeHour":"20:00"},{"day":"Wednesday","openHour":"08:00","closeHour":"20:00"},{"day":"Thursday","openHour":"08:00","closeHour":"20:00"},{"day":"Friday","openHour":"08:00","closeHour":"20:00"},{"day":"Saturday","openHour":"08:00","closeHour":"20:00"}]'
+WHERE BranchName = 'Main Street Store';
+GO
+
+UPDATE Supermarket
+SET OperatingHours = '[{"day":"Sunday","openHour":"09:00","closeHour":"18:00"},{"day":"Monday","openHour":"09:00","closeHour":"18:00"},{"day":"Tuesday","openHour":"09:00","closeHour":"18:00"},{"day":"Wednesday","openHour":"09:00","closeHour":"18:00"},{"day":"Thursday","openHour":"09:00","closeHour":"18:00"},{"day":"Friday","openHour":"09:00","closeHour":"18:00"},{"day":"Saturday","openHour":"09:00","closeHour":"18:00"}]'
+WHERE BranchName = 'Market Plaza';
+GO
+
+-- Update Supermarket table with default operating hours and location details
+-- UPDATE Supermarket
+-- SET OperatingHours = '[{"day":"Sunday","openHour":"08:00","closeHour":"20:00"},{"day":"Monday","openHour":"08:00","closeHour":"20:00"},{"day":"Tuesday","openHour":"08:00","closeHour":"20:00"},{"day":"Wednesday","openHour":"08:00","closeHour":"20:00"},{"day":"Thursday","openHour":"08:00","closeHour":"20:00"},{"day":"Friday","openHour":"08:00","closeHour":"20:00"},{"day":"Saturday","openHour":"08:00","closeHour":"20:00"}]',
+--     Country = 'Unknown',
+--     City = 'Unknown',
+--     Street = 'Unknown',
+--     StreetNumber = '0';
+-- GO
 
 -- Insert mock data into ShopInventory
 INSERT INTO ShopInventory (SupermarketID, ItemName, Quantity, Price, Discount, Location, Barcode)
@@ -177,69 +196,38 @@ VALUES
 GO
 
 -- Insert mock data into ShoppingList and ShoppingListItem
-INSERT INTO ShoppingList (ListID, ListName, BuyerID)
+INSERT INTO ShoppingList (ListName, BuyerID)
 VALUES 
-(DEFAULT, 'List1', (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')),
-(DEFAULT, 'List2', (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')),
-(DEFAULT, 'List3', (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')),
-(DEFAULT, 'List4', (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')),
-(DEFAULT, 'List5', (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')),
-(DEFAULT, 'List6', (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com'));
+('Johns Weekly List', (SELECT UserID FROM [User] WHERE UserName = 'johndoe')),
+('Mikes Grocery List', (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'));
 GO
+
 
 -- Insert mock data into ShoppingListItem
 INSERT INTO ShoppingListItem (ListID, ItemName, Quantity)
 VALUES 
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List1'), 'Apple', 2),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List1'), 'Banana', 1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List2'), 'Milk', 3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List2'), 'Bread', 1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List3'), 'Butter', 2),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List3'), 'Cheese', 1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List4'), 'Chicken', 3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List4'), 'Beef', 1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List5'), 'Fish', 3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List5'), 'Eggs', 1),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List6'), 'Orange', 3),
-((SELECT ListID FROM ShoppingList WHERE ListName = 'List6'), 'Grapes', 1);
+((SELECT ListID FROM ShoppingList WHERE ListName = 'Johns Weekly List'), 'Milk', 2),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'Johns Weekly List'), 'Bread', 1),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'Mikes Grocery List'), 'Eggs', 12),
+((SELECT ListID FROM ShoppingList WHERE ListName = 'Mikes Grocery List'), 'Butter', 1);
 GO
 
+
 -- Insert mock data into BuyerOrder and BuyerOrderItem
-INSERT INTO BuyerOrder (BuyerID, TotalAmount, SupermarketID)
+INSERT INTO BuyerOrder (BuyerID, TotalAmount, SupermarketID, SessionId)
 VALUES 
-((SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com'), 27.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store')),
-((SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com'), 21.97, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store')),
-((SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com'), 38.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store')),
-((SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com'), 36.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza')),
-((SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com'), 40.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza')),
-((SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com'), 46.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'));
+((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 27.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID()),
+((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 21.97, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID()),
+((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 38.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID()),
+((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 36.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID());
 GO
 
 INSERT INTO BuyerOrderItem (OrderID, ItemID, ItemName, Quantity, Price)
 VALUES 
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 27.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-001', 'Apple', 2, 1.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 27.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-002', 'Banana', 1, 0.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 21.97 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-001', 'Apple', 1, 1.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 21.97 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-002', 'Banana', 2, 0.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 38.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-001', 'Apple', 3, 1.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 38.47 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'john.doe@example.com')), 'item-002', 'Banana', 1, 0.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 36.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-006', 'Cheese', 3, 4.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 36.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-007', 'Chicken', 1, 5.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 40.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-006', 'Cheese', 2, 4.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 40.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-007', 'Chicken', 2, 5.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 46.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-006', 'Cheese', 1, 4.99),
-((SELECT OrderID FROM BuyerOrder WHERE TotalAmount = 46.96 AND BuyerID = (SELECT UserID FROM [User] WHERE Email = 'mike.johnson@example.com')), 'item-007', 'Chicken', 3, 5.99);
+((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 27.47), 'ITEM001', 'Apples', 3, 3.50),
+((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 21.97), 'ITEM002', 'Bananas', 5, 2.50),
+((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 38.47), 'ITEM003', 'Oranges', 4, 4.25),
+((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 36.96), 'ITEM004', 'Grapes', 2, 5.00);
 GO
 
--- Insert mock data into ESP32Position
-INSERT INTO ESP32Position (SupermarketID, DeviceName, XCoordinate, YCoordinate)
-VALUES
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'esp32_1', 0, 0),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'esp32_2', 0, 600),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'esp32_3', 800, 0),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 'esp32_4', 800, 600),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'esp32_1', 0, 0),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'esp32_2', 0, 600),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'esp32_3', 800, 0),
-((SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 'esp32_4', 800, 600);
-GO
+
