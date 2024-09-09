@@ -13,7 +13,8 @@ const iconMap = {
 
 export default function CustomerLayout() {
   return (
-    <>
+    <>    
+    <LogoutButton />
       <Tabs
         screenOptions={({ route }) => ({
           tabBarIcon: ({ color, size }) => {
@@ -26,7 +27,6 @@ export default function CustomerLayout() {
         <Tabs.Screen name="shoppingList" options={{title:"Shopping List" ,headerShown: false}}/>
         <Tabs.Screen name="purchaseHistory" options={{title:"Purchase History" ,headerShown: false}}/>
       </Tabs>
-    <LogoutButton />
     </>
   );
 }

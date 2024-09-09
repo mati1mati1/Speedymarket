@@ -6,6 +6,9 @@ import { ShoppingList } from '../../../src/models';
 import { useAuth } from 'src/context/AuthContext';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { useWindowDimensions } from 'react-native';
+import { Platform } from 'react-native';
 
 const ShoppingCartListScreen = () => {
   const router = useRouter();
@@ -17,12 +20,8 @@ const ShoppingCartListScreen = () => {
   const [selectedCartId, setSelectedCartId] = useState('');
   const { authState } = useAuth();
   const token = authState.token;
-  
-  const [listItems, setListItems] = useState<string[]>([]);
-  const [newItem, setNewItem] = useState<string>('');
-  const [image, setImage] = useState<{ uri: string } | null>(null);
-  const [recipeUrl, setRecipeUrl] = useState<string>('');
-
+  const { width } = useWindowDimensions(); // Get the window width
+  const isWeb = Platform.OS === 'web' && width > 600;
   useEffect(() => {
     const fetchData = async () => {
       if (!token) {
@@ -94,59 +93,9 @@ const ShoppingCartListScreen = () => {
     }
   };
 
-  const handleUploadImage = () => {
-    launchImageLibrary({ mediaType: 'photo' }, async (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorMessage) {
-        console.log('ImagePicker Error: ', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        const source = { uri: response.assets[0].uri as string };
-        setImage(source);
-        try {
-          const res = await uploadGroceryListImage(source.uri);
-          if (res.success) {
-            const items = res.list;
-            setListItems(items);
-          } else {
-            Toast.show({
-              type: 'error',
-              text1: 'Please try again with a different image',
-            });
-          }
-        } catch (error) {
-          Toast.show({
-            type: 'error',
-            text1: 'Please try again later, we had a problem',
-          });
-        }
-      }
-    });
-  };
-
-  const handleRecipe = async () => {
-    const res = await uploadRecipeUrl(recipeUrl);
-    if (res.success) {
-      setListItems(res.list);
-    } else {
-      Toast.show({
-        type: 'error',
-        text1: 'Please try again with a different URL',
-      });
-    }
-    setRecipeUrl('');
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#007bff" />
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
+      <Text style={{ fontSize: 24, marginBottom: 20, fontWeight: 'bold', alignSelf: 'center'}}>My Shopping Lists</Text>
       <FlatList
         data={shoppingLists}
         keyExtractor={(item) => item.ListID}
@@ -159,7 +108,7 @@ const ShoppingCartListScreen = () => {
               <Text>{item.ListName}</Text>
             </Pressable>
             <Pressable style={styles.deleteButton} onPress={() => confirmDeleteCart(item.ListID)}>
-              <Text style={styles.buttonText}>Delete</Text>
+              <Icon name="trash" size={24} color="#FF6347" />
             </Pressable>
           </View>
         )}
@@ -176,7 +125,12 @@ const ShoppingCartListScreen = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <ScrollView>
+            <View style={styles.top}>
               <Text style={styles.modalTitle}>Add a New Shopping List</Text>
+              <Pressable onPress={handleCancel}>
+                  <Icon name="close" size={24} color="#007bff" />
+              </Pressable>
+            </View>
               <View style={[styles.modalButtons]}>
                 <TextInput
                   style={styles.input}
@@ -186,57 +140,6 @@ const ShoppingCartListScreen = () => {
                 />
                 <Pressable style={[styles.modalButton, styles.addButton]} onPress={handleAdd}>
                   <Text style={styles.buttonText}>Add</Text>
-                </Pressable>
-              </View>
-              <View style={[styles.inputContainer, styles.borderBottom]}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Add new item"
-                  value={newItem}
-                  onChangeText={setNewItem}
-                />
-                <Pressable onPress={() => {
-                  if (newItem.trim()) {
-                    setListItems([...listItems, newItem.trim()]);
-                    setNewItem('');
-                  }
-                }}>
-                  <Text>Add</Text>
-                </Pressable>
-              </View>
-              <Text style={styles.modalTitle}>Add a list from an image:</Text>
-              <Pressable style={styles.bigButton} onPress={handleUploadImage}>
-                <Text style={styles.buttonText}>Upload Image</Text>
-              </Pressable>
-              <View style={styles.borderBottom}></View>
-              <View style={styles.modalButtons}>
-                <Text style={styles.modalTitle}>Add a list from a recipe URL:</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter Recipe URL"
-                  value={recipeUrl}
-                  onChangeText={setRecipeUrl}
-                />
-              </View>
-              <TouchableOpacity style={styles.bigButton} onPress={handleRecipe}>
-                <Text style={styles.buttonText}>Get Grocery Ingredients</Text>
-              </TouchableOpacity>
-              <View style={styles.borderBottom}></View>
-              {image && <Image source={image} style={styles.image} />}
-
-              {listItems.length > 0 && (
-                <View style={styles.listContainer}>
-                  <Text style={styles.listTitle}>Your Items:</Text>
-                  {listItems.map((item, index) => (
-                    <Text key={index} style={styles.listItem}>{item}</Text>
-                  ))}
-                </View>
-              )}
-
-              <View style={styles.modalButtons}>
-              
-                <Pressable style={[styles.modalButton, styles.cancelButton]} onPress={handleCancel}>
-                  <Text style={styles.buttonText}>Cancel</Text>
                 </Pressable>
               </View>
             </ScrollView>
@@ -250,17 +153,16 @@ const ShoppingCartListScreen = () => {
         onRequestClose={() => setIsConfirmModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Confirm Delete</Text>
-            <Text>Are you sure you want to delete this shopping list?</Text>
-            <View style={styles.modalButtons}>
-              <Pressable style={[styles.modalButton, styles.deleteButton]} onPress={handleDeleteCart}>
+          <View style={[styles.modalContainer,styles.modalDeleteList]}>
+            <View style={styles.top}>
+            <Text style={styles.modalTitle}>Are you sure you want to delete this shopping list?</Text>
+            <Pressable onPress={() => setIsConfirmModalVisible(false)}>
+                <Icon name="close" size={24} color="#007bff" />
+            </Pressable>
+            </View>
+              <Pressable style={[styles.modalButton, styles.deleteButton, styles.deleteButtonNoIcon]} onPress={handleDeleteCart}>
                 <Text style={styles.buttonText}>Delete</Text>
               </Pressable>
-              <Pressable style={[styles.modalButton, styles.cancelButton]} onPress={() => setIsConfirmModalVisible(false)}>
-                <Text style={styles.buttonText}>Cancel</Text>
-              </Pressable>
-            </View>
           </View>
         </View>
       </Modal>
@@ -294,11 +196,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteButton: {
-    backgroundColor: 'red',
     padding: 10,
     borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
+  },
+  deleteButtonNoIcon: {
+    backgroundColor: 'red',
+    marginTop: 20,
   },
   button: {
     backgroundColor: '#007bff',
@@ -318,15 +221,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
-    width: '80%',
+    width: Platform.OS === 'web'? '30%': '80%',
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
-    // alignItems: 'center',
+  },
+  modalDeleteList: {
+    width: Platform.OS === 'web'? '35%': '80%',
   },
   modalTitle: {
     fontSize: 20,
     marginBottom: 20,
+    fontWeight: 'bold',
+  },
+  subTitle: {
+    fontSize: 16,
+    marginBottom: 10,
   },
   input: {
     width: '70%',
@@ -339,7 +249,10 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
+  },
+  top: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   borderBottom : {
     borderBottomColor: '#ccc',
@@ -359,10 +272,6 @@ const styles = StyleSheet.create({
     marginRight: 5,
     width: '30%',
     maxWidth: '30%'
-  },
-  cancelButton: {
-    backgroundColor: '#ccc',
-    marginLeft: 5,
   },
   inputContainer: {
     flexDirection: 'row',
