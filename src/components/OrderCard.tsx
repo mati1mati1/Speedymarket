@@ -9,10 +9,10 @@ import { getOrderDetailsByOrderId } from 'src/api/api';
 import Toast from 'react-native-toast-message';
 import { ProductsList } from 'src/models';
 import { ScrollView } from 'react-native-gesture-handler';
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 type OrderProps = {
-    orderID: number;
-    supermarketID: number;
+    orderID: string;
+    supermarketID: string;
     cost: number;
     status: string;
 };
@@ -39,7 +39,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status 
 
     const handleOpenDetailsModal = () => {
         setLoading(true);
-        getOrderDetailsByOrderId(orderID.toString())
+        getOrderDetailsByOrderId(orderID)
             .then((response) => {
                 console.log(response);
                 setLoading(false);
@@ -61,6 +61,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status 
     };
 
     const handleCloseModal = () => {
+        //make a api call to update the status of the order and make sure to reflect this in fornt end
         setModalVisible(false);
     };
     const getIcon = (status: string) => {
@@ -71,20 +72,24 @@ const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status 
             return '✅';
           case 'Cancelled':
             return '❌';
+          case 'Pending':
+            return '🕒';
           default:
             console.log("thefuck");
             return '❌';
         }
     }
 
-    const getSuperMarketLogo = (supermarketID : number) => {
-        switch(supermarketID){
-            case 1:
+    const getSuperMarketLogo = (supermarketID : string) => {
+        switch(supermarketID[0]){
+            case "E":
                 return logoPicture[0];
-            case 2:
+            case "A":
                 return logoPicture[1];
-            case 3:
+            case "3":
                 return logoPicture[2];
+            case "8":
+                return logoPicture[1];
             default:
                 return logoPicture[3];
         }
@@ -130,7 +135,12 @@ const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status 
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalView}>
+                    <View style={styles.titleContainer}>
                         <Text style={styles.modalTitle}>Order #{orderID} Details</Text>
+                        <Pressable style={styles.closeButton1}  onPress={handleCloseModal}>
+                            <Icon name="close" size={24} color="red" />
+                        </Pressable>
+                    </View>
                         <ScrollView style={styles.scrollView}>
                             <View style={styles.table}>
                             <View style={styles.tableRow}>
@@ -147,14 +157,9 @@ const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status 
                             ))}
                         </View>
                         </ScrollView>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Pressable style={styles.closeButton} onPress={handleCloseModal}>
-                                <Text style={styles.buttonText}>Close</Text>
-                            </Pressable>
-                            <Pressable style={styles.closeButton} onPress={handleCloseModal}>
-                                <Text style={styles.buttonText}>Order Sent</Text>
-                            </Pressable>
-                        </View>
+                        <Pressable style={styles.saveButton} onPress={handleCloseModal}>
+                            <Text style={styles.buttonText}>Change Status</Text>
+                        </Pressable>
                     </View>
                 </View>
             </Modal>
@@ -164,7 +169,8 @@ const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status 
 const styles = StyleSheet.create({
     card: {
       width: '30%',
-      margin: 10
+      margin: 10,
+      height:400,
     },
     detailsButton: {
         flexDirection: 'row',
@@ -183,6 +189,7 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
+        textAlign: 'center',
     },
     icon: {
         marginLeft: 5,
@@ -210,9 +217,11 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     modalTitle: {
-        fontSize: 18,
+        fontSize: 22,
         fontWeight: 'bold',
-        marginBottom: 15,
+        flex: 1,
+        textAlign: 'left',
+        paddingLeft: 20,
     },
     productItem: {
         width: '100%',
@@ -234,13 +243,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '500',
     },
-    closeButton: {
+    saveButton: {
         backgroundColor: '#007bff',
         padding: 10,
         borderRadius: 5,
-        marginTop: 15,
-        marginLeft: 20,
-        marginRight: 20,
+        width: '80%',
     },
     table: {
         width: '100%',
@@ -255,6 +262,7 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         width: '100%',
+        // height: '20%',
     },
     tableHeader: {
         fontWeight: 'bold',
@@ -264,6 +272,18 @@ const styles = StyleSheet.create({
     tableCell: {
         flex: 1,
         textAlign: 'center',
+    },
+    titleContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+        width: '100%',
+    },
+    closeButton1: {
+        padding: 10, // Adding some padding for easier tapping
+        justifyContent: 'center', // Align the button vertically in the middle
+        alignItems: 'center', // Center the icon inside the button
     },
   });
 

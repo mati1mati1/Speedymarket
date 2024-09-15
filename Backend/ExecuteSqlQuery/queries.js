@@ -157,15 +157,16 @@ const getUserByIdQuery = (userId) => ({
   });
   
   const getOrdersByBuyerIdQuery = (buyerId) => ({
-    query: 'SELECT * FROM Order WHERE UserID = @buyerId',
+    query: 'SELECT * FROM [Order] WHERE UserID = @buyerId',
     params: [
       { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }
     ]
   });
+  
   const getOrderByBuyerIdAndOrderIdQuery = (buyerId, orderId) => ({
     query: `
       SELECT bo.*, sm.BranchName AS SupermarketName
-      FROM Order bo
+      FROM [Order] bo
       JOIN Supermarket sm ON bo.SupermarketID = sm.SupermarketID
       WHERE bo.UserID = @buyerId AND bo.OrderID = @orderId
     `,
@@ -287,14 +288,14 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
 
-  const getOrdersBySupplierIdQuery = (userId) => ({
-    query: `
-      SELECT * FROM SuperMarketOrder WHERE SupplierID = @userId
-    `,
-    params: [
-      { name: 'userId', type: 'UniqueIdentifier', value: userId }
-    ]
-  });
+  // const getOrdersBySupplierIdQuery = (userId) => ({
+  //   query: `
+  //     SELECT * FROM SuperMarketOrder WHERE SupplierID = @userId
+  //   `,
+  //   params: [
+  //     { name: 'userId', type: 'UniqueIdentifier', value: userId }
+  //   ]
+  // });
 
   const updateOrderStatusQuery = (orderId, status) => ({
     query: `
@@ -308,27 +309,27 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
 
-  const getOrdersBySuperMarketIdQuery = (supermarketId) => ({
-    query: `
-      SELECT * FROM SuperMarketOrder WHERE SupermarketID = @supermarketId
-    `,
-    params: [
-      { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
-    ]
-  });
+  // const getOrdersBySuperMarketIdQuery = (supermarketId) => ({
+  //   query: `
+  //     SELECT * FROM SuperMarketOrder WHERE SupermarketID = @supermarketId
+  //   `,
+  //   params: [
+  //     { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
+  //   ]
+  // });
 
-  const getDetailsForSuperMarketOrderQuery = (orderId) => ({
-    query: `
-      SELECT * FROM SuperMarketOrderItem WHERE OrderID = @orderId
-    `,
-    params: [
-      { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
-    ]
-  });
+  // const getDetailsForSuperMarketOrderQuery = (orderId) => ({
+  //   query: `
+  //     SELECT * FROM SuperMarketOrderItem WHERE OrderID = @orderId
+  //   `,
+  //   params: [
+  //     { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
+  //   ]
+  // });
   
   module.exports = {
-    getDetailsForSuperMarketOrderQuery,
-    getOrdersBySuperMarketIdQuery,
+    // getDetailsForSuperMarketOrderQuery,
+    // getOrdersBySuperMarketIdQuery,
     getOrderByBuyerIdAndOrderIdQuery,
     getOrderDetailsByIdQuery,
     createPurchaseQuery,
@@ -354,7 +355,7 @@ const getUserByIdQuery = (userId) => ({
     deleteShopInventoryQuery,
     updateSupermarketDetailsQuery,
     getOrderDetailsByOrderIdQuery,
-    getOrdersBySupplierIdQuery,
+    // getOrdersBySupplierIdQuery,
     updateOrderStatusQuery
   };
   

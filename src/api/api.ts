@@ -153,9 +153,9 @@ export const getOrdersBySuperMarketId = async ( supermarketId: string): Promise<
   return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySuperMarketId', { supermarketId });
 };
 
-export const getDetailsForSuperMarketOrder = async ( orderId: string): Promise<SupplierOrder> => {
-  return await executeDbFunction<SupplierOrder>( 'getDetailsForSuperMarketOrder', { orderId });
-}
+// export const getDetailsForSuperMarketOrder = async ( orderId: string): Promise<SupplierOrder> => {
+//   return await executeDbFunction<SupplierOrder>( 'getDetailsForSuperMarketOrder', { orderId });
+// }
 
 export const updateOrderStatus = async ( orderId: string, status: string): Promise<void> => {
   return await executeDbFunction<void>( 'updateOrderStatus', { orderId, status });

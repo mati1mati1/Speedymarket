@@ -6,30 +6,37 @@ import { View } from 'react-native';
 import {getOrdersBySupplierId} from '../../src/api/api';
 import { useAuth } from '../../src/context/AuthContext';
 export default function SupplierScreen() {
-  const [orders, setOrders] = useState<{ id: number; superMarket: number; totalAmount: number; status: string }[]>([]);
+  const [orders, setOrders] = useState<{ id: string; superMarket: string; totalAmount: number; status: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const { authState } = useAuth();
   const token = authState.token;
-  let demoData = [
-    { id: 1, superMarket: 1, totalAmount: 100, status: 'Pending' },
-    { id: 2, superMarket: 2, totalAmount: 200, status: 'Shipped' },
-    { id: 3, superMarket: 3, totalAmount: 300, status: 'Delivered' },
-    { id: 4, superMarket: 4, totalAmount: 400, status: 'Cancelled' },
-  ];
 
+  const parseData = (data: any) => {
+    let currOrders: { id: string; superMarket: string; totalAmount: number; status: string }[] = [];
+    for (let i = 0; i < data.length; i++) {
+      currOrders.push({
+        id: data[i].OrderID,
+        superMarket: data[i].SupermarketID,
+        totalAmount: data[i].TotalAmount,
+        status: data[i].OrderStatus,
+      });
+    }
+    return currOrders;
+  };
 
   useEffect(() => {
     try {
       if (!token) {
         throw new Error('Token is missing');
       }
-      getOrdersBySupplierId().then((response) => {
+        getOrdersBySupplierId().then((response) => {
         console.log(response);
+        setOrders(parseData(response));
       });
     } catch (error) {
       console.log(error);
     }
-    setOrders(demoData);
+    // setOrders(demoData);
     setLoading(false);
   }, []);
 
