@@ -100,6 +100,7 @@ const ShoppingMap: React.FC = () => {
     if (selectedItem) {
       setShoppingCart((prevCart) => updateCart(prevCart, selectedItem, quantity));
       setSelectedItem(null);
+      console.log("card" + shoppingCart);
       setIsQuantityModalVisible(false);
     } else {
       Alert.alert('Item Not Found', 'No item in the supermarket.', [{ text: 'OK' }]);
@@ -114,6 +115,7 @@ const ShoppingMap: React.FC = () => {
           const selectedItem = item[0];
           setShoppingCart((prevCart) => updateCart(prevCart, selectedItem, quantity));
           setIsQuantityModalVisible(false);
+          console.log("card" + shoppingCart);
         } else {
           Alert.alert('Item Not Found', 'No item in the supermarket.', [{ text: 'OK' }]);
         }
@@ -128,7 +130,6 @@ const handleUpdateCart = (updatedCart: ShopInventory[]) => {
 };
 const updateCart = (cart: ShopInventory[], newItem: ShopInventory, quantity: number): ShopInventory[] => {
   const existingItemIndex = cart.findIndex((cartItem) => cartItem.ItemName === newItem.ItemName);
-
   let totalQuantity = quantity;
 
   if (existingItemIndex !== -1) {

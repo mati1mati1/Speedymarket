@@ -1,6 +1,6 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import React, { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
@@ -9,7 +9,7 @@ import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { Role } from '../src/models';
 
 export const unstable_settings = {
-  initialRouteName: '(tabs)',
+  initialRouteName: 'login',
 };
 
 SplashScreen.preventAutoHideAsync();
@@ -40,10 +40,14 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { authState } = useAuth();
-
+  useEffect(() => {
+    if(!authState?.authenticated){ {
+      router.replace('/login');
+    }
+  }}, []);
   return (
     <DndProvider backend={HTML5Backend}>
-      <Stack>
+      <Stack screenOptions={{headerShown: false}}>
         {authState?.authenticated && authState.role === Role.Seller ? (
         <Stack.Screen name="(manager)" options={{ headerShown: false, headerTitleAlign: 'center' }} />
       ) : authState?.authenticated && authState.role === Role.Buyer ? (

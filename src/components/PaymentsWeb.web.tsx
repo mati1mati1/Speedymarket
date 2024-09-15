@@ -39,7 +39,7 @@ const PaymentsWeb: React.FC<PaymentsWebProps> = ({ isOpen, items, supermarketId,
   const options = { fetchClientSecret };
 
   return isComplete ? (
-      <PurchaseSummary sessionId={sessionId} items={items} supermarketId={supermarketId} totalAmount={calculateTotalPrice()} />
+      <PurchaseSummary sessionId={sessionId} items={items} supermarketId={supermarketId} totalAmount={calculateTotalPrice()} onRequestClose={onRequestClose} />
     ) : (
     <EmbeddedCheckoutProvider
       stripe={stripePromise}

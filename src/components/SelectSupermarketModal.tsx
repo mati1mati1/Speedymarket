@@ -101,7 +101,7 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
             <Text style={styles.buttonText}>Select Supermarket</Text>
           </Pressable>
           <Pressable style={styles.button} onPress={toggleIsScannedDataOpen}>
-              <Text style={styles.buttonText}>Scann </Text>
+              <Text style={styles.buttonText}>Scan </Text>
           </Pressable>
           <Pressable onPress={() => closeModal(null)}>
             <Text style={styles.closeText}>Close</Text>

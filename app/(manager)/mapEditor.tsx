@@ -4,7 +4,6 @@ import WebSection from '../../src/components/WebSection';
 import WebEntrance from '../../src/components/WebEntrance';
 import '../../src/styles/MapEditor.css';
 import { getSupermarketByUserId, updateMap } from '../../src/api/api';
-import { useAuth } from '../../src/context/AuthContext';
 
 const ItemTypes = {
   SECTION: 'section',
@@ -20,17 +19,11 @@ const ManagerMapEditor: React.FC = () => {
   const [isDataFetched, setIsDataFetched] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // New loading state
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const {authState} = useAuth();
-  const token = authState?.token;
   const mapWidth = 800;
   const mapHeight = 600;
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!token) {
-        console.error('Token not found');
-        return;
-      }
       try {
         const fetchedSupermarket = (await getSupermarketByUserId())[0];
         if (fetchedSupermarket) {
@@ -49,7 +42,7 @@ const ManagerMapEditor: React.FC = () => {
     };
 
     fetchData();
-  }, [token]);
+  }, []);
 
   const [, drop] = useDrop({
     accept: [ItemTypes.SECTION, ItemTypes.ENTRANCE],

@@ -18,6 +18,7 @@ export interface BuyerOrder {
   TotalAmount: number;
   CreationDate: string;
   SupermarketID: string;
+  SupermarketName: string;
 }
 
 export interface SupplierOrder {

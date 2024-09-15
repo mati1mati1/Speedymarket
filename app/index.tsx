@@ -10,7 +10,6 @@ export default function Index() {
       <Text style={styles.title}>Welcome to SpeedyMarket</Text>
         <View>
           <Link replace href="/login">Login</Link>
-          <Link replace href="/register">Register</Link>
         </View>
     </View>
   );
