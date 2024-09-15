@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator, Modal, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, Modal, TextInput, ScrollView,Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { createShoppingList, getShoppingListsByBuyerId, deleteShoppingList, uploadGroceryListImage, uploadRecipeUrl } from '../../../src/api/api';
+import { createShoppingList, getShoppingListsByBuyerId, deleteShoppingList } from '../../../src/api/api';
 import { ShoppingList } from '../../../src/models';
 import { useAuth } from 'src/context/AuthContext';
-import { launchImageLibrary } from 'react-native-image-picker';
-import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useWindowDimensions } from 'react-native';
-import { Platform } from 'react-native';
 
+const currWidth = Dimensions.get('window').width;
 const ShoppingCartListScreen = () => {
   const router = useRouter();
   const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
@@ -20,12 +17,6 @@ const ShoppingCartListScreen = () => {
   const [selectedCartId, setSelectedCartId] = useState('');
   const { authState } = useAuth();
   const token = authState.token;
-  const { width } = useWindowDimensions(); // Get the window width
-  const isWeb = Platform.OS === 'web' && width > 600;
-  const [listItems, setListItems] = useState<string[]>([]);
-  const [newItem, setNewItem] = useState<string>('');
-  const [image, setImage] = useState<{ uri: string } | null>(null);
-  const [recipeUrl, setRecipeUrl] = useState<string>('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -222,13 +213,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
-    width: Platform.OS === 'web'? '30%': '80%',
+    width: currWidth > 600 ? '30%' : '80%',
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
   },
   modalDeleteList: {
-    width: Platform.OS === 'web'? '35%': '80%',
+    width: currWidth > 600 ? '35%': '80%',
   },
   modalTitle: {
     fontSize: 20,

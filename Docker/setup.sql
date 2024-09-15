@@ -30,6 +30,8 @@ CREATE TABLE Supermarket (
     BranchMap NVARCHAR(MAX) NOT NULL,
     Latitude DECIMAL(9, 5) NOT NULL,
     Longitude DECIMAL(9, 5) NOT NULL,
+    Latitude DECIMAL(9, 5) NOT NULL,
+    Longitude DECIMAL(9, 5) NOT NULL,
     WiFiPassword NVARCHAR(255) NOT NULL,
     WiFiSSID NVARCHAR(255) NOT NULL,
     FOREIGN KEY (UserID) REFERENCES [User](UserID)
@@ -138,6 +140,7 @@ VALUES
 ('talsabel', 'Tal', 'Sabel', 'tal@example.com', '123-456-7893', 'Supplier'),
 ('emilydavis', 'Emily', 'Davis', 'emily@example.com', '987-456-7893', 'Seller');
 GO
+
 
 INSERT INTO Supermarket (UserID, BranchName, Barcode, Country, City, Street, StreetNumber, BranchMap, Latitude, Longitude, WiFiPassword, WiFiSSID)
 VALUES 
