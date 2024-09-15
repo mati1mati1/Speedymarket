@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem } from '../models';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem, SupplierOrder } from '../models';
 import { getToken } from 'src/context/AuthContext'; 
 
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
@@ -145,14 +145,18 @@ export const deleteShopInventory = async ( inventoryId: string): Promise<void> =
   return await executeDbFunction<void>( 'deleteShopInventory', { inventoryId });
 };
 
-export const getOrderDetailsByOrderId = async ( orderId: string): Promise<ProductsList[]> => {
-  return await executeDbFunction<ProductsList[]>( 'getOrderDetailsByOrderId', { orderId });
-}
-
 export const getOrdersBySupplierId = async (): Promise<SupplierOrder[]> => {
   return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySupplierId', {});
 };
-  
+
+export const getOrdersBySuperMarketId = async ( supermarketId: string): Promise<SupplierOrder[]> => {
+  return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySuperMarketId', { supermarketId });
+};
+
+export const getDetailsForSuperMarketOrder = async ( orderId: string): Promise<SupplierOrder> => {
+  return await executeDbFunction<SupplierOrder>( 'getDetailsForSuperMarketOrder', { orderId });
+}
+
 interface AIResponse {
   success: boolean;
   list: string[];

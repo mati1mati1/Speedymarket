@@ -64,10 +64,15 @@ const getQueryByName = async (functionName, params) => {
             return queries.getOrderDetailsByOrderIdQuery(params.orderId);
         case 'getOrdersBySupplierId':
             return queries.getOrdersBySupplierIdQuery(params.userId);
+        case 'getOrdersBySuperMarketIdQuery':
+            return queries.getOrdersBySuperMarketIdQuery(params.supermarketId);
+        case 'getDetailsForSuperMarketOrderQuery':
+            return queries.getDetailsForSuperMarketOrderQuery(params.orderId);
         default:
             throw new Error('Invalid function name');
     }
 };
+
 async function getCoordinatesFromAzureMaps(address) {
     const response = await axios.get(`https://atlas.microsoft.com/search/address/json`, {
       params: {

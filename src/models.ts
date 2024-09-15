@@ -24,10 +24,10 @@ export interface BuyerOrder {
 export interface SupplierOrder {
   OrderID: string;
   SupplierID: string;
+  SupermarketID: string;
   TotalAmount: number;
   CreationDate: string;
-  SupermarketID: string;
-  Status: string;
+  OrderStatus: string;
 }
 
 export interface ProductsList {
