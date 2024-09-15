@@ -7,6 +7,7 @@ import OrderManagementScreen from './orders';
 import LogoutButton from '../../src/components/LogoutButton';
 import ManagerSettingsScreen from './ManagerSettingsScreen';
 import ManagerMapEditor from './mapEditor';
+import { Header } from 'react-native-elements';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,6 +22,7 @@ const iconMap = {
 export default function ManagerScreen() {
   return (
     <>
+      <LogoutButton />
       <Tab.Navigator
         initialRouteName="Inventory Management"
         screenOptions={({ route }) => ({
@@ -30,14 +32,13 @@ export default function ManagerScreen() {
           },
         })}
       >
-        <Tab.Screen name="Inventory Management" component={InventoryManagementScreen} />
-        <Tab.Screen name="OrderManagement" component={OrderManagementScreen} />
+        <Tab.Screen name="Inventory Management" component={InventoryManagementScreen} options={{headerShown: false}} />
+        <Tab.Screen name="OrderManagement" component={OrderManagementScreen} options={{headerShown: false}} />
         {Platform.OS === 'web' ?
-        <Tab.Screen name="SupermarketMap" component={ManagerMapEditor} />
+        <Tab.Screen name="SupermarketMap" component={ManagerMapEditor}  options={{headerShown: false}}/>
         : null}
-        <Tab.Screen name="Settings" component={ManagerSettingsScreen} />
+        <Tab.Screen name="Settings" component={ManagerSettingsScreen} options={{headerShown: false}} />
       </Tab.Navigator>
-      <LogoutButton />
     </>
   );
 }

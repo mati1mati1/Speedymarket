@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Modal, Dimensions, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Modal, Dimensions, ActivityIndicator, FlatList, TouchableOpacity, Pressable } from 'react-native';
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
 import { getCountries, getCities, getStreets } from '../../src/api/locationApi';
 import { Country, City, dailyHours, Street, Supermarket } from '../../src/models';
 import { useAuth } from '../../src/context/AuthContext';
 import { getSupermarketByUserId, updateSupermarketDetails } from '../../src/api/api';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { Button as RNEButton } from 'react-native-elements';
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -29,6 +32,10 @@ const ManagerSettingsScreen = () => {
     const [streets, setStreets] = useState<Street[]>([]);
     const [filteredStreets, setFilteredStreets] = useState<Street[]>([]);
     const [fetchingStreets, setFetchingStreets] = useState(false);
+    const [countryInputText, setCountryInputText] = useState(''); 
+    const [cityInputText, setCityInputText] = useState(''); 
+    const [streetInputText, setStreetInputText] = useState(''); 
+
 
     useEffect(() => {
         const fetchSupermarketDetails = async () => {
@@ -194,7 +201,7 @@ const ManagerSettingsScreen = () => {
 
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.title}>Edit Supermarket Details</Text>
+            <Text style={styles.title}>Settings</Text>
 
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Supermarket Name</Text>
@@ -203,6 +210,7 @@ const ManagerSettingsScreen = () => {
                     value={name}
                     onChangeText={setName}
                     placeholder="Supermarket Name"
+                    placeholderTextColor={"#808080"}
                 />
             </View>
 
@@ -210,14 +218,17 @@ const ManagerSettingsScreen = () => {
                 <Text style={styles.label}>Country</Text>
                 <TextInput
                     style={styles.input}
-                    value={country?.name}
+                    value={country ? country.name : countryInputText}
                     onChangeText={(text) => {
+                        setCountryInputText(text);
                         setCountry(null);
                         filterCountries(text);
                     }}
-                    
+                    placeholder="Start typing country name"
+                    placeholderTextColor={"#808080"}
+
                 />
-                {(filteredCountries.length > 0 && country === null) &&(
+                {countryInputText.length > 0 && filteredCountries.length > 0 && country === null && (
                     <FlatList
                         data={filteredCountries}
                         keyExtractor={(item) => item.iso2}
@@ -225,6 +236,7 @@ const ManagerSettingsScreen = () => {
                             <TouchableOpacity onPress={() => {
                                 setCountry(item);
                                 setFilteredCountries([]);
+                                setCountryInputText('');
                             }}>
                                 <Text style={styles.streetItem}>{item.name}</Text>
                             </TouchableOpacity>
@@ -238,14 +250,16 @@ const ManagerSettingsScreen = () => {
                 <Text style={styles.label}>City</Text>
                 <TextInput
                     style={styles.input}
-                    value={city?.name }
+                    value={city ? city.name : cityInputText}
                     onChangeText={(text) => {
+                        setCityInputText(text);
                         setCity(null);
                         filterCities(text);
                     }}
                     placeholder="Start typing city name"
+                    placeholderTextColor={"#808080"}
                 />
-                {(filteredCities.length > 0 && city === null) && (
+                {cityInputText.length > 0 && filteredCities.length > 0 && city === null && (
                     <FlatList
                         data={filteredCities}
                         keyExtractor={(item) => item.id.toString()}
@@ -253,6 +267,7 @@ const ManagerSettingsScreen = () => {
                             <TouchableOpacity onPress={() => {
                                 setCity(item);
                                 setFilteredCities([]);
+                                setCityInputText('');
                             }}>
                                 <Text style={styles.streetItem}>{item.name}</Text>
                             </TouchableOpacity>
@@ -262,18 +277,21 @@ const ManagerSettingsScreen = () => {
                 )}
             </View>
 
+
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Street</Text>
                 <TextInput
                     style={styles.input}
-                    value={street?.name}
+                    value={street ? street.name : streetInputText}
                     onChangeText={(text) => {
+                        setStreetInputText(text);
                         setStreet(null);
                         filterStreets(text);
                     }}
                     placeholder="Start typing street name"
+                    placeholderTextColor={"#808080"}
                 />
-                {filteredStreets.length > 0 && street === null && (
+                {streetInputText.length > 0 && filteredStreets.length > 0 && street === null && (
                     <FlatList
                         data={filteredStreets}
                         keyExtractor={(item) => item.id.toString()}
@@ -281,6 +299,7 @@ const ManagerSettingsScreen = () => {
                             <TouchableOpacity onPress={() => {
                                 setStreet(item);
                                 setFilteredStreets([]);
+                                setStreetInputText('');
                             }}>
                                 <Text style={styles.streetItem}>{item.name}</Text>
                             </TouchableOpacity>
@@ -298,26 +317,29 @@ const ManagerSettingsScreen = () => {
                     value={streetNumber?.toString()}
                     onChangeText={(text) => setStreetNumber(parseInt(text))}
                     placeholder="Street Number"
+                    placeholderTextColor={"#808080"}
                 />
             </View>
 
             <View style={styles.inputContainer}>
-                <Text style={styles.label}>WiFi SSID</Text>
+                <Text style={styles.label}>WiFi SSID <span style={{fontStyle: 'italic', fontWeight: "300", fontSize: 12}}>(Requires Hardware Integration)</span></Text>
                 <TextInput
                     style={styles.input}
                     value={wifiSSID}
                     onChangeText={setWiFiSSID}
                     placeholder="WiFi SSID"
+                    placeholderTextColor={"#808080"}
                 />
             </View>
 
             <View style={styles.inputContainer}>
-                <Text style={styles.label}>WiFi Password</Text>
+                <Text style={styles.label}>WiFi Password <span style={{fontStyle: 'italic', fontWeight: "300", fontSize: 12}}>(Requires Hardware Integration)</span></Text>
                 <TextInput
                     style={styles.input}
                     value={wifiPassword}
                     onChangeText={setWiFiPassword}
                     placeholder="WiFi Password"
+                    placeholderTextColor={"#808080"}
                     secureTextEntry
                 />
             </View>
@@ -327,29 +349,38 @@ const ManagerSettingsScreen = () => {
                     <View style={styles.tableContainer}>
                         <Table borderStyle={{ borderWidth: 1, borderColor: '#C1C0B9' }}>
                             <Row
-                                data={['Day', 'Open Hour', 'Close Hour', 'Actions']}
+                                data={['Day', 'Open Hour', 'Closing Hour', 'Edit']}
                                 style={styles.head}
-                                textStyle={styles.text}
-                                widthArr={[screenWidth / 4, screenWidth / 4, screenWidth / 4, screenWidth / 4]}
+                                textStyle={styles.headerText}
+                                widthArr={[4*screenWidth / 16, 5*screenWidth / 16, 5*screenWidth / 16, screenWidth / 16 - 16]}
                             />
                             <TableWrapper style={styles.wrapper}>
                                 <Rows
                                     data={operatingHours.map(hour => [
                                         hour.day,
-                                        hour.openHour,
-                                        hour.closeHour,
-                                        <Button title="Edit" onPress={() => handleEditHours(hour.day)} />
+                                        hour.openHour ? hour.openHour : "-",
+                                        hour.closeHour ? hour.closeHour : "-",
+                                        <Pressable style={styles.editButton} onPress={() => handleEditHours(hour.day)} >
+                                            <Icon name="pencil" size={24} color="#007bFF" />
+                                        </Pressable>
                                     ])}
                                     textStyle={styles.text}
-                                    widthArr={[screenWidth / 4, screenWidth / 4, screenWidth / 4, screenWidth / 4]}
-                                />
+                                    widthArr={[4*screenWidth / 16, 5*screenWidth / 16, 5*screenWidth / 16, screenWidth / 16 - 16]}
+                                    />
                             </TableWrapper>
                         </Table>
                     </View>
                 </ScrollView>
             </ScrollView>
 
-            <Button title="Save" onPress={handleSave} />
+            <RNEButton
+                title=" Save"
+                icon={
+                    <Icon name="save" size={20} color="#fff" />
+                }
+                buttonStyle={[styles.blueButton, { marginTop: 20}]}
+                onPress={handleSaveHours}        
+            />                              
 
             <Modal
                 animationType="slide"
@@ -359,22 +390,40 @@ const ManagerSettingsScreen = () => {
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalView}>
+                    <Pressable onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
+                        <Icon name="close" size={24} color="#007bff" />
+                    </Pressable>
                         <Text style={styles.modalTitle}>{currentDay?.day}</Text>
+                        <View>
+                        <Text style={styles.modalLabel}>Open Hour</Text>
                         <TextInput
-                            placeholder="Open Hour"
+                            placeholder="00:00"
+                            placeholderTextColor={"#808080"}
                             value={currentDay?.openHour}
                             onChangeText={value => handleFormChange('openHour', value)}
-                            style={styles.input}
+                            style={styles.modalInput}
                         />
+                        </View>
+                        <View>
+                        <Text style={styles.modalLabel}>Closing Hour</Text>
                         <TextInput
-                            placeholder="Close Hour"
+                            placeholder="00:00"
+                            placeholderTextColor={"#808080"}
                             value={currentDay?.closeHour}
                             onChangeText={value => handleFormChange('closeHour', value)}
-                            style={styles.input}
+                            style={styles.modalInput}
+                            
                         />
-                        <View style={styles.buttonRow}>
-                            <Button title="Save" onPress={handleSaveHours} />
-                            <Button title="Cancel" onPress={() => setIsModalVisible(false)} />
+                        </View>
+                        <View style={styles.buttonContainer}>
+                            <RNEButton
+                                title=" Save"
+                                icon={
+                                    <Icon name="save" size={20} color="#fff" />
+                                }
+                                buttonStyle={styles.blueButton}
+                                onPress={handleSaveHours}        
+                            />                              
                         </View>
                     </View>
                 </View>
@@ -391,6 +440,8 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         marginBottom: 20,
+        fontWeight: 'bold',
+        alignSelf: 'center'
     },
     inputContainer: {
         marginBottom: 20,
@@ -398,12 +449,27 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         marginBottom: 5,
+        fontWeight: 500
+    },
+    modalLabel: {
+        fontSize: 15,
+        marginTop: 5,
+        fontWeight: 400,
+        alignSelf: 'flex-start',
+        marginLeft: 5
     },
     input: {
         height: 40,
         borderColor: 'gray',
         borderWidth: 1,
         paddingHorizontal: 10,
+    },
+    modalInput: {
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        paddingHorizontal: 10,
+        margin: 5
     },
     tableContainer: {
         flex: 1,
@@ -414,6 +480,11 @@ const styles = StyleSheet.create({
     head: {
         height: 50,
         backgroundColor: '#f1f8ff',
+    },
+    headerText: {
+        margin: 6,
+        textAlign: 'center',
+        fontWeight: 'bold'
     },
     wrapper: {
         flexDirection: 'row',
@@ -448,6 +519,7 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 20,
         marginBottom: 20,
+        fontWeight: 'bold',
     },
     buttonRow: {
         flexDirection: 'row',
@@ -463,6 +535,24 @@ const styles = StyleSheet.create({
     streetList: {
         maxHeight: 200,
     },
+    editButton: {
+        padding: 10,
+        paddingLeft: 20,
+        borderRadius: 5,
+    },
+    closeButton: {
+        marginTop: 5,
+        alignSelf: 'flex-end',
+    },
+    blueButton: {
+        backgroundColor: '#007AFF',
+        marginRight: 10,
+        paddingHorizontal: 10,
+    },
+    buttonContainer: {
+        alignSelf: 'center',
+        marginTop: 20,
+      },
 });
 
 export default ManagerSettingsScreen;

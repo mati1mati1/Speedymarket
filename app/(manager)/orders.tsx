@@ -38,8 +38,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     marginBottom: 20,
-    textAlign: 'center',
-  },
+    fontWeight: 'bold',
+    alignSelf: 'center'
+},
   item: {
     padding: 10,
     fontSize: 18,

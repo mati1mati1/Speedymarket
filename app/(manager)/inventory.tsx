@@ -158,8 +158,8 @@ export default function InventoryManagementScreen() {
 
   const renderEditButton = (data: any, index: number) => (
     <View style={styles.buttonGroup}>
-      <Pressable style={styles.item} onPress={() => handleEditClick(inventory[index])} >
-              <Icon name="pencil" size={24} color="#0066FF" />
+      <Pressable style={styles.editButton} onPress={() => handleEditClick(inventory[index])} >
+              <Icon name="pencil" size={24} color="#007bFF" />
       </Pressable>
       <Pressable style={styles.deleteButton} onPress={() => handleDeleteItem(inventory[index])}>
               <Icon name="trash" size={24} color="#FF6347" />
@@ -174,9 +174,11 @@ export default function InventoryManagementScreen() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Inventory</Text>  
       <TextInput
         placeholder="Filter items"
-        style={styles.input}
+        placeholderTextColor={"#808080"}
+        style={styles.filterInput}
         value={filter}
         onChangeText={setFilter}
       />
@@ -317,6 +319,12 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     backgroundColor: '#fff',
   },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    fontWeight: 'bold',
+    alignSelf: 'center'
+},
   head: {
     height: 50,
     backgroundColor: '#f1f8ff',
@@ -350,6 +358,13 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 10,
     width: '70%',
+    paddingRight: 50
+  },
+  filterInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    width: '95%',
     paddingRight: 50
   },
   buttonRow: {
@@ -424,7 +439,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     marginTop: 20,
   },
-  item: {
+  editButton: {
     padding: 10,
     borderRadius: 5
   },
