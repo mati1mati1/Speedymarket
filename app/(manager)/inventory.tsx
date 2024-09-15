@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from 'uuid'; // Ensure uuid is installed
 import ScanItem from '../../src/components/Scanner';
 import { useAuth } from '../../src/context/AuthContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { Button as RNEButton } from 'react-native-elements';
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);
@@ -222,25 +224,48 @@ export default function InventoryManagementScreen() {
             {['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode'].map((placeholder, index) => (
               <View style={styles.inputContainer} key={index}>
                 <Text style={styles.label}>{placeholder}</Text>
-                <TextInput
-                  placeholder={placeholder}
-                  value={form[placeholder.replace(' ', '')]}
-                  onChangeText={(value) => handleFormChange(placeholder.replace(' ', ''), value)}
-                  style={styles.input}
-                  keyboardType={placeholder === 'Quantity' || placeholder === 'Price' || placeholder === 'Discount' ? 'numeric' : 'default'}
-                />
+                {placeholder === 'Barcode' ? (
+                  <View style={styles.barcodeContainer}>
+                    <TextInput
+                      placeholder={placeholder}
+                      value={form[placeholder.replace(' ', '')]}
+                      onChangeText={(value) => handleFormChange(placeholder.replace(' ', ''), value)}
+                      style={[styles.input, styles.barcodeInput]}
+                      keyboardType='default'
+                    />
+                    <RNEButton
+                      title=" Scan"
+                      icon={
+                        <MaterialIcon
+                          name="barcode-scan"
+                          size={20}
+                          color="white"
+                        />
+                      }
+                      buttonStyle={styles.blueButton}
+                      onPress={toggleIsScannedDataOpen}        />
+                  </View>
+                ) : (
+                  <TextInput
+                    placeholder={placeholder}
+                    value={form[placeholder.replace(' ', '')]}
+                    onChangeText={(value) => handleFormChange(placeholder.replace(' ', ''), value)}
+                    style={styles.input}
+                    keyboardType={placeholder === 'Quantity' || placeholder === 'Price' || placeholder === 'Discount' ? 'numeric' : 'default'}
+                  />
+                )}
               </View>
-            ))}
+))}
 
-            <View style={styles.buttonRow}>
-              <Button
+              <View style= {styles.buttonContainer}>
+              <RNEButton
                 title={isEditing ? "Update Item" : "Add Item"}
                 onPress={isEditing ? handleEditItem : handleAddItem}
+                buttonStyle={styles.blueButton}
               />
-              <Button
-                title="Scan Barcode"
-                onPress={toggleIsScannedDataOpen}
-              />
+              </View>
+              <View style={styles.buttonRow}>
+
               <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
                 <TouchableOpacity style={styles.modalOverlay} onPress={toggleIsScannedDataOpen}>
                   <View style={styles.modal} onStartShouldSetResponder={() => true}>
@@ -315,7 +340,7 @@ const styles = StyleSheet.create({
   label: {
     width: '30%',
     textAlign: 'left',
-    paddingLeft: 100,
+    paddingLeft: 20,
   },
   input: {
     borderWidth: 1,
@@ -327,7 +352,7 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '30%',
+    width: '100%',
     marginTop: 20,
   },
   modalView: {
@@ -344,7 +369,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    width: '90%',
+    width: '50%',
   },
   modalOverlay: {
     flex: 1,
@@ -353,7 +378,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modal: {
-    width: '80%',
+    width: '30%',
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
@@ -369,4 +394,22 @@ const styles = StyleSheet.create({
     marginTop: 5,
     alignSelf: 'flex-end',
   },
+  blueButton: {
+    backgroundColor: '#007AFF',
+    marginLeft: 10,
+    paddingHorizontal: 10,
+  },
+  barcodeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1
+  },
+  barcodeInput: {
+    flex: 1, 
+    width: '80%'
+  },
+  buttonContainer: {
+    alignSelf: 'flex-end',
+    marginTop: 20,
+  }
 });
