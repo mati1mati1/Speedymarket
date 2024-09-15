@@ -37,27 +37,28 @@ CREATE TABLE Supermarket (
 GO
 
 -- Create BuyerOrder Table
-CREATE TABLE BuyerOrder (
+CREATE TABLE Order (
     OrderID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    BuyerID UNIQUEIDENTIFIER NOT NULL,
+    UserID UNIQUEIDENTIFIER NOT NULL,
     TotalAmount DECIMAL(18, 2) NOT NULL,
     CreationDate DATETIME DEFAULT GETDATE() NOT NULL,
     SupermarketID UNIQUEIDENTIFIER NOT NULL,
     SessionId NVARCHAR(250) UNIQUE,
-    FOREIGN KEY (BuyerID) REFERENCES [User](UserID),
+    OrderStatus NVARCHAR(50),
+    FOREIGN KEY (UserID) REFERENCES [User](UserID),
     FOREIGN KEY (SupermarketID) REFERENCES Supermarket(SupermarketID)
 );
 GO
 
--- Create BuyerOrderItem Table to store individual items in orders
-CREATE TABLE BuyerOrderItem (
+-- Create OrderItem Table to store individual items in orders
+CREATE TABLE OrderItem (
     OrderItemID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     OrderID UNIQUEIDENTIFIER NOT NULL,
     ItemID NVARCHAR(50) NOT NULL,
     ItemName NVARCHAR(255) NOT NULL,
     Quantity INT NOT NULL,
     Price DECIMAL(18, 2) NOT NULL,
-    FOREIGN KEY (OrderID) REFERENCES BuyerOrder(OrderID)
+    FOREIGN KEY (OrderID) REFERENCES Order(OrderID)
 );
 GO
 
@@ -74,16 +75,16 @@ CREATE TABLE SuperMarketOrder (
 );
 
 -- Create BuyerOrderItem Table to store individual items in orders
-CREATE TABLE SuperMarketOrderItem (
-    OrderItemID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    OrderID UNIQUEIDENTIFIER NOT NULL,
-    ItemID NVARCHAR(50) NOT NULL,
-    ItemName NVARCHAR(255) NOT NULL,
-    Quantity INT NOT NULL,
-    Price DECIMAL(18, 2) NOT NULL,
-    FOREIGN KEY (OrderID) REFERENCES SuperMarketOrder(OrderID)
-);
-GO
+-- CREATE TABLE SuperMarketOrderItem (
+--     OrderItemID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+--     OrderID UNIQUEIDENTIFIER NOT NULL,
+--     ItemID NVARCHAR(50) NOT NULL,
+--     ItemName NVARCHAR(255) NOT NULL,
+--     Quantity INT NOT NULL,
+--     Price DECIMAL(18, 2) NOT NULL,
+--     FOREIGN KEY (OrderID) REFERENCES SuperMarketOrder(OrderID)
+-- );
+-- GO
 
 -- Create ShoppingList Table
 CREATE TABLE ShoppingList (
@@ -199,35 +200,52 @@ GO
 
 
 -- Insert mock data into BuyerOrder and BuyerOrderItem
-INSERT INTO BuyerOrder (BuyerID, TotalAmount, SupermarketID, SessionId)
+INSERT INTO Order (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
 VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 27.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID()),
-((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 21.97, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID()),
-((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 38.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID()),
-((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 36.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID());
+((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 27.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), NULL),
+((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 21.97, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), NULL),
+((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 38.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), NULL),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 45.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), 'Pending'),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 35.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), 'Cancelled'),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 55.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Delivered'),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 65.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Delivered');
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 65.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Pending');
+((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 36.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), NULL);
 GO
 
-INSERT INTO BuyerOrderItem (OrderID, ItemID, ItemName, Quantity, Price)
+INSERT INTO OrderItem (OrderID, ItemID, ItemName, Quantity, Price)
 VALUES 
-((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 27.47), 'ITEM001', 'Apples', 3, 3.50),
-((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 21.97), 'ITEM002', 'Bananas', 5, 2.50),
-((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 38.47), 'ITEM003', 'Oranges', 4, 4.25),
-((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 36.96), 'ITEM004', 'Grapes', 2, 5.00);
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 27.47), 'ITEM001', 'Apples', 3, 3.50),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 21.97), 'ITEM002', 'Bananas', 5, 2.50),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 38.47), 'ITEM003', 'Oranges', 4, 4.25),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 36.96), 'ITEM004', 'Grapes', 2, 5.00),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 45.00), 'ITEM001', 'Apples', 5, 3.50),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 35.00), 'ITEM002', 'Bananas', 7, 2.50),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 55.00), 'ITEM003', 'Oranges', 6, 4.25),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM004', 'Grapes', 3, 5.00),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM005', 'Milk', 2, 2.49),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM006', 'Bread', 1, 1.50),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM007', 'Butter', 1, 3.99),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM008', 'Cheese', 2, 4.99),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM009', 'Chicken', 1, 5.99),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM010', 'Beef', 1, 8.99),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM011', 'Fish', 1, 7.99),
+((SELECT OrderID FROM Order WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM012', 'Eggs', 1, 2.99);
 GO
 
 -- Insert mock data into SuperMarketOrder and SuperMarketOrderItem
-INSERT INTO SuperMarketOrder (SupplierID, SupermarketID, TotalAmount, OrderStatus)
-VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 45.00, 'Pending'),
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 35.00, 'Pending'),
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 55.00, 'Pending'),
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 65.00, 'Pending');
-GO
+-- INSERT INTO SuperMarketOrder (SupplierID, SupermarketID, TotalAmount, OrderStatus)
+-- VALUES 
+-- ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 45.00, 'Pending'),
+-- ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 35.00, 'Pending'),
+-- ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 55.00, 'Pending'),
+-- ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 65.00, 'Pending');
+-- GO
 
-INSERT INTO SuperMarketOrderItem (OrderID, ItemID, ItemName, Quantity, Price)
-VALUES 
-((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 45.00), 'ITEM001', 'Apples', 5, 3.50),
-((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 35.00), 'ITEM002', 'Bananas', 7, 2.50),
-((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 55.00), 'ITEM003', 'Oranges', 6, 4.25),
-((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM004', 'Grapes', 3, 5.00);
-GO
+-- INSERT INTO SuperMarketOrderItem (OrderID, ItemID, ItemName, Quantity, Price)
+-- VALUES 
+-- ((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 45.00), 'ITEM001', 'Apples', 5, 3.50),
+-- ((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 35.00), 'ITEM002', 'Bananas', 7, 2.50),
+-- ((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 55.00), 'ITEM003', 'Oranges', 6, 4.25),
+-- ((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM004', 'Grapes', 3, 5.00);
+-- GO
