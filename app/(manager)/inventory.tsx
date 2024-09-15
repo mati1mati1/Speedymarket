@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Modal, Alert, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Modal, Alert, ScrollView, Dimensions, TouchableOpacity, Pressable } from 'react-native';
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
 import { ShopInventory } from '../../src/models';
 import { addShopInventory, getShopInventory, getSupermarketByUserId, updateShopInventory, deleteShopInventory } from '../../src/api/api';
 import { v4 as uuidv4 } from 'uuid'; // Ensure uuid is installed
 import ScanItem from '../../src/components/Scanner';
 import { useAuth } from '../../src/context/AuthContext';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);
@@ -147,11 +148,11 @@ export default function InventoryManagementScreen() {
     }
   };
 
-  const openAddItemModal = () => {
-    setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
-    setIsEditing(false);
-    setModalVisible(true);
-  };
+  // const openAddItemModal = () => {
+  //   setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+  //   setIsEditing(false);
+  //   setModalVisible(true);
+  // };
 
   const renderEditButton = (data: any, index: number) => (
     <View style={styles.buttonGroup}>
@@ -173,7 +174,7 @@ export default function InventoryManagementScreen() {
         value={filter}
         onChangeText={setFilter}
       />
-      <Button title="Add Item" onPress={openAddItemModal} />
+      {/* <Button title="Add Item" onPress={openAddItemModal} /> */}
 
       <ScrollView horizontal>
         <ScrollView>
@@ -215,6 +216,9 @@ export default function InventoryManagementScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalView}>
+            <Pressable onPress={() => {setModalVisible(false); setCurrentItem(null);} } style={styles.closeButton}>
+                <Icon name="close" size={24} color="red" />
+              </Pressable>
             {['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode'].map((placeholder, index) => (
               <View style={styles.inputContainer} key={index}>
                 <Text style={styles.label}>{placeholder}</Text>
@@ -232,13 +236,6 @@ export default function InventoryManagementScreen() {
               <Button
                 title={isEditing ? "Update Item" : "Add Item"}
                 onPress={isEditing ? handleEditItem : handleAddItem}
-              />
-              <Button
-                title="Cancel"
-                onPress={() => {
-                  setModalVisible(false);
-                  setCurrentItem(null);
-                }}
               />
               <Button
                 title="Scan Barcode"
@@ -311,24 +308,26 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
+    marginTop: 5,
     width: '100%',
   },
   label: {
     width: '30%',
-    textAlign: 'right',
-    paddingRight: 10,
+    textAlign: 'left',
+    paddingLeft: 100,
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
     width: '70%',
+    paddingRight: 50
   },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
+    width: '30%',
     marginTop: 20,
   },
   modalView: {
@@ -365,5 +364,9 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
+  },
+  closeButton: {
+    marginTop: 5,
+    alignSelf: 'flex-end',
   },
 });
