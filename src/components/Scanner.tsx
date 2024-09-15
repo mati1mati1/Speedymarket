@@ -47,7 +47,7 @@ const ScanItem: React.FC<ScanItemProps> = ({ handleData }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.statusText}>Status: {status}</Text>
+      <Text style={styles.statusText}>Status{status}</Text>
         <View style={styles.buttonContainer}>
           <RNEButton
             title=" Scan Barcode"

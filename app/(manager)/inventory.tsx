@@ -158,8 +158,12 @@ export default function InventoryManagementScreen() {
 
   const renderEditButton = (data: any, index: number) => (
     <View style={styles.buttonGroup}>
-      <Button title="Edit" onPress={() => handleEditClick(inventory[index])} />
-      <Button title="Delete" onPress={() => handleDeleteItem(inventory[index])} color="red" />
+      <Pressable style={styles.item} onPress={() => handleEditClick(inventory[index])} >
+              <Icon name="pencil" size={24} color="#0066FF" />
+      </Pressable>
+      <Pressable style={styles.deleteButton} onPress={() => handleDeleteItem(inventory[index])}>
+              <Icon name="trash" size={24} color="#FF6347" />
+      </Pressable>
     </View>
   );
 
@@ -185,8 +189,8 @@ export default function InventoryManagementScreen() {
               <Row
                 data={['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode', 'Actions']}
                 style={styles.head}
-                textStyle={styles.text}
-                widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7]}
+                textStyle={styles.headerText}
+                widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, 80]}
               />
               <TableWrapper style={styles.wrapper}>
                 <Rows
@@ -200,7 +204,7 @@ export default function InventoryManagementScreen() {
                     renderEditButton(null, inventory.indexOf(item))
                   ])}
                   textStyle={styles.text}
-                  widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7]}
+                  widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, 80]}
                 />
               </TableWrapper>
             </Table>
@@ -219,7 +223,7 @@ export default function InventoryManagementScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalView}>
             <Pressable onPress={() => {setModalVisible(false); setCurrentItem(null);} } style={styles.closeButton}>
-                <Icon name="close" size={24} color="red" />
+                <Icon name="close" size={24} color="#007bff" />
               </Pressable>
             {['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode'].map((placeholder, index) => (
               <View style={styles.inputContainer} key={index}>
@@ -288,18 +292,13 @@ export default function InventoryManagementScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalView}>
+            <Pressable onPress={() => setDeleteModalVisible(false)} style={styles.closeButton}>
+                <Icon name="close" size={24} color="#007bff" />
+            </Pressable>
             <Text style={styles.modalText}>Are you sure you want to delete this item?</Text>
-            <View style={styles.buttonRow}>
-              <Button
-                title="Delete"
-                onPress={confirmDeleteItem}
-                color="red"
-              />
-              <Button
-                title="Cancel"
-                onPress={() => setDeleteModalVisible(false)}
-              />
-            </View>
+              <Pressable style={[styles.modalButton, styles.deleteButton, styles.deleteButtonNoIcon]} onPress={confirmDeleteItem}>
+                <Text style={styles.buttonText}>Delete</Text>
+              </Pressable>
           </View>
         </View>
       </Modal>
@@ -315,13 +314,17 @@ const styles = StyleSheet.create({
   },
   tableContainer: {
     flex: 1,
-    padding: 16,
     paddingTop: 30,
     backgroundColor: '#fff',
   },
   head: {
     height: 50,
     backgroundColor: '#f1f8ff',
+  },
+  headerText: {
+    margin: 6,
+    textAlign: 'center',
+    fontWeight: 'bold'
   },
   wrapper: {
     flexDirection: 'row',
@@ -389,6 +392,7 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
+    fontWeight: 'bold'
   },
   closeButton: {
     marginTop: 5,
@@ -411,5 +415,29 @@ const styles = StyleSheet.create({
   buttonContainer: {
     alignSelf: 'flex-end',
     marginTop: 20,
-  }
+  },
+  deleteButton: {
+    padding: 10,
+    borderRadius: 5,
+  },
+  deleteButtonNoIcon: {
+    backgroundColor: 'red',
+    marginTop: 20,
+  },
+  item: {
+    padding: 10,
+    borderRadius: 5
+  },
+  modalButton: {
+    flex: 1,
+    padding: 10,
+    alignItems: 'center',
+    borderRadius: 5,
+    height: 40,
+    marginLeft: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
 });
