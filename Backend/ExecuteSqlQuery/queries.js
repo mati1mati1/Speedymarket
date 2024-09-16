@@ -288,14 +288,20 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
 
-  // const getOrdersBySupplierIdQuery = (userId) => ({
-  //   query: `
-  //     SELECT * FROM SuperMarketOrder WHERE SupplierID = @userId
-  //   `,
-  //   params: [
-  //     { name: 'userId', type: 'UniqueIdentifier', value: userId }
-  //   ]
-  // });
+  const registerUserQuery = (name, lastName, userName, password, email, phone) => ({
+    query: `
+      INSERT INTO [User] (UserID, FirstName, LastName, UserName, HashedPassword, Email, PhoneNumber, UserType)
+      VALUES (NEWID(), @name, @lastName, @userName, @password, @email, @phone, 'Buyer')
+    `,
+    params: [
+      { name: 'name', type: 'NVarChar', value: name },
+      { name: 'lastName', type: 'NVarChar', value: lastName },
+      { name: 'userName', type: 'NVarChar', value: userName },
+      { name: 'password', type: 'NVarChar', value: password },
+      { name: 'email', type: 'NVarChar', value: email },
+      { name: 'phone', type: 'NVarChar', value: phone }
+    ]
+  });
 
   const updateOrderStatusQuery = (orderId) => ({
     query: `
@@ -307,28 +313,9 @@ const getUserByIdQuery = (userId) => ({
       { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
     ]
   });
-
-  // const getOrdersBySuperMarketIdQuery = (supermarketId) => ({
-  //   query: `
-  //     SELECT * FROM SuperMarketOrder WHERE SupermarketID = @supermarketId
-  //   `,
-  //   params: [
-  //     { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
-  //   ]
-  // });
-
-  // const getDetailsForSuperMarketOrderQuery = (orderId) => ({
-  //   query: `
-  //     SELECT * FROM SuperMarketOrderItem WHERE OrderID = @orderId
-  //   `,
-  //   params: [
-  //     { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
-  //   ]
-  // });
   
   module.exports = {
-    // getDetailsForSuperMarketOrderQuery,
-    // getOrdersBySuperMarketIdQuery,
+    registerUserQuery,
     getOrderByBuyerIdAndOrderIdQuery,
     getOrderDetailsByIdQuery,
     createPurchaseQuery,
@@ -354,7 +341,6 @@ const getUserByIdQuery = (userId) => ({
     deleteShopInventoryQuery,
     updateSupermarketDetailsQuery,
     getOrderDetailsByOrderIdQuery,
-    // getOrdersBySupplierIdQuery,
     updateOrderStatusQuery
   };
   

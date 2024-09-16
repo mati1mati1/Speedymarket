@@ -2,6 +2,7 @@ const sql = require('mssql');
 const jwt = require('jsonwebtoken');
 const queries = require('./queries'); 
 const axios = require('axios');
+const crypto = require('crypto');
 
 const getQueryByName = async (functionName, params) => {
     console.log("this is the params in the index of the function: " + JSON.stringify(params));
@@ -70,11 +71,15 @@ const getQueryByName = async (functionName, params) => {
         //     return queries.getDetailsForSuperMarketOrderQuery(params.orderId);
         case 'updateOrderStatus':
             return queries.updateOrderStatusQuery(params.orderId);
+        case 'registerUser':
+            const inputHash = crypto.createHash('sha256').update(params.password).digest('hex');
+            return queries.registerUserQuery(params.name, params.lastName, params.userName, inputHash, params.email, params.phone);
         default:
             throw new Error('Invalid function name');
     }
 };
 
+  
 async function getCoordinatesFromAzureMaps(address) {
     const response = await axios.get(`https://atlas.microsoft.com/search/address/json`, {
       params: {
@@ -101,8 +106,47 @@ module.exports = async function (context, req) {
     const token = req.headers.authorization?.split(' ')[1];
     const functionName = req.body.functionName;
     const params = req.body.params;
-    console.log("params: " + JSON.stringify(params));
-    console.log("0000000000000000000000000000000000000000000000000000")
+    if (functionName === 'registerUser'){
+        try {
+            const config = {
+                user: 'SA',
+                password: 'Aa123456',
+                server: 'localhost',
+                port: 1433,
+                database: 'MySuperMarketDb',
+                options: {
+                    encrypt: false 
+                }
+            };
+
+            await sql.connect(config);
+            const request = new sql.Request();
+            const queryObject = await getQueryByName(functionName, params);
+            request.input('name', sql.NVarChar, params.name);
+            request.input('lastName', sql.NVarChar, params.lastName);
+            request.input('userName', sql.NVarChar, params.userName);
+            request.input('email', sql.NVarChar, params.email);
+            request.input('phone', sql.NVarChar, params.phone);
+            let inputHash = crypto.createHash('sha256').update(params.password).digest('hex');
+            request.input('password', sql.NVarChar, inputHash);
+            const result = await request.query(queryObject.query);
+            context.res = {
+                status: 200,
+                body: result.recordset
+            };
+        } catch (err) {
+            context.log('Error executing SQL query:', err);
+
+            context.res = {
+                status: 500,
+                body: `Error: ${err.message}`
+            };
+            
+        } finally {
+            sql.close();
+            return;
+        }
+    } else {
     if (!token) {
         context.res = {
             status: 401,
@@ -136,9 +180,7 @@ module.exports = async function (context, req) {
 
         await sql.connect(config);
         const request = new sql.Request();
-        console.log("userID" + decoded.userId);
         const queryObject = await getQueryByName(functionName, params);
-        console.log(queryObject.query);
         for (const param of queryObject.params) {
             if(param.name === 'userId' || param.name === 'buyerId' || param.name === 'sellerId'){
                 request.input(param.name, sql[param.type], decoded.userId);
@@ -150,8 +192,6 @@ module.exports = async function (context, req) {
                 request.input(param.name, sql[param.type], param.value);
             }
         }
-        context.log('SQL Query:', queryObject.query);
-        context.log('SQL Query Parameters:', queryObject.params);
         const result = await request.query(queryObject.query);
 
         context.log('SQL Query Result:', result.recordset);
@@ -178,5 +218,6 @@ module.exports = async function (context, req) {
         }
     } finally {
         sql.close();
+    }
     }
 };
