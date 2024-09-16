@@ -157,8 +157,8 @@ export const getOrdersBySuperMarketId = async ( supermarketId: string): Promise<
 //   return await executeDbFunction<SupplierOrder>( 'getDetailsForSuperMarketOrder', { orderId });
 // }
 
-export const updateOrderStatus = async ( orderId: string, status: string): Promise<void> => {
-  return await executeDbFunction<void>( 'updateOrderStatus', { orderId, status });
+export const updateOrderStatus = async ( orderId: string): Promise<void> => {
+  return await executeDbFunction<void>( 'updateOrderStatus', { orderId });
 };
 
 interface AIResponse {

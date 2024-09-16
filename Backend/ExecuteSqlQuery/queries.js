@@ -297,15 +297,14 @@ const getUserByIdQuery = (userId) => ({
   //   ]
   // });
 
-  const updateOrderStatusQuery = (orderId, status) => ({
+  const updateOrderStatusQuery = (orderId) => ({
     query: `
-      UPDATE Order
-      SET OrderStatus = @status
+      UPDATE [Order]
+      SET OrderStatus = 'Shipped'
       WHERE OrderID = @orderId
     `,
     params: [
-      { name: 'orderId', type: 'UniqueIdentifier', value: orderId },
-      { name: 'status', type: 'NVarChar', value: status }
+      { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
     ]
   });
 

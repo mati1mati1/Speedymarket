@@ -10,6 +10,9 @@ import Toast from 'react-native-toast-message';
 import { ProductsList } from 'src/models';
 import { ScrollView } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {updateOrderStatus} from 'src/api/api';
+
+
 type OrderProps = {
     orderID: string;
     supermarketID: string;
@@ -33,37 +36,6 @@ const demoData: ProductsList[] = [
 const logoPicture = ["https://i.ibb.co/Xt5bGQs/logo1.png","https://i.ibb.co/qrzSSWz/logo2.jpg","https://i.ibb.co/t2czvMG/logo3.png","https://i.ibb.co/x5xYM8Z/logo4.webp"]
 
 const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status }) => {
-    const [modalVisible, setModalVisible] = useState(false);
-    const [products, setProducts] = useState<ProductsList[]>(demoData);
-    const [loading, setLoading] = useState(false);
-
-    const handleOpenDetailsModal = () => {
-        setLoading(true);
-        getOrderDetailsByOrderId(orderID)
-            .then((response) => {
-                console.log(response);
-                setLoading(false);
-                setModalVisible(true);
-                setProducts(response);
-            })
-            .catch((error) => {
-                // Toast.show({
-                //     type: 'error',
-                //     position: 'bottom',
-                //     text1: 'Error',
-                //     text2: 'An error occurred while fetching order details',
-                //     visibilityTime: 3000,
-                //     autoHide: true,
-                // });
-                setModalVisible(true);
-            });
-            setLoading(false);
-    };
-
-    const handleCloseModal = () => {
-        //make a api call to update the status of the order and make sure to reflect this in fornt end
-        setModalVisible(false);
-    };
     const getIcon = (status: string) => {
         switch (status) {
           case 'Shipped':
@@ -73,11 +45,58 @@ const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status 
           case 'Cancelled':
             return '❌';
           case 'Pending':
-            return '🕒';
+            return '⏳';
           default:
             console.log("thefuck");
             return '❌';
         }
+    }
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [products, setProducts] = useState<ProductsList[]>(demoData);
+    const [loading, setLoading] = useState(false);
+    const [isPending, setIsPending] = useState(status === 'Pending');
+    const [icon, setIcon] = useState(getIcon(status));
+    const handleOpenDetailsModal = () => {
+        setLoading(true);
+        getOrderDetailsByOrderId(orderID)
+            .then((response) => {
+                // console.log(response);
+                setLoading(false);
+                setModalVisible(true);
+                setProducts(response);
+            })
+            .catch((error) => {
+                setModalVisible(true);
+            });
+            setLoading(false);
+    };
+
+    const handleCloseModal = () => {
+        //make a api call to update the status of the order and make sure to reflect this in fornt end
+        setModalVisible(false);
+    };
+
+    const handleStatusChange = () => {
+        try {
+            updateOrderStatus(orderID);
+            Toast.show({
+                type: 'success',
+                text1: 'Status Updated',
+                text2: 'Order Sent!'
+            })
+            setIcon('🚚');
+            setModalVisible(false);
+            setIsPending(false);
+          } catch (error) {
+            console.log(error);
+            //indicate to the user that we had a problem:
+            Toast.show({
+                type: 'error',
+                text1: 'Sending failed',
+                text2: 'Please check later.',
+            });
+          }
     }
 
     const getSuperMarketLogo = (supermarketID : string) => {
@@ -99,10 +118,9 @@ const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status 
         <View style={styles.card}>
             <Card>
             <Card.Title>
-                <Toast/>            
                 <View style={{ display:'flex',flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                     <Text>Order #{orderID}</Text>
-                    <Text>{getIcon(status)}</Text>
+                    <Text>{icon}</Text>
                 </View>
             </Card.Title>
             <Card.Divider />
@@ -135,6 +153,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status 
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalView}>
+                        <Toast/>
                     <View style={styles.titleContainer}>
                         <Text style={styles.modalTitle}>Order #{orderID} Details</Text>
                         <Pressable style={styles.closeButton1}  onPress={handleCloseModal}>
@@ -157,9 +176,11 @@ const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status 
                             ))}
                         </View>
                         </ScrollView>
-                        <Pressable style={styles.saveButton} onPress={handleCloseModal}>
-                            <Text style={styles.buttonText}>Change Status</Text>
-                        </Pressable>
+                        {isPending && (
+                            <Pressable style={styles.saveButton} onPress={handleStatusChange}>
+                                <Text style={styles.buttonText}>Send Order</Text>
+                            </Pressable>
+                        )}
                     </View>
                 </View>
             </Modal>

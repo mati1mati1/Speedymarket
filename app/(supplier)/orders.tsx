@@ -30,13 +30,12 @@ export default function SupplierScreen() {
         throw new Error('Token is missing');
       }
         getOrdersBySupplierId().then((response) => {
-        console.log(response);
+        // console.log(response);
         setOrders(parseData(response));
       });
     } catch (error) {
       console.log(error);
     }
-    // setOrders(demoData);
     setLoading(false);
   }, []);
 

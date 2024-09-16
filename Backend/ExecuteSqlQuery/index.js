@@ -69,7 +69,7 @@ const getQueryByName = async (functionName, params) => {
         // case 'getDetailsForSuperMarketOrderQuery':
         //     return queries.getDetailsForSuperMarketOrderQuery(params.orderId);
         case 'updateOrderStatus':
-            return queries.updateOrderStatusQuery(params.orderId, params.status);
+            return queries.updateOrderStatusQuery(params.orderId);
         default:
             throw new Error('Invalid function name');
     }
