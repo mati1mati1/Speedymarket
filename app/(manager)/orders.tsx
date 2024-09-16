@@ -3,21 +3,18 @@ import { View, Text, FlatList, TouchableOpacity, Modal, TextInput, Button, Style
 import { Button as RNEButton } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Picker } from '@react-native-picker/picker'; 
-
+import { getAllSuppliers, getSupplierInventory } from '../../src/api/api';
+import { SupplierInventory, User } from '../../src/models';
 
 export default function OrderManagementScreen() {
   const [orders, setOrders] = useState<any>([]);
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] = useState<string>('');
-  const [inventory, setInventory] = useState<any>([]); 
+  const [selectedSupplier, setSelectedSupplier] = useState<User | null>(null);
+  const [inventory, setInventory] = useState<SupplierInventory[]>([]); 
   const [selectedItems, setSelectedItems] = useState<{ id: number; qty: number }[]>([]);
 // Supplier mock data
-const [suppliers, setSuppliers] = useState([
-  { id: 1, name: 'Supplier 1' },
-  { id: 2, name: 'Supplier 2' },
-  { id: 3, name: 'Supplier 3' },
-]);
+const [suppliers, setSuppliers] = useState<User[]>([]);
 
   useEffect(() => {
     // Mock data for orders
@@ -25,6 +22,16 @@ const [suppliers, setSuppliers] = useState([
       { id: 1, name: 'Order 1', totalAmount: 200, dateCreated: '01-09-2023', status: 'Pending', items: [{ name: 'Item A', qty: 2, price: 50 }, { name: 'Item B', qty: 1, price: 100 }] },
       { id: 2, name: 'Order 2', totalAmount: 300, dateCreated: '10-09-2023', status: 'Shipped', items: [{ name: 'Item C', qty: 3, price: 100 }] },
     ]);
+
+    const fetchSuppliers = async () => {
+      try {  
+        let suppliers = await getAllSuppliers();
+        setSuppliers(suppliers);
+      } catch(e) {
+        console.log(e);
+      }
+    };
+    fetchSuppliers();
   }, []);
 
   const handleOrderExpand = (orderId: number) => {
@@ -36,38 +43,40 @@ const [suppliers, setSuppliers] = useState([
     setSelectedItems([]);
   };
 
-  const handleSupplierSelect = (supplier: string) => {
+  const handleSupplierSelect = async (supplier: User | null) => {
     setSelectedSupplier(supplier);
     // Mock supplier inventory
-    if (supplier != '') {
-      setInventory([
-        { id: 1, name: 'Item X', price: 50 },
-        { id: 2, name: 'Item Y', price: 75 },
-        { id: 3, name: 'Item Z', price: 100 },
-        { id: 1, name: 'Item X', price: 50 },
-        { id: 2, name: 'Item Y', price: 75 },
-        { id: 3, name: 'Item Z', price: 100 },
-        { id: 1, name: 'Item X', price: 50 },
-        { id: 2, name: 'Item Y', price: 75 },
-        { id: 3, name: 'Item Z', price: 100 },
-        { id: 1, name: 'Item X', price: 50 },
-        { id: 2, name: 'Item Y', price: 75 },
-        { id: 3, name: 'Item Z', price: 100 },
-        { id: 1, name: 'Item X', price: 50 },
-        { id: 2, name: 'Item Y', price: 75 },
-        { id: 3, name: 'Item Z', price: 100 },
-      ]);
+    if (supplier != null) {
+      let inventory = await getSupplierInventory(supplier.UserID);
+      setInventory(inventory);
+      // setInventory([
+      //   { id: 1, name: 'Item X', price: 50 },
+      //   { id: 2, name: 'Item Y', price: 75 },
+      //   { id: 3, name: 'Item Z', price: 100 },
+      //   { id: 1, name: 'Item X', price: 50 },
+      //   { id: 2, name: 'Item Y', price: 75 },
+      //   { id: 3, name: 'Item Z', price: 100 },
+      //   { id: 1, name: 'Item X', price: 50 },
+      //   { id: 2, name: 'Item Y', price: 75 },
+      //   { id: 3, name: 'Item Z', price: 100 },
+      //   { id: 1, name: 'Item X', price: 50 },
+      //   { id: 2, name: 'Item Y', price: 75 },
+      //   { id: 3, name: 'Item Z', price: 100 },
+      //   { id: 1, name: 'Item X', price: 50 },
+      //   { id: 2, name: 'Item Y', price: 75 },
+      //   { id: 3, name: 'Item Z', price: 100 },
+      // ]);
     }
   };
 
-  const handleItemSelect = (itemId: number, qty: number) => {
-    setSelectedItems((prevItems) => {
-      const existingItem = prevItems.find(item => item.id === itemId);
-      if (existingItem) {
-        return prevItems.map(item => item.id === itemId ? { ...item, qty } : item);
-      }
-      return [...prevItems, { id: itemId, qty }];
-    });
+  const handleItemSelect = (itemId: string, qty: number) => {
+    // setSelectedItems((prevItems) => {
+    //   const existingItem = prevItems.find(item => item.id === itemId);
+    //   if (existingItem) {
+    //     return prevItems.map(item => item.id === itemId ? { ...item, qty } : item);
+    //   }
+    //   return [...prevItems, { id: itemId, qty }];
+    // });
   };
 
   const getStatusWithIcon = (orderStatus: string) => {
@@ -146,20 +155,20 @@ const [suppliers, setSuppliers] = useState([
                 onPress={handleAddOrder}        
       />  
 
-      <Modal visible={modalVisible} animationType="slide" onRequestClose={() => {setModalVisible(false); setSelectedSupplier(''); setInventory([])}}>
-        <Pressable onPress={() => {setModalVisible(false); setSelectedSupplier(''); setInventory([])}} style={styles.closeButton}>
+      <Modal visible={modalVisible} animationType="slide" onRequestClose={() => {setModalVisible(false); setSelectedSupplier(null); setInventory([])}}>
+        <Pressable onPress={() => {setModalVisible(false); setSelectedSupplier(null); setInventory([])}} style={styles.closeButton}>
           <Icon name="close" size={24} color="#007bff" />
         </Pressable>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Create New Order</Text>
           <Picker
               selectedValue={selectedSupplier}
-              onValueChange={(itemValue) => handleSupplierSelect(itemValue)}
+              onValueChange={(supplier) => handleSupplierSelect(supplier)}
               style={styles.picker}
             >
             <Picker.Item label="Select a supplier" value={null} />
             {suppliers.map((supplier) => (
-            <Picker.Item key={supplier.id} label={supplier.name} value={supplier.id} />
+            <Picker.Item key={supplier.UserID} label={supplier.FirstName +" " + supplier.LastName} value={supplier.UserID} />
             ))}
           </Picker>
 
@@ -169,12 +178,12 @@ const [suppliers, setSuppliers] = useState([
 
     <ScrollView style={styles.inventoryScroll}>
       {inventory.map((item) => (
-        <View key={item.id} style={styles.inventoryItem}>
-          <Text>{item.name} - Price: ${item.price}</Text>
+        <View key={item.InventoryID} style={styles.inventoryItem}>
+          <Text>{item.ItemName} - Price: ${item.Price}</Text>
           <TextInput
             placeholder="Qty"
             keyboardType="numeric"
-            onChangeText={(qty) => handleItemSelect(item.id, parseInt(qty))}
+            onChangeText={(qty) => handleItemSelect(item.InventoryID, parseInt(qty))}
             style={styles.qtyInput}
           />
         </View>
@@ -188,7 +197,7 @@ const [suppliers, setSuppliers] = useState([
                     <Icon name="save" size={20} color="#fff" />
                 }
                 buttonStyle={[styles.blueButton, { marginTop: 20}]}
-                onPress={() => {setModalVisible(false); setSelectedSupplier(''); setInventory([])}}        
+                onPress={() => {setModalVisible(false); setSelectedSupplier(null); setInventory([])}}        
           />
         </View>
       </Modal>

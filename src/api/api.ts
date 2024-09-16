@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem } from '../models';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem, SupplierInventory } from '../models';
 import { getToken } from 'src/context/AuthContext'; 
 
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
@@ -145,6 +145,13 @@ export const deleteShopInventory = async ( inventoryId: string): Promise<void> =
   return await executeDbFunction<void>( 'deleteShopInventory', { inventoryId });
 };
 
+export const getAllSuppliers = async (): Promise<User[]> => {
+  return await executeDbFunction<User[]>('getAllSuppliers', {});
+}
+
+export const getSupplierInventory = async ( supplierId: string ): Promise<SupplierInventory[]> => {
+  return await executeDbFunction<SupplierInventory[]>('getSupplierInventory', { supplierId });
+}
   
 interface AIResponse {
   success: boolean;

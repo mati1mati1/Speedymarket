@@ -12,7 +12,7 @@ CREATE TABLE [User] (
     LastName NVARCHAR(100) NOT NULL,
     Email NVARCHAR(100) NOT NULL,
     PhoneNumber NVARCHAR(15),
-    UserType NVARCHAR(50) NOT NULL -- Buyer or Seller
+    UserType NVARCHAR(50) NOT NULL -- Buyer or Seller or Supplier
 );
 GO
 
@@ -37,29 +37,54 @@ CREATE TABLE Supermarket (
 GO
 
 -- Create BuyerOrder Table
-CREATE TABLE BuyerOrder (
+CREATE TABLE [Order] (
     OrderID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    BuyerID UNIQUEIDENTIFIER NOT NULL,
+    UserID UNIQUEIDENTIFIER NOT NULL,
     TotalAmount DECIMAL(18, 2) NOT NULL,
     CreationDate DATETIME DEFAULT GETDATE() NOT NULL,
     SupermarketID UNIQUEIDENTIFIER NOT NULL,
     SessionId NVARCHAR(250) UNIQUE,
-    FOREIGN KEY (BuyerID) REFERENCES [User](UserID),
+    OrderStatus NVARCHAR(50),
+    FOREIGN KEY (UserID) REFERENCES [User](UserID),
     FOREIGN KEY (SupermarketID) REFERENCES Supermarket(SupermarketID)
 );
 GO
 
--- Create BuyerOrderItem Table to store individual items in orders
-CREATE TABLE BuyerOrderItem (
+-- Create OrderItem Table to store individual items in orders
+CREATE TABLE OrderItem (
     OrderItemID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     OrderID UNIQUEIDENTIFIER NOT NULL,
     ItemID NVARCHAR(50) NOT NULL,
     ItemName NVARCHAR(255) NOT NULL,
     Quantity INT NOT NULL,
     Price DECIMAL(18, 2) NOT NULL,
-    FOREIGN KEY (OrderID) REFERENCES BuyerOrder(OrderID)
+    FOREIGN KEY (OrderID) REFERENCES [Order](OrderID)
 );
 GO
+
+-- --Create SuperMarketOrder Table
+-- CREATE TABLE SuperMarketOrder (
+--     OrderID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+--     SupplierID UNIQUEIDENTIFIER NOT NULL,
+--     SupermarketID UNIQUEIDENTIFIER NOT NULL,
+--     TotalAmount DECIMAL(18, 2) NOT NULL,
+--     CreationDate DATETIME DEFAULT GETDATE() NOT NULL,
+--     OrderStatus NVARCHAR(50) NOT NULL,
+--     FOREIGN KEY (SupplierID) REFERENCES [User](UserID),
+--     FOREIGN KEY (SupermarketID) REFERENCES Supermarket(SupermarketID)
+-- );
+
+-- Create BuyerOrderItem Table to store individual items in orders
+-- CREATE TABLE SuperMarketOrderItem (
+--     OrderItemID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+--     OrderID UNIQUEIDENTIFIER NOT NULL,
+--     ItemID NVARCHAR(50) NOT NULL,
+--     ItemName NVARCHAR(255) NOT NULL,
+--     Quantity INT NOT NULL,
+--     Price DECIMAL(18, 2) NOT NULL,
+--     FOREIGN KEY (OrderID) REFERENCES SuperMarketOrder(OrderID)
+-- );
+-- GO
 
 -- Create ShoppingList Table
 CREATE TABLE ShoppingList (
@@ -94,6 +119,16 @@ CREATE TABLE ShopInventory (
 );
 GO
 
+-- Create SupplierInventory Table
+CREATE TABLE SupplierInventory (
+    InventoryID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserID UNIQUEIDENTIFIER NOT NULL,
+    ItemName NVARCHAR(50) NOT NULL,
+    Price DECIMAL(18, 2) NOT NULL,
+    FOREIGN KEY (UserID) REFERENCES [User](UserID)
+);
+GO
+
 -- Create ESP32Position Table
 CREATE TABLE ESP32Position (
     ESP32ID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
@@ -110,40 +145,11 @@ VALUES
 ('johndoe', 'John', 'Doe', 'john.doe@example.com', '123-456-7890', 'Buyer'),
 ('mikejohnson', 'Mike', 'Johnson', 'mike.johnson@example.com', '123-456-7891', 'Buyer'),
 ('janesmith', 'Jane', 'Smith', 'jane.smith@example.com', '123-456-7892', 'Seller'),
+('talsabel', 'Tal', 'Sabel', 'tal@example.com', '123-456-7893', 'Supplier'),
 ('emilydavis', 'Emily', 'Davis', 'emily@example.com', '987-456-7893', 'Seller');
 GO
 
 
--- Insert mock data into Supermarket table using the UserID of sellers
--- INSERT INTO Supermarket 
---     (UserID, BranchName, BranchMap, WiFiPassword, WiFiSSID, Country, City, Street, StreetNumber, Latitude, Longitude)
--- VALUES 
--- (
---     (SELECT UserID FROM [User] WHERE Email = 'jane.smith@example.com'), 
---     'Main Street Store', 
---     '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"name":"מדף","left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"name":"מדף","left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"name":"מדף","left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"name":"מדף","left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"name":"מדף","left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"name":"מדף","left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"name":"מדף","left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"name":"מדף","left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"name":"מדף","left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"name":"מדף","left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"name":"מדף","left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"name":"מדף","left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"name":"מדף","left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"name":"מדף","left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 
---     'supermarket_password', 
---     'supermarket_ssid', 
---     '{"id":106,"iso2":"IL","name":"Israel"', 
---     '{"name":"Tel Aviv","id":57564}',
---     '{"id":154741757,"name":"נצח ישראל"}', 
---     '11', 
---     32.07773, 
---      34.77969
--- ),
--- (
---     (SELECT UserID FROM [User] WHERE Email = 'emily.davis@example.com'), 
---     'Market Plaza', 
---     '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"name":"מדף","left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"name":"מדף","left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"name":"מדף","left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"name":"מדף","left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"name":"מדף","left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"name":"מדף","left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"name":"מדף","left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"name":"מדף","left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"name":"מדף","left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"name":"מדף","left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"name":"מדף","left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"name":"מדף","left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"name":"מדף","left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"name":"מדף","left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 
---     'market_password', 
---     'supermarket_ssid', 
---     '{"id":106,"iso2":"IL","name":"Israel"', 
---     '{"name":"Tel Aviv","id":57564}',
---     '{"id":154741757,"name":"שדרות רוטשילד"}', 
---     '10', 
---     32.06662, 
---     34.77745
--- );
 INSERT INTO Supermarket (UserID, BranchName, Barcode, Country, City, Street, StreetNumber, BranchMap, Latitude, Longitude, WiFiPassword, WiFiSSID)
 VALUES 
 ((SELECT UserID FROM [User] WHERE UserName = 'janesmith'), 'Main Street Store', '123456789', 'USA', 'New York', 'Main Street', '100', 'Map1', 40.7128, -74.0060, 'password123', 'MainStreetWiFi'),
@@ -160,15 +166,6 @@ UPDATE Supermarket
 SET OperatingHours = '[{"day":"Sunday","openHour":"09:00","closeHour":"18:00"},{"day":"Monday","openHour":"09:00","closeHour":"18:00"},{"day":"Tuesday","openHour":"09:00","closeHour":"18:00"},{"day":"Wednesday","openHour":"09:00","closeHour":"18:00"},{"day":"Thursday","openHour":"09:00","closeHour":"18:00"},{"day":"Friday","openHour":"09:00","closeHour":"18:00"},{"day":"Saturday","openHour":"09:00","closeHour":"18:00"}]'
 WHERE BranchName = 'Market Plaza';
 GO
-
--- Update Supermarket table with default operating hours and location details
--- UPDATE Supermarket
--- SET OperatingHours = '[{"day":"Sunday","openHour":"08:00","closeHour":"20:00"},{"day":"Monday","openHour":"08:00","closeHour":"20:00"},{"day":"Tuesday","openHour":"08:00","closeHour":"20:00"},{"day":"Wednesday","openHour":"08:00","closeHour":"20:00"},{"day":"Thursday","openHour":"08:00","closeHour":"20:00"},{"day":"Friday","openHour":"08:00","closeHour":"20:00"},{"day":"Saturday","openHour":"08:00","closeHour":"20:00"}]',
---     Country = 'Unknown',
---     City = 'Unknown',
---     Street = 'Unknown',
---     StreetNumber = '0';
--- GO
 
 -- Insert mock data into ShopInventory
 INSERT INTO ShopInventory (SupermarketID, ItemName, Quantity, Price, Discount, Location, Barcode)
@@ -214,20 +211,93 @@ GO
 
 
 -- Insert mock data into BuyerOrder and BuyerOrderItem
-INSERT INTO BuyerOrder (BuyerID, TotalAmount, SupermarketID, SessionId)
+INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
 VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 27.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID()),
-((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 21.97, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID()),
-((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 38.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID()),
-((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 36.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID());
+((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 27.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), NULL);
+
+INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
+VALUES 
+((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 21.97, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), NULL);
+
+INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
+VALUES 
+((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 38.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), NULL);
+
+INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
+VALUES 
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 45.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), 'Pending');
+
+INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
+VALUES 
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 35.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), 'Cancelled');
+
+INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
+VALUES 
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 55.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Delivered');
+
+INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
+VALUES 
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 65.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Delivered');
+
+INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
+VALUES 
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 65.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Pending');
+
+INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
+VALUES 
+((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 36.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), NULL);
+
 GO
 
-INSERT INTO BuyerOrderItem (OrderID, ItemID, ItemName, Quantity, Price)
+
+INSERT INTO OrderItem (OrderID, ItemID, ItemName, Quantity, Price)
 VALUES 
-((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 27.47), 'ITEM001', 'Apples', 3, 3.50),
-((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 21.97), 'ITEM002', 'Bananas', 5, 2.50),
-((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 38.47), 'ITEM003', 'Oranges', 4, 4.25),
-((SELECT OrderID FROM BuyerOrder WHERE BuyerID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 36.96), 'ITEM004', 'Grapes', 2, 5.00);
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 27.47 ORDER BY OrderID), 'ITEM001', 'Apples', 3, 3.50),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 21.97 ORDER BY OrderID), 'ITEM002', 'Bananas', 5, 2.50),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 38.47 ORDER BY OrderID), 'ITEM003', 'Oranges', 4, 4.25),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 36.96 ORDER BY OrderID), 'ITEM004', 'Grapes', 2, 5.00),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 45.00 ORDER BY OrderID), 'ITEM001', 'Apples', 5, 3.50),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 35.00 ORDER BY OrderID), 'ITEM002', 'Bananas', 7, 2.50),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 55.00 ORDER BY OrderID), 'ITEM003', 'Oranges', 6, 4.25),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM004', 'Grapes', 3, 5.00),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM005', 'Milk', 2, 2.49),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM006', 'Bread', 1, 1.50),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM007', 'Butter', 1, 3.99),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM008', 'Cheese', 2, 4.99),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM009', 'Chicken', 1, 5.99),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM010', 'Beef', 1, 8.99),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM011', 'Fish', 1, 7.99),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM012', 'Eggs', 1, 2.99);
+
 GO
 
+INSERT INTO SupplierInventory (UserID, ItemName, Price)
+VALUES 
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Apples', 2.99),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Bananas', 1.49),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Oranges', 3.25),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Grapes', 4.75),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Strawberries', 5.99),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Mangoes', 2.50),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Peaches', 3.10),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Blueberries', 4.99),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Cherries', 6.49),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Watermelon', 7.99);
+GO
 
+-- Insert mock data into SuperMarketOrder and SuperMarketOrderItem
+-- INSERT INTO SuperMarketOrder (SupplierID, SupermarketID, TotalAmount, OrderStatus)
+-- VALUES 
+-- ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 45.00, 'Pending'),
+-- ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), 35.00, 'Pending'),
+-- ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 55.00, 'Pending'),
+-- ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), 65.00, 'Pending');
+-- GO
+
+-- INSERT INTO SuperMarketOrderItem (OrderID, ItemID, ItemName, Quantity, Price)
+-- VALUES 
+-- ((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 45.00), 'ITEM001', 'Apples', 5, 3.50),
+-- ((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 35.00), 'ITEM002', 'Bananas', 7, 2.50),
+-- ((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 55.00), 'ITEM003', 'Oranges', 6, 4.25),
+-- ((SELECT OrderID FROM SuperMarketOrder WHERE SupplierID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00), 'ITEM004', 'Grapes', 3, 5.00);
+-- GO

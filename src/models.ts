@@ -102,3 +102,10 @@ export interface  dailyHours{
   closeHour: string;
   
 }
+
+export interface SupplierInventory {
+  InventoryID: string;
+  UserID: string;
+  ItemName: string;
+  Price: number;
+}

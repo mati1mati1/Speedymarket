@@ -277,7 +277,19 @@ const getUserByIdQuery = (userId) => ({
       { name: 'inventoryId', type: 'UniqueIdentifier', value: inventoryId }
     ]
   });
+
+  const getAllSuppliersQuery = () => ({
+    query: `SELECT * FROM [User] WHERE UserType = 'Supplier'`,
+    params: []
+  });
   
+  const getSupplierInventoryBySupplierIdQuery = (supplierId) => ({
+    query: `SELECT * FROM SupplierInventory WHERE UserID = @supplierId`,
+    params: [
+      { name: 'supplierId', type: 'UniqueIdentifier', value: supplierId }
+    ]
+  }); 
+
   module.exports = {
     getOrderByBuyerIdAndOrderIdQuery,
     getOrderDetailsByIdQuery,
@@ -302,6 +314,8 @@ const getUserByIdQuery = (userId) => ({
     addShopInventoryQuery,
     updateShopInventoryQuery,
     deleteShopInventoryQuery,
-    updateSupermarketDetailsQuery
+    updateSupermarketDetailsQuery,
+    getAllSuppliersQuery,
+    getSupplierInventoryBySupplierIdQuery
   };
   
