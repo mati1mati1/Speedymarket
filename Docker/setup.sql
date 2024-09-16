@@ -12,7 +12,8 @@ CREATE TABLE [User] (
     LastName NVARCHAR(100) NOT NULL,
     Email NVARCHAR(100) NOT NULL,
     PhoneNumber NVARCHAR(15),
-    UserType NVARCHAR(50) NOT NULL -- Buyer or Seller or Supplier
+    UserType NVARCHAR(50) NOT NULL, -- Buyer or Seller or Supplier
+    HashedPassword NVARCHAR(255) NOT NULL
 );
 GO
 
@@ -130,15 +131,14 @@ CREATE TABLE ESP32Position (
 );
 GO
 
-INSERT INTO [User] (UserName, FirstName, LastName, Email, PhoneNumber, UserType)
+INSERT INTO [User] (UserName, FirstName, LastName, Email, PhoneNumber, UserType, HashedPassword)
 VALUES 
-('johndoe', 'John', 'Doe', 'john.doe@example.com', '123-456-7890', 'Buyer'),
-('mikejohnson', 'Mike', 'Johnson', 'mike.johnson@example.com', '123-456-7891', 'Buyer'),
-('janesmith', 'Jane', 'Smith', 'jane.smith@example.com', '123-456-7892', 'Seller'),
-('talsabel', 'Tal', 'Sabel', 'tal@example.com', '123-456-7893', 'Supplier'),
-('emilydavis', 'Emily', 'Davis', 'emily@example.com', '987-456-7893', 'Seller');
+('johndoe', 'John', 'Doe', 'john.doe@example.com', '123-456-7890', 'Buyer', CONVERT(VARCHAR(255), HASHBYTES('SHA2_256', '111'), 2)),
+('mikejohnson', 'Mike', 'Johnson', 'mike.johnson@example.com', '123-456-7891', 'Buyer', CONVERT(VARCHAR(255), HASHBYTES('SHA2_256', '222'), 2)),
+('janesmith', 'Jane', 'Smith', 'jane.smith@example.com', '123-456-7892', 'Seller', CONVERT(VARCHAR(255), HASHBYTES('SHA2_256', '333'), 2)),
+('talsabel', 'Tal', 'Sabel', 'tal@example.com', '123-456-7893', 'Supplier', CONVERT(VARCHAR(255), HASHBYTES('SHA2_256', '444'), 2)),
+('emilydavis', 'Emily', 'Davis', 'emily@example.com', '987-456-7893', 'Seller', CONVERT(VARCHAR(255), HASHBYTES('SHA2_256', '555'), 2));
 GO
-
 
 INSERT INTO Supermarket (UserID, BranchName, Barcode, Country, City, Street, StreetNumber, BranchMap, Latitude, Longitude, WiFiPassword, WiFiSSID)
 VALUES 
