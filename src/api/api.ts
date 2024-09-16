@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem, SupplierOrder, SupplierInventory } from '../models';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, OrderItem, SupplierOrder, SupplierInventory } from '../models';
 import { getToken } from 'src/context/AuthContext'; 
 
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
@@ -57,8 +57,8 @@ export const getItemBySupermarketIdAndBarcode = async ( supermarketId: string, b
 export const getMapBySupermarketId = async ( supermarketId: string): Promise<string[]> => {
   return await executeDbFunction<string[]>( 'getMapBySupermarketId', { supermarketId });
 };
-export const getOrderDetailsByOrderId = async ( orderId: string): Promise<BuyerOrderItem[]> => {
-  return await executeDbFunction<BuyerOrderItem[]>( 'getOrderDetailsById', { orderId });
+export const getOrderDetailsByOrderId = async ( orderId: string): Promise<OrderItem[]> => {
+  return await executeDbFunction<OrderItem[]>( 'getOrderDetailsById', { orderId });
 };
 export const getOrderByBuyerIdOrderId = async ( orderId: string): Promise<BuyerOrder> => {
   return await executeDbFunction<BuyerOrder>( 'getOrderByBuyerIdAndOrderId', { orderId });
@@ -149,8 +149,8 @@ export const getOrdersBySupplierId = async (): Promise<SupplierOrder[]> => {
   return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySupplierId', {});
 };
 
-export const getOrdersBySuperMarketId = async ( supermarketId: string): Promise<SupplierOrder[]> => {
-  return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySuperMarketId', { supermarketId });
+export const getOrdersBySupermarketId = async ( supermarketId: string): Promise<SupplierOrder[]> => {
+  return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySupermarketId', { supermarketId });
 };
 
 // export const getDetailsForSuperMarketOrder = async ( orderId: string): Promise<SupplierOrder> => {
@@ -166,6 +166,10 @@ export const getAllSuppliers = async (): Promise<User[]> => {
 
 export const getSupplierInventory = async ( supplierId: string ): Promise<SupplierInventory[]> => {
   return await executeDbFunction<SupplierInventory[]>('getSupplierInventory', { supplierId });
+}
+
+export const createSuperMarketOrder = async ( supermarketId: string, totalAmount: number, orderStatus: string, items: OrderItem[]): Promise<{ OrderID : string }[]> => {
+    return await executeDbFunction<{ OrderID : string }[]>('createSuperMarketOrder', { supermarketId, totalAmount, orderStatus, items });
 }
 
 interface AIResponse {

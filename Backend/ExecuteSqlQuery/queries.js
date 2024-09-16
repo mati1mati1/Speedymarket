@@ -308,14 +308,14 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
 
-  // const getOrdersBySuperMarketIdQuery = (supermarketId) => ({
-  //   query: `
-  //     SELECT * FROM SuperMarketOrder WHERE SupermarketID = @supermarketId
-  //   `,
-  //   params: [
-  //     { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
-  //   ]
-  // });
+  const getOrdersBySupermarketIdQuery = (supermarketId) => ({
+    query: `
+      SELECT * FROM [Order] WHERE SupermarketID = @supermarketId
+    `,
+    params: [
+      { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
+    ]
+  });
 
   // const getDetailsForSuperMarketOrderQuery = (orderId) => ({
   //   query: `
@@ -338,9 +338,42 @@ const getUserByIdQuery = (userId) => ({
     ]
   }); 
 
+  const createSuperMarketOrderQuery = (userId, supermarketId, totalAmount, orderStatus, items) => ({
+    query: `
+      BEGIN TRANSACTION;
+      
+      -- Insert a new order into Order
+      DECLARE @OrderID UNIQUEIDENTIFIER = NEWID();
+      INSERT INTO [Order] (OrderID, UserID, SupermarketID, TotalAmount, CreationDate, SessionId, OrderStatus)
+      VALUES (@OrderID, @userId, @supermarketId, @totalAmount, GETDATE(), NEWID(), @orderStatus);
+  
+      -- Insert each item into OrderItem
+      ${items.map((item, index) => `
+        INSERT INTO OrderItem (OrderItemID, OrderID, ItemID, ItemName, Quantity, Price)
+        VALUES (NEWID(), @OrderID, @itemId${index}, @itemName${index}, @quantity${index}, @price${index});
+      `).join('')}
+      
+      COMMIT;
+      SELECT @OrderID AS OrderID;
+    `,
+    params: [
+      { name: 'userId', type: 'UniqueIdentifier', value: userId },
+      { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId },
+      { name: 'totalAmount', type: 'Decimal', value: totalAmount },
+      { name: 'orderStatus', type: 'NVarChar', value: orderStatus },
+      ...items.flatMap((item, index) => [
+        { name: `itemId${index}`, type: 'NVarChar', value: item.ItemID },
+        { name: `itemName${index}`, type: 'NVarChar', value: item.ItemName },
+        { name: `quantity${index}`, type: 'Int', value: item.Quantity },
+        { name: `price${index}`, type: 'Decimal', value: item.Price },
+      ]),
+    ],
+  });
+  
+
   module.exports = {
     // getDetailsForSuperMarketOrderQuery,
-    // getOrdersBySuperMarketIdQuery,
+    getOrdersBySupermarketIdQuery,
     getOrderByBuyerIdAndOrderIdQuery,
     getOrderDetailsByIdQuery,
     createPurchaseQuery,
@@ -369,6 +402,7 @@ const getUserByIdQuery = (userId) => ({
     // getOrdersBySupplierIdQuery,
     updateOrderStatusQuery,
     getAllSuppliersQuery,
-    getSupplierInventoryBySupplierIdQuery
+    getSupplierInventoryBySupplierIdQuery,
+    createSuperMarketOrderQuery
   };
   

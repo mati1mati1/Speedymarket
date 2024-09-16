@@ -64,8 +64,8 @@ const getQueryByName = async (functionName, params) => {
             return queries.getOrderDetailsByOrderIdQuery(params.orderId);
         case 'getOrdersBySupplierId':
             return queries.getOrdersByBuyerIdQuery(params.userId);
-        case 'getOrdersBySuperMarketIdQuery':
-            return queries.getOrdersByBuyerIdQuery(params.supermarketId);
+        case 'getOrdersBySupermarketId':
+            return queries.getOrdersBySupermarketIdQuery(params.supermarketId);
         // case 'getDetailsForSuperMarketOrderQuery':
         //     return queries.getDetailsForSuperMarketOrderQuery(params.orderId);
         case 'updateOrderStatus':
@@ -74,6 +74,8 @@ const getQueryByName = async (functionName, params) => {
             return queries.getAllSuppliersQuery();
         case 'getSupplierInventory':
             return queries.getSupplierInventoryBySupplierIdQuery(params.supplierId);
+        case 'createSuperMarketOrder':
+            return queries.createSuperMarketOrderQuery(params.userId, params.supermarketId, params.totalAmount, params.orderStatus, params.items);
         default:
             throw new Error('Invalid function name');
     }

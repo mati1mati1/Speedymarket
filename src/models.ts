@@ -37,9 +37,9 @@ export interface ProductsList {
   Price: number;
 }
 
-export interface BuyerOrderItem {
-  OrderItemID: string;
-  OrderID: string;
+export interface OrderItem {
+  // OrderItemID: string;
+  // OrderID: string;
   ItemID: string;
   ItemName: string;
   Quantity: number;

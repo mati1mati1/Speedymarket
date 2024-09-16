@@ -38,16 +38,12 @@ GO
 
 -- Create BuyerOrder Table
 CREATE TABLE [Order] (
-CREATE TABLE [Order] (
     OrderID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    UserID UNIQUEIDENTIFIER NOT NULL,
     UserID UNIQUEIDENTIFIER NOT NULL,
     TotalAmount DECIMAL(18, 2) NOT NULL,
     CreationDate DATETIME DEFAULT GETDATE() NOT NULL,
     SupermarketID UNIQUEIDENTIFIER NOT NULL,
     SessionId NVARCHAR(250) UNIQUE,
-    OrderStatus NVARCHAR(50),
-    FOREIGN KEY (UserID) REFERENCES [User](UserID),
     OrderStatus NVARCHAR(50),
     FOREIGN KEY (UserID) REFERENCES [User](UserID),
     FOREIGN KEY (SupermarketID) REFERENCES Supermarket(SupermarketID)
@@ -56,41 +52,12 @@ GO
 
 -- Create OrderItem Table to store individual items in orders
 CREATE TABLE OrderItem (
--- Create OrderItem Table to store individual items in orders
-CREATE TABLE OrderItem (
     OrderItemID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     OrderID UNIQUEIDENTIFIER NOT NULL,
     ItemID NVARCHAR(50) NOT NULL,
     ItemName NVARCHAR(255) NOT NULL,
     Quantity INT NOT NULL,
     Price DECIMAL(18, 2) NOT NULL,
-    FOREIGN KEY (OrderID) REFERENCES [Order](OrderID)
-);
-GO
-
--- --Create SuperMarketOrder Table
--- CREATE TABLE SuperMarketOrder (
---     OrderID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
---     SupplierID UNIQUEIDENTIFIER NOT NULL,
---     SupermarketID UNIQUEIDENTIFIER NOT NULL,
---     TotalAmount DECIMAL(18, 2) NOT NULL,
---     CreationDate DATETIME DEFAULT GETDATE() NOT NULL,
---     OrderStatus NVARCHAR(50) NOT NULL,
---     FOREIGN KEY (SupplierID) REFERENCES [User](UserID),
---     FOREIGN KEY (SupermarketID) REFERENCES Supermarket(SupermarketID)
--- );
-
--- Create BuyerOrderItem Table to store individual items in orders
--- CREATE TABLE SuperMarketOrderItem (
---     OrderItemID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
---     OrderID UNIQUEIDENTIFIER NOT NULL,
---     ItemID NVARCHAR(50) NOT NULL,
---     ItemName NVARCHAR(255) NOT NULL,
---     Quantity INT NOT NULL,
---     Price DECIMAL(18, 2) NOT NULL,
---     FOREIGN KEY (OrderID) REFERENCES SuperMarketOrder(OrderID)
--- );
--- GO
     FOREIGN KEY (OrderID) REFERENCES [Order](OrderID)
 );
 GO
@@ -185,8 +152,8 @@ GO
 
 INSERT INTO Supermarket (UserID, BranchName, Barcode, Country, City, Street, StreetNumber, BranchMap, Latitude, Longitude, WiFiPassword, WiFiSSID)
 VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'janesmith'), 'Main Street Store', '123456789', 'USA', 'New York', 'Main Street', '100', 'Map1', 40.7128, -74.0060, 'password123', 'MainStreetWiFi'),
-((SELECT UserID FROM [User] WHERE UserName = 'emilydavis'), 'Market Plaza', '987654321', 'USA', 'Los Angeles', 'Market Street', '200', 'Map2', 34.0522, -118.2437, 'password456', 'MarketPlazaWiFi');
+((SELECT UserID FROM [User] WHERE UserName = 'janesmith'), 'Main Street Store', '123456789', 'USA', 'New York', 'Main Street', '100', '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"name":"מדף","left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"name":"מדף","left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"name":"מדף","left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"name":"מדף","left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"name":"מדף","left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"name":"מדף","left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"name":"מדף","left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"name":"מדף","left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"name":"מדף","left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"name":"מדף","left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"name":"מדף","left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"name":"מדף","left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"name":"מדף","left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"name":"מדף","left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 40.7128, -74.0060, 'password123', 'MainStreetWiFi'),
+((SELECT UserID FROM [User] WHERE UserName = 'emilydavis'), 'Market Plaza', '987654321', 'USA', 'Los Angeles', 'Market Street', '200', '{"sections":[{"id":1,"name":"מדף","left":115,"top":377,"rotation":270,"width":80,"height":40},{"id":2,"name":"מדף","left":25,"top":372,"rotation":90,"width":80,"height":40},{"id":3,"name":"מדף","left":23,"top":452,"rotation":90,"width":80,"height":40},{"id":4,"name":"מדף","left":115,"top":459,"rotation":270,"width":80,"height":40},{"id":5,"name":"מדף","left":578,"top":176,"rotation":180,"width":80,"height":40},{"id":6,"name":"מדף","left":713,"top":180,"rotation":180,"width":80,"height":40},{"id":7,"name":"מדף","left":708,"top":269,"rotation":0,"width":80,"height":40},{"id":8,"name":"מדף","left":558,"top":274,"rotation":0,"width":80,"height":40},{"id":9,"name":"מדף","left":715,"top":361,"rotation":0,"width":80,"height":40},{"id":10,"name":"מדף","left":562,"top":358,"rotation":0,"width":80,"height":40},{"id":11,"name":"מדף","left":202,"top":355,"rotation":0,"width":80,"height":40},{"id":12,"name":"מדף","left":215,"top":476,"rotation":0,"width":80,"height":40},{"id":13,"name":"מדף","left":163,"top":192,"rotation":0,"width":80,"height":40},{"id":14,"name":"מדף","left":37,"top":195,"rotation":0,"width":80,"height":40},{"id":15,"name":"מדף","left":164,"top":235,"rotation":180,"width":80,"height":40},{"id":16,"name":"מדף","left":33,"top":235,"rotation":180,"width":80,"height":40},{"id":17,"name":"מדף","left":379,"top":156,"rotation":0,"width":80,"height":40},{"id":18,"name":"מדף","left":388,"top":83,"rotation":180,"width":80,"height":40},{"id":19,"name":"מדף","left":431,"top":471,"rotation":180,"width":80,"height":40},{"id":20,"name":"מדף","left":418,"top":342,"rotation":180,"width":80,"height":40},{"id":21,"name":"מדף","left":428,"top":429,"rotation":0,"width":80,"height":40}],"entrance":{"left":404,"top":550},"mapWidth":800,"mapHeight":600}', 34.0522, -118.2437, 'password456', 'MarketPlazaWiFi');
 GO
 
 -- Update OperatingHours and other fields
@@ -277,7 +244,6 @@ VALUES
 ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 65.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Pending');
 
 INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
-INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
 VALUES 
 ((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 27.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), NULL);
 
@@ -313,13 +279,10 @@ INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
 VALUES 
 ((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 36.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), NULL);
 
-((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 36.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), NULL);
-
 GO
 
 
 
-INSERT INTO OrderItem (OrderID, ItemID, ItemName, Quantity, Price)
 INSERT INTO OrderItem (OrderID, ItemID, ItemName, Quantity, Price)
 VALUES 
 ((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 27.47 ORDER BY OrderID), 'ITEM001', 'Apples', 3, 3.50),

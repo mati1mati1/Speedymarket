@@ -3,81 +3,117 @@ import { View, Text, FlatList, TouchableOpacity, Modal, TextInput, Button, Style
 import { Button as RNEButton } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Picker } from '@react-native-picker/picker'; 
-import { getAllSuppliers, getSupplierInventory } from '../../src/api/api';
-import { SupplierInventory, User } from '../../src/models';
+import { getAllSuppliers, getSupplierInventory, createSuperMarketOrder, getSupermarketByUserId, getOrdersBySupermarketId, getOrderDetailsByOrderId } from '../../src/api/api';
+import { OrderItem, Supermarket, SupplierInventory, SupplierOrder, User } from '../../src/models';
 
 export default function OrderManagementScreen() {
-  const [orders, setOrders] = useState<any>([]);
-  const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
+  const [orders, setOrders] = useState<SupplierOrder[]>([]);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<User | null>(null);
   const [inventory, setInventory] = useState<SupplierInventory[]>([]); 
-  const [selectedItems, setSelectedItems] = useState<{ id: number; qty: number }[]>([]);
-// Supplier mock data
-const [suppliers, setSuppliers] = useState<User[]>([]);
+  const [selectedItems, setSelectedItems] = useState<{ item: SupplierInventory, quantity: number }[]>([]);
+  const [supermarketID, setSupermarketID] = useState<string>('');
+  const [orderDetails, setOrderDetails] = useState<OrderItem[] | null>(null);
+  const [suppliers, setSuppliers] = useState<User[]>([]);
 
   useEffect(() => {
-    // Mock data for orders
-    setOrders([
-      { id: 1, name: 'Order 1', totalAmount: 200, dateCreated: '01-09-2023', status: 'Pending', items: [{ name: 'Item A', qty: 2, price: 50 }, { name: 'Item B', qty: 1, price: 100 }] },
-      { id: 2, name: 'Order 2', totalAmount: 300, dateCreated: '10-09-2023', status: 'Shipped', items: [{ name: 'Item C', qty: 3, price: 100 }] },
-    ]);
-
-    const fetchSuppliers = async () => {
+    const fetchData = async () => {
       try {  
-        let suppliers = await getAllSuppliers();
-        setSuppliers(suppliers);
+        const supermarket = await getSupermarketByUserId();
+        if (supermarket) {
+          setSupermarketID(supermarket[0].SupermarketID);
+        }
+        const suppliers = await getAllSuppliers();
+        if (suppliers) {
+          setSuppliers(suppliers);
+        }
+        const orders = await getOrdersBySupermarketId(supermarket[0].SupermarketID);
+        if (orders) {
+          setOrders(orders);
+        }
+
       } catch(e) {
-        console.log(e);
+        console.error('Failed to fetch data: ', e);
       }
     };
-    fetchSuppliers();
+    fetchData();
+
+
   }, []);
 
-  const handleOrderExpand = (orderId: number) => {
-    setExpandedOrderId(orderId === expandedOrderId ? null : orderId);
+  const handleOrderExpand = async (orderId: string) => {
+    if (orderId === expandedOrderId) {
+      setExpandedOrderId(null);
+      setOrderDetails(null);
+    }
+    else {
+      setExpandedOrderId(orderId);
+      const orderDetails = await getOrderDetailsByOrderId(orderId);
+      console.log(orderDetails);
+      setOrderDetails(orderDetails);
+    }
   };
 
   const handleAddOrder = () => {
     setModalVisible(true);
-    setSelectedItems([]);
   };
 
-  const handleSupplierSelect = async (supplier: User | null) => {
-    setSelectedSupplier(supplier);
-    // Mock supplier inventory
-    if (supplier != null) {
-      let inventory = await getSupplierInventory(supplier.UserID);
+  const handleSupplierSelect = async (supplierId: string) => {
+    setSelectedSupplier(suppliers.find(supplier => supplier.UserID === supplierId) || null);
+    if (supplierId != '') {
+      let inventory = await getSupplierInventory(supplierId);
       setInventory(inventory);
-      // setInventory([
-      //   { id: 1, name: 'Item X', price: 50 },
-      //   { id: 2, name: 'Item Y', price: 75 },
-      //   { id: 3, name: 'Item Z', price: 100 },
-      //   { id: 1, name: 'Item X', price: 50 },
-      //   { id: 2, name: 'Item Y', price: 75 },
-      //   { id: 3, name: 'Item Z', price: 100 },
-      //   { id: 1, name: 'Item X', price: 50 },
-      //   { id: 2, name: 'Item Y', price: 75 },
-      //   { id: 3, name: 'Item Z', price: 100 },
-      //   { id: 1, name: 'Item X', price: 50 },
-      //   { id: 2, name: 'Item Y', price: 75 },
-      //   { id: 3, name: 'Item Z', price: 100 },
-      //   { id: 1, name: 'Item X', price: 50 },
-      //   { id: 2, name: 'Item Y', price: 75 },
-      //   { id: 3, name: 'Item Z', price: 100 },
-      // ]);
     }
   };
 
-  const handleItemSelect = (itemId: string, qty: number) => {
-    // setSelectedItems((prevItems) => {
-    //   const existingItem = prevItems.find(item => item.id === itemId);
-    //   if (existingItem) {
-    //     return prevItems.map(item => item.id === itemId ? { ...item, qty } : item);
-    //   }
-    //   return [...prevItems, { id: itemId, qty }];
-    // });
+  const handleItemSelect = (item: SupplierInventory, qty: number) => {
+    setSelectedItems((prevItems) => {
+      const existingItem = prevItems.find(existingItem => existingItem.item.InventoryID === item.InventoryID);
+      if (existingItem) {
+        return prevItems.map(existingItem => existingItem.item.InventoryID === item.InventoryID ? { ...existingItem, quantity: qty } : existingItem);
+      }
+      return [...prevItems, { item, quantity: qty }];
+    });
   };
+
+  const createOrderItems = (selectedItems: { item: SupplierInventory, quantity: number }[]): OrderItem[] => {
+    return selectedItems.map(({ item, quantity }) => ({
+      ItemID: item.InventoryID,
+      ItemName: item.ItemName,
+      Quantity: quantity,
+      Price: item.Price
+    }));
+  };
+  
+  const handleSaveOrder = async (selectedItems: { item: SupplierInventory, quantity: number }[]) => {
+
+    const orderItems: OrderItem[] = createOrderItems(selectedItems);
+    
+    // Calculate total amount for the order
+    const totalAmount = orderItems.reduce((sum, item) => sum + (item.Price * item.Quantity), 0);
+  
+    try {
+      let orderID = await createSuperMarketOrder(supermarketID, totalAmount, 'Pending', orderItems);
+    } catch (e) {
+      console.log("Could not create order."); //TODO: insert toast
+    }
+
+    await refreshOrders();
+    closeModal();
+  };
+
+  const refreshOrders = async () => {
+    const orders = await getOrdersBySupermarketId(supermarketID);
+    setOrders(orders);
+  }
+
+  const closeModal = () => {
+    setModalVisible(false); 
+    setSelectedSupplier(null); 
+    setInventory([]);
+    setSelectedItems([]);
+  }
 
   const getStatusWithIcon = (orderStatus: string) => {
     let statusText = '';
@@ -121,32 +157,32 @@ const [suppliers, setSuppliers] = useState<User[]>([]);
         data={orders}
         renderItem={({ item }) => (
           <View style={styles.orderItem}>
-            <TouchableOpacity onPress={() => handleOrderExpand(item.id)} style={styles.orderContainer}>
+            <TouchableOpacity onPress={() => handleOrderExpand(item.OrderID)} style={styles.orderContainer}>
               <View style={styles.orderHeader}>
-                <Text style={styles.orderTitle}>{item.name}</Text>
-                <Text style={styles.orderDetails}><span style={{fontWeight: 'bold'}}>Amount:</span> ${item.totalAmount}     |     <span style={{fontWeight: 'bold'}}>Date:</span> {item.dateCreated}     |     <span style={{fontWeight: 'bold'}}>Status:</span> {getStatusWithIcon(item.status)}</Text>
-                <Text>{expandedOrderId === item.id ? '▲' : '▼'}</Text>
+                <Text style={styles.orderTitle}>{item.OrderID}</Text>
+                <Text style={styles.orderDetails}><span style={{fontWeight: 'bold'}}>Amount:</span> ${item.TotalAmount}     |     <span style={{fontWeight: 'bold'}}>Date:</span> {item.CreationDate}     |     <span style={{fontWeight: 'bold'}}>Status:</span> {getStatusWithIcon(item.OrderStatus)}</Text>
+                <Text>{expandedOrderId === item.OrderID ? '▲' : '▼'}</Text>
               </View>
             </TouchableOpacity>
-            {expandedOrderId === item.id && (
+            {expandedOrderId === item.OrderID && (
               <View style={styles.orderItems}>
                 <View style={styles.tableHeader}>
                   <Text style={styles.tableHeaderRow}>Item</Text>
                   <Text style={styles.tableHeaderRow}>Qty</Text>
                   <Text style={styles.tableHeaderRow}>Price</Text>
                 </View>
-                {item.items.map((orderItem, index) => (
+                {orderDetails != null && orderDetails.map((orderItem, index) => (
                   <View key={index} style={styles.tableRow}>
-                    <Text style={styles.tableColumn}>{orderItem.name}</Text>
-                    <Text style={styles.tableColumn}>{orderItem.qty}</Text>
-                    <Text style={styles.tableColumn}>${orderItem.price}</Text>
+                    <Text style={styles.tableColumn}>{orderItem.ItemName}</Text>
+                    <Text style={styles.tableColumn}>{orderItem.Quantity}</Text>
+                    <Text style={styles.tableColumn}>${orderItem.Price}</Text>
                   </View>
                 ))}
               </View>
             )}
           </View>
         )}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.OrderID.toString()}
       />
 
       <RNEButton
@@ -155,15 +191,15 @@ const [suppliers, setSuppliers] = useState<User[]>([]);
                 onPress={handleAddOrder}        
       />  
 
-      <Modal visible={modalVisible} animationType="slide" onRequestClose={() => {setModalVisible(false); setSelectedSupplier(null); setInventory([])}}>
-        <Pressable onPress={() => {setModalVisible(false); setSelectedSupplier(null); setInventory([])}} style={styles.closeButton}>
+      <Modal visible={modalVisible} animationType="slide" onRequestClose={() => closeModal()}>
+        <Pressable onPress={() => closeModal()} style={styles.closeButton}>
           <Icon name="close" size={24} color="#007bff" />
         </Pressable>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Create New Order</Text>
           <Picker
-              selectedValue={selectedSupplier}
-              onValueChange={(supplier) => handleSupplierSelect(supplier)}
+              selectedValue={selectedSupplier?.UserID}
+              onValueChange={(supplierId) => handleSupplierSelect(supplierId)}
               style={styles.picker}
             >
             <Picker.Item label="Select a supplier" value={null} />
@@ -183,7 +219,7 @@ const [suppliers, setSuppliers] = useState<User[]>([]);
           <TextInput
             placeholder="Qty"
             keyboardType="numeric"
-            onChangeText={(qty) => handleItemSelect(item.InventoryID, parseInt(qty))}
+            onChangeText={(qty) => handleItemSelect(item, parseInt(qty))}
             style={styles.qtyInput}
           />
         </View>
@@ -197,7 +233,7 @@ const [suppliers, setSuppliers] = useState<User[]>([]);
                     <Icon name="save" size={20} color="#fff" />
                 }
                 buttonStyle={[styles.blueButton, { marginTop: 20}]}
-                onPress={() => {setModalVisible(false); setSelectedSupplier(null); setInventory([])}}        
+                onPress={() => handleSaveOrder(selectedItems)}        
           />
         </View>
       </Modal>
