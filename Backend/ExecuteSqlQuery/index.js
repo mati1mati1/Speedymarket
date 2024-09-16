@@ -4,6 +4,7 @@ const queries = require('./queries');
 const axios = require('axios');
 
 const getQueryByName = async (functionName, params) => {
+    console.log("this is the params in the index of the function: " + JSON.stringify(params));
     switch (functionName) {
         case 'getUserById':
             return queries.getUserByIdQuery(params.userId);
@@ -59,6 +60,16 @@ const getQueryByName = async (functionName, params) => {
             return queries.getOrderDetailsByIdQuery(params.orderId);
         case 'getOrderByBuyerIdAndOrderId':
             return queries.getOrderByBuyerIdAndOrderIdQuery(params.buyerId,params.orderId);
+        case 'getOrderDetailsByOrderId':
+            return queries.getOrderDetailsByOrderIdQuery(params.orderId);
+        case 'getOrdersBySupplierId':
+            return queries.getOrdersByBuyerIdQuery(params.userId);
+        case 'getOrdersBySuperMarketIdQuery':
+            return queries.getOrdersByBuyerIdQuery(params.supermarketId);
+        // case 'getDetailsForSuperMarketOrderQuery':
+        //     return queries.getDetailsForSuperMarketOrderQuery(params.orderId);
+        case 'updateOrderStatus':
+            return queries.updateOrderStatusQuery(params.orderId);
         case 'getAllSuppliers':
             return queries.getAllSuppliersQuery();
         case 'getSupplierInventory':
@@ -67,6 +78,7 @@ const getQueryByName = async (functionName, params) => {
             throw new Error('Invalid function name');
     }
 };
+
 async function getCoordinatesFromAzureMaps(address) {
     const response = await axios.get(`https://atlas.microsoft.com/search/address/json`, {
       params: {
@@ -93,7 +105,8 @@ module.exports = async function (context, req) {
     const token = req.headers.authorization?.split(' ')[1];
     const functionName = req.body.functionName;
     const params = req.body.params;
-
+    console.log("params: " + JSON.stringify(params));
+    console.log("0000000000000000000000000000000000000000000000000000")
     if (!token) {
         context.res = {
             status: 401,
@@ -103,6 +116,7 @@ module.exports = async function (context, req) {
     }
 
     if (!functionName || !params) {
+        console.log("fuck fuck fuck")
         context.res = {
             status: 400,
             body: "Please pass a function name and its parameters in the request body"

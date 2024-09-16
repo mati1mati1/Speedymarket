@@ -11,7 +11,7 @@ CREATE TABLE Users (
     LastName NVARCHAR(100),
     Email NVARCHAR(100) ,
     PhoneNumber NVARCHAR(15),
-    UserType NVARCHAR(50) -- Buyer or Seller
+    UserType NVARCHAR(50) -- Buyer or Seller or Supplier
 );
 
 CREATE TABLE BuyerOrders (

@@ -26,7 +26,7 @@ const getUserByIdQuery = (userId) => ({
   const getOrderDetailsByIdQuery = (orderId) => ({
     query: `
       SELECT *
-      FROM BuyerOrderItem
+      FROM OrderItem
       WHERE OrderID = @orderId
     `,
     params: [
@@ -157,17 +157,18 @@ const getUserByIdQuery = (userId) => ({
   });
   
   const getOrdersByBuyerIdQuery = (buyerId) => ({
-    query: 'SELECT * FROM BuyerOrder WHERE BuyerID = @buyerId',
+    query: 'SELECT * FROM [Order] WHERE UserID = @buyerId',
     params: [
       { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId }
     ]
   });
+  
   const getOrderByBuyerIdAndOrderIdQuery = (buyerId, orderId) => ({
     query: `
       SELECT bo.*, sm.BranchName AS SupermarketName
-      FROM BuyerOrder bo
+      FROM [Order] bo
       JOIN Supermarket sm ON bo.SupermarketID = sm.SupermarketID
-      WHERE bo.BuyerID = @buyerId AND bo.OrderID = @orderId
+      WHERE bo.UserID = @buyerId AND bo.OrderID = @orderId
     `,
     params: [
       { name: 'buyerId', type: 'UniqueIdentifier', value: buyerId },
@@ -237,14 +238,14 @@ const getUserByIdQuery = (userId) => ({
     query: `
       BEGIN TRANSACTION;
       
-      -- Insert a new order into BuyerOrder
+      -- Insert a new order into Order
       DECLARE @OrderID UNIQUEIDENTIFIER = NEWID();
-      INSERT INTO BuyerOrder (OrderID, BuyerID, SupermarketID, TotalAmount, CreationDate, SessionId)
-      VALUES (@OrderID, @buyerId, @supermarketId, @totalAmount, GETDATE(), @sessionId);
+      INSERT INTO Order (OrderID, UserID, SupermarketID, TotalAmount, CreationDate, SessionId, OrderStatus)
+      VALUES (@OrderID, @buyerId, @supermarketId, @totalAmount, GETDATE(), @sessionId, Null);
   
-      -- Insert each item into BuyerOrderItem and update ShopInventory
+      -- Insert each item into OrderItem and update ShopInventory
       ${items.map((item, index) => `
-        INSERT INTO BuyerOrderItem (OrderItemID, OrderID, ItemID, ItemName, Quantity, Price)
+        INSERT INTO OrderItem (OrderItemID, OrderID, ItemID, ItemName, Quantity, Price)
         VALUES (NEWID(), @OrderID, @itemId${index}, @itemName${index}, @quantity${index}, @price${index});
   
         -- Update the inventory for each item
@@ -278,6 +279,53 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
 
+  const getOrderDetailsByOrderIdQuery = (orderId) => ({
+    query: `
+      SELECT * FROM SupplierOrderItem WHERE OrderID = @orderId
+    `,
+    params: [
+      { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
+    ]
+  });
+
+  // const getOrdersBySupplierIdQuery = (userId) => ({
+  //   query: `
+  //     SELECT * FROM SuperMarketOrder WHERE SupplierID = @userId
+  //   `,
+  //   params: [
+  //     { name: 'userId', type: 'UniqueIdentifier', value: userId }
+  //   ]
+  // });
+
+  const updateOrderStatusQuery = (orderId) => ({
+    query: `
+      UPDATE [Order]
+      SET OrderStatus = 'Shipped'
+      WHERE OrderID = @orderId
+    `,
+    params: [
+      { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
+    ]
+  });
+
+  // const getOrdersBySuperMarketIdQuery = (supermarketId) => ({
+  //   query: `
+  //     SELECT * FROM SuperMarketOrder WHERE SupermarketID = @supermarketId
+  //   `,
+  //   params: [
+  //     { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
+  //   ]
+  // });
+
+  // const getDetailsForSuperMarketOrderQuery = (orderId) => ({
+  //   query: `
+  //     SELECT * FROM SuperMarketOrderItem WHERE OrderID = @orderId
+  //   `,
+  //   params: [
+  //     { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
+  //   ]
+  // });
+
   const getAllSuppliersQuery = () => ({
     query: `SELECT * FROM [User] WHERE UserType = 'Supplier'`,
     params: []
@@ -291,6 +339,8 @@ const getUserByIdQuery = (userId) => ({
   }); 
 
   module.exports = {
+    // getDetailsForSuperMarketOrderQuery,
+    // getOrdersBySuperMarketIdQuery,
     getOrderByBuyerIdAndOrderIdQuery,
     getOrderDetailsByIdQuery,
     createPurchaseQuery,
@@ -315,6 +365,9 @@ const getUserByIdQuery = (userId) => ({
     updateShopInventoryQuery,
     deleteShopInventoryQuery,
     updateSupermarketDetailsQuery,
+    getOrderDetailsByOrderIdQuery,
+    // getOrdersBySupplierIdQuery,
+    updateOrderStatusQuery,
     getAllSuppliersQuery,
     getSupplierInventoryBySupplierIdQuery
   };

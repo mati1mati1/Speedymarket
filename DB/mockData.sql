@@ -7,6 +7,7 @@ VALUES
 ('John', 'Doe', 'john.doe@example.com', '1234567890', 'Buyer', 'johndoe'),
 ('Jane', 'Smith', 'jane.smith@example.com', '0987654321', 'Seller', 'janesmith'),
 ('Mike', 'Johnson', 'mike.johnson@example.com', '1122334455', 'Buyer', 'mikejohnson'),
+('Tal', 'Sabel', 'talsabel@example.com', '5566778899', 'Supplier', 'talsabel'),
 ('Emily', 'Davis', 'emily.davis@example.com', '5566778899', 'Seller', 'emilydavis');
 
 -- Insert mock data into Sellers table using the UserID of sellers

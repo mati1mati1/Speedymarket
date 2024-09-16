@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem, SupplierInventory } from '../models';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem, SupplierOrder, SupplierInventory } from '../models';
 import { getToken } from 'src/context/AuthContext'; 
 
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
@@ -145,6 +145,21 @@ export const deleteShopInventory = async ( inventoryId: string): Promise<void> =
   return await executeDbFunction<void>( 'deleteShopInventory', { inventoryId });
 };
 
+export const getOrdersBySupplierId = async (): Promise<SupplierOrder[]> => {
+  return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySupplierId', {});
+};
+
+export const getOrdersBySuperMarketId = async ( supermarketId: string): Promise<SupplierOrder[]> => {
+  return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySuperMarketId', { supermarketId });
+};
+
+// export const getDetailsForSuperMarketOrder = async ( orderId: string): Promise<SupplierOrder> => {
+//   return await executeDbFunction<SupplierOrder>( 'getDetailsForSuperMarketOrder', { orderId });
+// }
+
+export const updateOrderStatus = async ( orderId: string): Promise<void> => {
+  return await executeDbFunction<void>( 'updateOrderStatus', { orderId });
+};
 export const getAllSuppliers = async (): Promise<User[]> => {
   return await executeDbFunction<User[]>('getAllSuppliers', {});
 }
@@ -152,13 +167,12 @@ export const getAllSuppliers = async (): Promise<User[]> => {
 export const getSupplierInventory = async ( supplierId: string ): Promise<SupplierInventory[]> => {
   return await executeDbFunction<SupplierInventory[]>('getSupplierInventory', { supplierId });
 }
-  
+
 interface AIResponse {
   success: boolean;
   list: string[];
 }
 export const uploadGroceryListImage = async (imageFile: string): Promise<AIResponse> => {
-  console.log("this is the image file", imageFile);
   const response = await fetch('https://readimage.azurewebsites.net/api/readImage?', {
     method: 'POST',
     // headers: {

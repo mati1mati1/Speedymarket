@@ -24,6 +24,8 @@ export default function LoginScreen() {
           }
         else if (response.role === Role.Buyer) {
           router.replace('/(customer)/shopping/supermarketMapsScreen');
+        } else if (response.role === Role.Supplier) {
+          router.replace('/(supplier)/orders');
         }
         else{
           if (isWeb) {
