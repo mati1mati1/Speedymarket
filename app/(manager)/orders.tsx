@@ -94,7 +94,11 @@ export default function OrderManagementScreen() {
     const totalAmount = orderItems.reduce((sum, item) => sum + (item.Price * item.Quantity), 0);
   
     try {
-      let orderID = await createSuperMarketOrder(supermarketID, totalAmount, 'Pending', orderItems);
+      if (!selectedSupplier) {
+        console.log("Please select a supervisor!"); // TODO: toast?
+      } else{
+        let orderID = await createSuperMarketOrder(selectedSupplier.UserID, supermarketID, totalAmount, 'Pending', orderItems);
+      }
     } catch (e) {
       console.log("Could not create order."); //TODO: insert toast
     }

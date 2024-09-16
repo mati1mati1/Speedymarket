@@ -338,14 +338,14 @@ const getUserByIdQuery = (userId) => ({
     ]
   }); 
 
-  const createSuperMarketOrderQuery = (userId, supermarketId, totalAmount, orderStatus, items) => ({
+  const createSuperMarketOrderQuery = (supplierId, supermarketId, totalAmount, orderStatus, items) => ({
     query: `
       BEGIN TRANSACTION;
       
       -- Insert a new order into Order
       DECLARE @OrderID UNIQUEIDENTIFIER = NEWID();
       INSERT INTO [Order] (OrderID, UserID, SupermarketID, TotalAmount, CreationDate, SessionId, OrderStatus)
-      VALUES (@OrderID, @userId, @supermarketId, @totalAmount, GETDATE(), NEWID(), @orderStatus);
+      VALUES (@OrderID, @supplierId, @supermarketId, @totalAmount, GETDATE(), NEWID(), @orderStatus);
   
       -- Insert each item into OrderItem
       ${items.map((item, index) => `
@@ -357,7 +357,7 @@ const getUserByIdQuery = (userId) => ({
       SELECT @OrderID AS OrderID;
     `,
     params: [
-      { name: 'userId', type: 'UniqueIdentifier', value: userId },
+      { name: 'supplierId', type: 'UniqueIdentifier', value: supplierId },
       { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId },
       { name: 'totalAmount', type: 'Decimal', value: totalAmount },
       { name: 'orderStatus', type: 'NVarChar', value: orderStatus },

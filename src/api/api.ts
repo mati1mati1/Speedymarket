@@ -168,8 +168,8 @@ export const getSupplierInventory = async ( supplierId: string ): Promise<Suppli
   return await executeDbFunction<SupplierInventory[]>('getSupplierInventory', { supplierId });
 }
 
-export const createSuperMarketOrder = async ( supermarketId: string, totalAmount: number, orderStatus: string, items: OrderItem[]): Promise<{ OrderID : string }[]> => {
-    return await executeDbFunction<{ OrderID : string }[]>('createSuperMarketOrder', { supermarketId, totalAmount, orderStatus, items });
+export const createSuperMarketOrder = async ( supplierId: string, supermarketId: string, totalAmount: number, orderStatus: string, items: OrderItem[]): Promise<{ OrderID : string }[]> => {
+    return await executeDbFunction<{ OrderID : string }[]>('createSuperMarketOrder', { supplierId, supermarketId, totalAmount, orderStatus, items });
 }
 
 interface AIResponse {
