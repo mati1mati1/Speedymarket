@@ -7,7 +7,6 @@ import { useAuth } from '../../src/context/AuthContext';
 import { getSupermarketByUserId, updateSupermarketDetails } from '../../src/api/api';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button as RNEButton } from 'react-native-elements';
-import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
