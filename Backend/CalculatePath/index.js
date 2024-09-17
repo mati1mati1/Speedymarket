@@ -13,58 +13,72 @@ const config = {
     }
 };
 
-function createGrid(sections, width, height, shelvesToVisit) {
-    const gridWidth = Math.floor(width);
-    const gridHeight = Math.floor(height);
-    const grid = Array.from({ length: gridHeight }, () => Array(gridWidth).fill(0));
+function createGrid(sections, gridWidth, gridHeight, shelvesToVisit) {
+    const gridSize = 1; // Assuming a grid size (you may adjust this value)
+    const matrix = Array.from({ length: gridHeight }, () => Array(gridWidth).fill(0));
 
     sections.forEach(section => {
-        const left = section.left;
-        const top = section.top;
-        const rotation = section.rotation;
-        const sectionWidth = section.width;
-        const sectionHeight = section.height;
+        const { left, top, width, height, rotation, id } = section;
 
-        const secWidth = (rotation % 180 === 0) ? Math.floor(sectionWidth) : Math.floor(sectionHeight);
-        const secHeight = (rotation % 180 === 0) ? Math.floor(sectionHeight) : Math.floor(sectionWidth);
+        let sectionWidthInGrid = Math.ceil(width / gridSize);
+        let sectionHeightInGrid = Math.ceil(height / gridSize);
 
-        for (let i = 0; i < secWidth; i++) {
-            for (let j = 0; j < secHeight; j++) {
-                const gridX = Math.floor(left) + i;
-                const gridY = Math.floor(top) + j;
+        let startX = Math.floor(left / gridSize);
+        let startY = Math.floor(top / gridSize);
+
+        if (rotation === 90 || rotation === 270) {
+            [sectionWidthInGrid, sectionHeightInGrid] = [sectionHeightInGrid, sectionWidthInGrid];
+        }
+
+        for (let x = 0; x < sectionWidthInGrid; x++) {
+            for (let y = 0; y < sectionHeightInGrid; y++) {
+                const gridX = startX + x;
+                const gridY = startY + y;
+
                 if (gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight) {
-                    grid[gridY][gridX] = 1;
+                    matrix[gridY][gridX] = 1;
                 }
             }
         }
-    });
 
-    sections.forEach(section => {
-        if (shelvesToVisit.includes(section.id)) {
-            const secTop = section.top;
-            const secLeft = section.left;
-            const secWidth = section.width;
-            const secHeight = section.height;
-            let shelfCenter;
+        if (shelvesToVisit.includes(id)) {
+            let entryX, entryY;
 
-            if (section.rotation === 0) {
-                shelfCenter = [Math.floor(secTop) - 2, Math.floor((secLeft + secWidth / 2)) + 1];
-            } else if (section.rotation === 90) {
-                shelfCenter = [Math.floor((secTop + secHeight / 2)), Math.floor((secLeft + secWidth))];
-            } else if (section.rotation === 180) {
-                shelfCenter = [secTop + secHeight , Math.floor((secLeft + secWidth / 2))];
-            } else if (section.rotation === 270) {
-                shelfCenter = [Math.floor((secTop + secHeight / 2)) - 1, Math.floor(secLeft) - 2];
+            switch (rotation) {
+                case 0:
+                    entryX = startX + Math.floor(sectionWidthInGrid / 2);
+                    entryY = startY + Math.floor(sectionHeightInGrid) + 2;
+                    break;
+                case 90:
+                    entryX = startX - 2;
+                    entryY = startY + Math.floor(sectionHeightInGrid / 2);
+                    break;
+                case 180:
+                    entryX = startX + Math.floor(sectionWidthInGrid / 2);
+                    entryY = startY + sectionHeightInGrid - 2;
+                    break;
+                case 270:
+                    entryX = startX + sectionWidthInGrid + 2;
+                    entryY = startY - 2;
+                    break;
+                default:
+                    entryX = entryY = null;
             }
 
-            if (shelfCenter[0] >= 0 && shelfCenter[0] < gridHeight && shelfCenter[1] >= 0 && shelfCenter[1] < gridWidth) {
-                grid[shelfCenter[0]][shelfCenter[1]] = 2;
+            if (
+                entryX !== null && entryY !== null &&
+                entryX >= 0 && entryX < gridWidth &&
+                entryY >= 0 && entryY < gridHeight
+            ) {
+                matrix[entryY][entryX] = 2;
             }
         }
     });
 
-    return grid;
+    writeMatrixToFile(matrix, 'matrix_with_path.txt');
+    return matrix;
 }
+
 
 function bfs(matrix, start) {
     const rows = matrix.length;
@@ -317,16 +331,16 @@ module.exports = async function (context, req) {
                 let location;
                 switch (section.rotation) {
                     case 0:
-                        location = { x: section.left + section.width / 2, y: section.top + section.height / 2 };
+                        location = { x: section.left + section.width / 2, y: section.top + section.height / 2 } + 1;
                         break;
                     case 90:
-                        location = { x: section.left + section.height / 2, y: section.top + section.width / 2 };
+                        location = { x: section.left + 1  , y: section.top + section.height / 2 };
                         break;
                     case 180:
-                        location = { x: section.left + section.width / 2, y: section.top + section.height / 2 };
+                        location = { x: section.left + section.width / 2, y: section.top + section.height / 2  - 1};
                         break;
                     case 270:
-                        location = { x: section.left + section.height / 2, y: section.top + section.width / 2 };
+                        location = { x: section.left  + section.width - 1, y: section.top + section.height / 2 };
                         break;
                 }
                 itemsWithLocations.push({

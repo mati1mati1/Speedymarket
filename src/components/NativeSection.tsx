@@ -21,9 +21,13 @@ const NativeSection: React.FC<SectionProps> = ({ id, name, left, top, rotation }
         }
       ]}
     >
+      {/* Section Text */}
       <Text style={[styles.sectionText, { transform: [{ rotate: `-${rotation}deg` }] }]}>
         {name} {id}
       </Text>
+      
+      {/* Arrow */}
+      <View style={styles.arrow} />
     </View>
   );
 };
@@ -43,6 +47,18 @@ const styles = StyleSheet.create({
   sectionText: {
     color: 'white',
     fontSize: 10,
+  },
+  arrow: {
+    position: 'absolute',
+    bottom: -10, // Position the arrow below the section
+    width: 0,
+    height: 0,
+    borderLeftWidth: 10,
+    borderRightWidth: 10,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopWidth: 10,
+    borderTopColor: 'green', // Arrow color (green)
   },
 });
 

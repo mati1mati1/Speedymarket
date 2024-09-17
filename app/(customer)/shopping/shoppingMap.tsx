@@ -175,39 +175,62 @@ const updateCart = (cart: ShopInventory[], newItem: ShopInventory, quantity: num
     setMenuCollapsed(!menuCollapsed);
   };
 
-  const drawPath = () => (
-    <Svg style={{ position: 'absolute', top: 0, left: 0, width: mapWidth, height: mapHeight }}>
-      {path.slice(1).map((point, index) => {
-        const prevPoint = path[index];
-        return (
-          <Line
-            key={index}
-            x1={prevPoint[1]}
-            y1={prevPoint[0]}
-            x2={point[1]}
-            y2={point[0]}
-            stroke="red"
-            strokeWidth="2"
-            markerEnd="url(#arrow)"
-          />
-        );
-      })}
-      <Defs>
-        <Marker
-          id="arrow"
-          markerWidth="10"
-          markerHeight="10"
-          refX="6"
-          refY="3"
-          orient="auto"
-          markerUnits="strokeWidth"
-        >
-          <Path d="M0,0 L0,6 L9,3 z" fill="#f00" />
-        </Marker>
-      </Defs>
-    </Svg>
-  );
-
+  const drawPath = () => {
+    console.log('Drawing Path:', path); // Debugging: Log the path points
+  
+    return (
+      <Svg style={{ position: 'absolute', top: 0, left: 0, width: mapWidth, height: mapHeight }}>
+        {path.slice(1).map((point, index) => {
+          const prevPoint = path[index];
+          const currentPoint = point;
+  
+          if (!prevPoint || !currentPoint) return null;
+  
+          const x1 = prevPoint[1];
+          const y1 = prevPoint[0];
+          const x2 = currentPoint[1];
+          const y2 = currentPoint[0];
+  
+          // Debugging: Ensure points are within the map dimensions
+          console.log(`Line from (${x1}, ${y1}) to (${x2}, ${y2})`);
+  
+          // Ensure all points are within bounds of the map
+          if (x1 >= 0 && x1 <= mapWidth && y1 >= 0 && y1 <= mapHeight &&
+              x2 >= 0 && x2 <= mapWidth && y2 >= 0 && y2 <= mapHeight) {
+            return (
+              <Line
+                key={index}
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke="red"
+                strokeWidth="2"
+                markerEnd="url(#arrow)"
+              />
+            );
+          } else {
+            console.error(`Point out of bounds: (${x1}, ${y1}) to (${x2}, ${y2})`);
+            return null;
+          }
+        })}
+        <Defs>
+          <Marker
+            id="arrow"
+            markerWidth="10"
+            markerHeight="10"
+            refX="6"
+            refY="3"
+            orient="auto"
+            markerUnits="strokeWidth"
+          >
+            <Path d="M0,0 L0,6 L9,3 z" fill="#f00" />
+          </Marker>
+        </Defs>
+      </Svg>
+    );
+  };
+  
   const drawUserLocation = () => (
     userLocation && (
       <View

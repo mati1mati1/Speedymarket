@@ -1,84 +1,63 @@
+/* Container for the entire layout */
+.map-editor-container {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Centers vertically */
+  height: 100vh; /* Full viewport height */
+  width: 100%; /* Full viewport width */
+  box-sizing: border-box;
+  padding: 0;
+}
+
+/* Wrapper for the map editor to allow centering */
+.map-editor-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  margin-right: 20px; /* Add space between the map and the sidebar */
+}
+
+/* Map styling */
 .map-editor {
-    width: 800px;
-    height: 600px;
-    border: 1px solid black;
-    position: relative;
-    margin: 20px auto;
-    background-color: #f0f0f0;
-  }
-  
-  .sidebar {
-    position: absolute;
-    left: 0;
-    top: 0;
-    padding: 20px;
-    background: #ddd;
-    height: 100%;
-  }
-  
-  .section {
-    width: 100px;
-    height: 50px;
-    background-color: #007bff;
-    color: white;
-    text-align: center;
-    line-height: 50px;
-    border: 1px solid #0056b3;
-    position: relative;
-  }
-  
-  .arrow {
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-top: 10px solid white;
-    position: absolute;
-    top: -10px;
-    left: 45px;
-  }
-  
-  .entrance {
-    width: 100px;
-    height: 50px;
-    background-color: green;
-    color: white;
-    text-align: center;
-    line-height: 50px;
-    border: 1px solid #004d00;
-  }
-  
-  .aisle {
-    background-color: yellow;
-    border: 1px solid #cccc00;
-    position: absolute;
-    cursor: pointer;
-  }
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Aligns modals at the top */
-    padding-top: 20px; /* Adds some padding from the top */
-  }
-  
-  .modal {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    max-width: 90%;
-    max-height: 90%;
-    overflow-y: auto;
-  }
-  .button-container {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+  width: 800px; /* Fixed width for the map */
+  height: 600px; /* Fixed height for the map */
+  border: 1px solid black;
+}
+
+/* Sidebar on the right */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+/* Styling for buttons */
+button {
+  display: block;
+  padding: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+}
+
+.btn-save {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-clear {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-add-section, .btn-add-entrance {
+  background-color: #008CBA;
+  color: white;
+}

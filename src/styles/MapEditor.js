@@ -1,94 +1,66 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
+  mapEditorContainer: {
+    display: 'flex',
+    justifyContent: 'center', /* Centers horizontally */
+    alignItems: 'center', /* Centers vertically */
+    height: '100vh', /* Full viewport height */
+    width: '100%', /* Full viewport width */
+    boxSizing: 'border-box',
+    padding: 0,
+  },
+  mapEditorWrapper: {
+    display: flex,
+    justifyContent: center,
+    alignItems: center,
+    flexGrow: 1,
+    marginRight: '20px', /* Add space between the map and the sidebar */
+  },
+  
+  /* Map styling */
   mapEditor: {
-    width: 800,
-    height: 600,
-    borderColor: 'black',
-    borderWidth: 1,
-    position: 'relative',
-    marginVertical: 20,
-    marginHorizontal: 'auto',
+    borderRadius: '5px',
+    overflow: hidden,
+    position: relative,
+    width: '800px', /* Fixed width for the map */
+    height: '600px', /* Fixed height for the map */
+    border: '1px solid black',
+  },
+  
+  /* Sidebar on the right */
+  sidebar: {
+    display: flex,
+    flexDirection: column,
+    gap: '10px',
+    alignItems: flex-start,
+  },
+  
+  button: {
+    display: block,
+    padding: '10px',
+    marginBottom: '10px',
+    cursor: pointer,
+    border: none,
+    borderRadius: '4px',
     backgroundColor: '#f0f0f0',
   },
-  sidebar: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    padding: 20,
-    backgroundColor: '#ddd',
-    height: '100%',
+
+  
+  btnSave: {
+    backgroundColor: '#4CAF50',
+    color: white,
   },
-  section: {
-    width: 100,
-    height: 50,
-    backgroundColor: '#007bff',
-    color: 'white',
-    textAlign: 'center',
-    lineHeight: 50, // Not supported in React Native, needs an alternative
-    borderColor: '#0056b3',
-    borderWidth: 1,
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
+  
+  btnClear: {
+    backgroundColor: '#f44336',
+    color: white,
   },
-  arrow: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 10,
-    borderLeftColor: 'transparent',
-    borderRightWidth: 10,
-    borderRightColor: 'transparent',
-    borderTopWidth: 10,
-    borderTopColor: 'white',
-    position: 'absolute',
-    top: -10,
-    left: 45,
-  },
-  entrance: {
-    width: 100,
-    height: 50,
-    backgroundColor: 'green',
-    color: 'white',
-    textAlign: 'center',
-    lineHeight: 50, // Not supported in React Native, needs an alternative
-    borderColor: '#004d00',
-    borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  aisle: {
-    backgroundColor: 'yellow',
-    borderColor: '#cccc00',
-    borderWidth: 1,
-    position: 'absolute',
-    cursor: 'pointer', // Not supported in React Native, use onPress for functionality
-  },
-  modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'flex-start', // Aligns modals at the top
-    paddingTop: 20, // Adds some padding from the top
-  },
-  modal: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    maxWidth: '90%',
-    maxHeight: '90%',
-    overflow: 'hidden', // overflow-y is not supported, use ScrollView if needed
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 10, // Not directly supported in React Native, use margin or padding
-    marginBottom: 20,
-  },
+  
+  btnAddSection, btnAddEntrance: {
+    backgroundColor: '#008CBA',
+    color: white,
+  }
 });
 
 export default styles;

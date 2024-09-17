@@ -13,7 +13,7 @@ interface SectionProps {
   currentOffset: { x: number; y: number } | null;
 }
 
-const WebSection: React.FC<SectionProps> = ({ id,  left, top, rotation, currentOffset }) => {
+const WebSection: React.FC<SectionProps> = ({ id, left, top, rotation, currentOffset }) => {
   const [{ isDraggingItem }, drag] = useDrag(() => ({
     type: ItemTypes.SECTION,
     item: { id, type: ItemTypes.SECTION, left, top, rotation },
@@ -43,11 +43,26 @@ const WebSection: React.FC<SectionProps> = ({ id,  left, top, rotation, currentO
         backgroundColor: '#007bff',
         borderColor: '#0056b3',
         borderWidth: 1,
-        fontSize: '10px'
+        borderStyle: 'solid',
+        fontSize: '10px',
       }}
     >
+      {/* Section ID, counter-rotated to stay upright */}
       <span style={{ transform: `rotate(-${rotation}deg)` }}>{id}</span>
-      <div className="arrow" />
+      
+      {/* Arrow */}
+      <div
+        className="arrow"
+        style={{
+          position: 'absolute',
+          bottom: '-10px', // Position the arrow below the section
+          width: '0',
+          height: '0',
+          borderLeft: '5px solid transparent',
+          borderRight: '5px solid transparent',
+          borderTop: '10px solid green', // Set arrow color to green
+        }}
+      />
     </div>
   );
 };
