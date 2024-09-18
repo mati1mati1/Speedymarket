@@ -60,7 +60,7 @@ const ManagerMapEditor: React.FC = () => {
         const left = Math.round(delta.x - mapRect.left);
         const top = Math.round(delta.y - mapRect.top);
 
-        setCurrentOffset(null); // Reset current offset after drop
+        setCurrentOffset(null); 
 
         if (item.type === ItemTypes.ENTRANCE) {
           moveEntrance(left, top);
@@ -185,7 +185,7 @@ const ManagerMapEditor: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>; // Loading indicator
+    return <div>Loading...</div>; 
   }
 
   return (
@@ -202,7 +202,7 @@ const ManagerMapEditor: React.FC = () => {
         >
           {sections.map(({ id, left, top, rotation }) => (
             <div key={`section-${id}`} onDoubleClick={() => rotateSection(id)}>
-              <WebSection id={id} left={left} top={top} rotation={rotation} currentOffset={currentOffset} />
+              <WebSection id={id} left={left} top={top} rotation={rotation} currentOffset={currentOffset} width={80} height={40} />
             </div>
           ))}
           {entrance && <WebEntrance left={entrance.left} top={entrance.top} />}
@@ -230,11 +230,11 @@ const ManagerMapEditor: React.FC = () => {
 const styles = {
   mapEditorContainer: {
     display: 'flex',
-    justifyContent: 'center', // Centers horizontally
-    alignItems: 'center', // Centers vertically
-    height: '100vh', // Full viewport height
-    width: '100%', // Full viewport width
-    boxSizing: 'border-box' as const, // Explicitly set as constant string
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: '100vh', 
+    width: '100%',
+    boxSizing: 'border-box' as const, 
     padding: 0,
   },
   mapEditorWrapper: {
@@ -242,21 +242,21 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     flexGrow: 1,
-    marginRight: '20px', // Add space between the map and the sidebar
+    marginRight: '20px',
   },
   mapEditor: {
-    borderRadius: '5px' as const, // `borderRadius` expects a string or number
-    overflow: 'hidden' as const, // Set overflow as a constant string
-    position: 'relative' as const, // TypeScript expects a specific type for `position`
+    borderRadius: '5px' as const,
+    overflow: 'hidden' as const,
+    position: 'relative' as const,
     width: '800px',
     height: '600px',
     border: '1px solid black',
   },
   sidebar: {
     display: 'flex',
-    flexDirection: 'column' as const, // Set `flexDirection` as a constant
-    gap: '10px', // gap is valid as a string
-    alignItems: 'flex-start' as const, // TypeScript expects specific values
+    flexDirection: 'column' as const,
+    gap: '10px', 
+    alignItems: 'flex-start' as const
   },
   btnSave: {
     backgroundColor: '#4CAF50',

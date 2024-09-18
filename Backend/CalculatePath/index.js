@@ -9,26 +9,34 @@ const config = {
     port: 1433,
     database: 'MySuperMarketDb',
     options: {
-        encrypt: false // Disable SSL for local development
+        encrypt: false 
     }
 };
 
 function createGrid(sections, gridWidth, gridHeight, shelvesToVisit) {
-    const gridSize = 1; // Assuming a grid size (you may adjust this value)
     const matrix = Array.from({ length: gridHeight }, () => Array(gridWidth).fill(0));
 
     sections.forEach(section => {
         const { left, top, width, height, rotation, id } = section;
 
-        let sectionWidthInGrid = Math.ceil(width / gridSize);
-        let sectionHeightInGrid = Math.ceil(height / gridSize);
+        let sectionWidthInGrid = Math.ceil(width);
+        let sectionHeightInGrid = Math.ceil(height);
 
-        let startX = Math.floor(left / gridSize);
-        let startY = Math.floor(top / gridSize);
+        let startX = Math.floor(left );
+        let startY = Math.floor(top );
 
         if (rotation === 90 || rotation === 270) {
             [sectionWidthInGrid, sectionHeightInGrid] = [sectionHeightInGrid, sectionWidthInGrid];
         }
+        if (rotation === 90) {
+            startX = Math.floor(left) + sectionHeightInGrid/4;
+            startY = Math.floor(top ) - sectionWidthInGrid/2;
+        } else if (rotation === 270) {
+            startX = Math.floor(left ) + sectionHeightInGrid/4;
+            startY = Math.floor(top ) - sectionWidthInGrid/2 ;
+        }
+
+
 
         for (let x = 0; x < sectionWidthInGrid; x++) {
             for (let y = 0; y < sectionHeightInGrid; y++) {
@@ -36,18 +44,18 @@ function createGrid(sections, gridWidth, gridHeight, shelvesToVisit) {
                 const gridY = startY + y;
 
                 if (gridX >= 0 && gridX < gridWidth && gridY >= 0 && gridY < gridHeight) {
-                    matrix[gridY][gridX] = 1;
+                    matrix[gridY][gridX] = 1; 
                 }
             }
         }
 
         if (shelvesToVisit.includes(id)) {
-            let entryX, entryY;
+            let entryX = null, entryY = null;
 
             switch (rotation) {
                 case 0:
                     entryX = startX + Math.floor(sectionWidthInGrid / 2);
-                    entryY = startY + Math.floor(sectionHeightInGrid) + 2;
+                    entryY = startY + sectionHeightInGrid + 2;
                     break;
                 case 90:
                     entryX = startX - 2;
@@ -61,23 +69,20 @@ function createGrid(sections, gridWidth, gridHeight, shelvesToVisit) {
                     entryX = startX + sectionWidthInGrid + 2;
                     entryY = startY - 2;
                     break;
-                default:
-                    entryX = entryY = null;
             }
 
-            if (
-                entryX !== null && entryY !== null &&
-                entryX >= 0 && entryX < gridWidth &&
-                entryY >= 0 && entryY < gridHeight
-            ) {
-                matrix[entryY][entryX] = 2;
+            if (entryX !== null && entryY !== null && entryX >= 0 && entryX < gridWidth && entryY >= 0 && entryY < gridHeight) {
+                matrix[entryY][entryX] = 2; 
             }
         }
     });
 
-    writeMatrixToFile(matrix, 'matrix_with_path.txt');
+    writeMatrixToFile(matrix, 'matrix_with_path1.txt');
+    
     return matrix;
 }
+
+
 
 
 function bfs(matrix, start) {
@@ -169,7 +174,7 @@ function findShortestPath(matrix, entrance) {
             }
         }
     }
-    points.unshift([entrance.top, entrance.left]); // Ensure entry point is the first point
+    points.unshift([entrance.top, entrance.left]); 
 
     const numPoints = points.length;
     const distances = [];
@@ -206,26 +211,13 @@ function findShortestPath(matrix, entrance) {
         fullPath = [...fullPath, ...segmentPath.reverse()];
     }
 
-    // Ensure the path starts with the entrance
     if (fullPath[0].toString() !== [entrance.top, entrance.left].toString()) {
         fullPath.unshift([entrance.top, entrance.left]);
     }
 
-    // // Find the return path to the entrance
-    // const lastPoint = fullPath[fullPath.length - 1];
-    // const { distances: returnDistances, predecessors: returnPredecessors } = bfs(matrix, lastPoint);
-    // let current = [entrance.top, entrance.left];
-    // const returnPath = [];
-    // while (current.toString() !== lastPoint.toString()) {
-    //     returnPath.push(current);
-    //     current = returnPredecessors[`${current[0]},${current[1]}`];
-    // }
-    // returnPath.push(lastPoint);
-    // fullPath = [...fullPath, ...returnPath.reverse()];
 
     console.log('Full Path:', fullPath);
 
-    // Collect key points where direction changes
     const keyPointsPath = [fullPath[0]];
     for (let i = 1; i < fullPath.length - 1; i++) {
         if (isDirectionChange(fullPath[i - 1], fullPath[i], fullPath[i + 1])) {
@@ -234,10 +226,9 @@ function findShortestPath(matrix, entrance) {
     }
     keyPointsPath.push(fullPath[fullPath.length - 1]);
 
-    // Mark the path on the grid
     fullPath.forEach(([r, c]) => {
         if (matrix[r][c] === 0 || matrix[r][c] === 2) {
-            matrix[r][c] = 3; // Using 3 to indicate the path
+            matrix[r][c] = 3;
         }
     });
 
@@ -329,24 +320,34 @@ module.exports = async function (context, req) {
             const section = branchMap.sections.find(section => section.id === parseInt(inventoryItem.Location, 10));
             if (section) {
                 let location;
+            
                 switch (section.rotation) {
                     case 0:
-                        location = { x: section.left + section.width / 2, y: section.top + section.height / 2 } + 1;
+                        entryX = Math.floor(section.left ) + Math.floor(section.width / 2);
+                        entryY = Math.floor(section.top ) + Math.floor(section.height ) - 2;
+                        location = { x: entryX , y: entryY  };
                         break;
                     case 90:
-                        location = { x: section.left + 1  , y: section.top + section.height / 2 };
+                        entryX = Math.floor(section.left ) + 2;
+                        entryY = Math.floor(section.top ) + Math.floor(section.height / 2);
+                        location = { x: entryX , y: entryY  };
                         break;
                     case 180:
-                        location = { x: section.left + section.width / 2, y: section.top + section.height / 2  - 1};
+                        entryX = Math.floor(section.left) + Math.floor(section.width / 2);
+                        entryY = Math.floor(section.top) + Math.floor(section.height ) + 2;
+                        location = { x: entryX , y: entryY  };
                         break;
                     case 270:
-                        location = { x: section.left  + section.width - 1, y: section.top + section.height / 2 };
+                        entryX = Math.floor(section.left ) + Math.floor(section.width ) - 2;
+                        entryY = Math.floor(section.top ) + 2;
+                        location = { x: entryX , y: entryY };
                         break;
                 }
+        
                 itemsWithLocations.push({
                     ...item,
                     location,
-                    shelf: section.id
+                    shelfId: section.id
                 });
             }
             return parseInt(inventoryItem.Location, 10);

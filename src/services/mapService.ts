@@ -45,8 +45,7 @@ export interface SectionType {
     ListID: string;
     ItemName: string;
     Quantity: number;
-    location: Location;
-    shelf: string;
+    shelfId: number;
   }
   
   interface Data {
