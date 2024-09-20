@@ -3,9 +3,7 @@ import { View, StyleSheet, Modal, TouchableOpacity, Text, Platform, ScrollView, 
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import WebSection from '../../../src/components/WebSection';
-import WebEntrance from '../../../src/components/WebEntrance';
-import NativeSection from '../../../src/components/NativeSection';
-import NativeEntrance from '../../../src/components/NativeEntrance';
+import WebShoppingMap from '../../../src/components/WebShoppingMap';
 import Svg, { Line, Defs, Marker, Path, Circle } from 'react-native-svg';
 import { useLocalSearchParams } from 'expo-router';
 import { EntranceType, loadMapAndPath, SectionType, ItemWithLocation } from '../../../src/services/mapService';
@@ -17,9 +15,9 @@ import ShoppingCart from '../../../src/components/ShoppingCart';
 import ScanItem from '../../../src/components/Scanner';
 import QuantityModal from '../../../src/components/QuantityModal'; 
 import Payment from '../../../src/components/Payment';
+import NativeShoppingMap from '../../../src/components/NativeShoppingMap'; 
 
-const Entrance = Platform.OS === 'web' ? WebEntrance : NativeEntrance;
-const Section = Platform.OS === 'web' ? WebSection : NativeSection;
+const Map = Platform.OS === 'web' ? WebShoppingMap : NativeShoppingMap;
 
 const ShoppingMap: React.FC = () => {
   const { supermarketId, listId } = useLocalSearchParams<{ supermarketId: string; listId?: string }>();
@@ -172,64 +170,7 @@ const ShoppingMap: React.FC = () => {
     setMenuCollapsed(!menuCollapsed);
   };
 
-  const drawPath = () => {
-    if (!path || path.length === 0) return null;
-
-    // Map grid coordinates to screen coordinates
-    const mapToScreenCoordinates = (gridPoint: number[], gridWidth: number, gridHeight: number, mapWidth: number, mapHeight: number) => {
-      const xRatio = mapWidth / gridWidth;
-      const yRatio = mapHeight / gridHeight;
-      return [gridPoint[1] * xRatio, gridPoint[0] * yRatio];
-    };
-
-    return (
-      <Svg style={{ position: 'absolute', top: 0, left: 0, width: mapWidth, height: mapHeight }}>
-        {path.slice(1).map((point, index) => {
-          const prevPoint = path[index];
-          const currentPoint = point;
-
-          if (!prevPoint || !currentPoint) return null;
-
-          // Convert grid points to screen points
-          const [x1, y1] = mapToScreenCoordinates(prevPoint, mapWidth, mapHeight, mapWidth, mapHeight);
-          const [x2, y2] = mapToScreenCoordinates(currentPoint, mapWidth, mapHeight, mapWidth, mapHeight);
-
-          if (x1 >= 0 && x1 <= mapWidth && y1 >= 0 && y1 <= mapHeight &&
-              x2 >= 0 && x2 <= mapWidth && y2 >= 0 && y2 <= mapHeight) {
-            return (
-              <Line
-                key={index}
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                stroke="red"
-                strokeWidth="2"
-                markerEnd="url(#arrow)"
-              />
-            );
-          } else {
-            console.error(`Point out of bounds: (${x1}, ${y1}) to (${x2}, ${y2})`);
-            return null;
-          }
-        })}
-        {/* <Defs>
-          <Marker
-            id="arrow"
-            markerWidth="5"
-            markerHeight="10"
-            refX="6"
-            refY="3"
-            orient="auto"
-            markerUnits="strokeWidth"
-          >
-            <Path d="M0,0 L0,6 L9,3 z" fill="#f00" />
-          </Marker>
-        </Defs> */}
-      </Svg>
-    );
-  };
-
+  
   const drawUserLocation = () => (
     userLocation && (
       <View
@@ -272,31 +213,7 @@ const ShoppingMap: React.FC = () => {
             </TouchableOpacity>
           </View>
         )}
-        <ScrollView horizontal={true}>
-        <ScrollView>
-          <Animated.View style={[styles.mapEditor, { transform: [{ scale: zoomLevel }], width: mapWidth, height: mapHeight }]}>
-            {sections.map(({ id, name, left, top, rotation, width, height }) => {
-              const isFoundItem = itemFoundList.some(item => item.shelfId === id);
-              console.log(isFoundItem)
-              return (
-                <Section
-                  key={id}
-                  id={id}
-                  name={name}
-                  left={left}
-                  top={top}
-                  rotation={rotation}
-                  currentOffset={currentOffset}
-                  style={{ backgroundColor: isFoundItem ? 'green' : '#007bff' }} 
-                />
-              );
-            })}
-            {entrance && <Entrance {...entrance} />}
-            {drawPath()}
-            {drawUserLocation()}
-          </Animated.View>
-        </ScrollView>
-      </ScrollView>
+       <Map sections={sections} entrance={entrance} path={path} itemFoundList={itemFoundList} />
         <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
           <TouchableOpacity style={styles.modalOverlay} onPress={toggleIsScannedDataOpen}>
             <View style={styles.modal} onStartShouldSetResponder={() => true}>

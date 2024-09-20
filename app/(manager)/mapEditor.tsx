@@ -202,7 +202,7 @@ const ManagerMapEditor: React.FC = () => {
         >
           {sections.map(({ id, left, top, rotation }) => (
             <div key={`section-${id}`} onDoubleClick={() => rotateSection(id)}>
-              <WebSection id={id} left={left} top={top} rotation={rotation} currentOffset={currentOffset} width={80} height={40} />
+              <WebSection id={id} left={left} top={top} rotation={rotation} currentOffset={currentOffset} />
             </div>
           ))}
           {entrance && <WebEntrance left={entrance.left} top={entrance.top} />}
