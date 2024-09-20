@@ -7,7 +7,7 @@ interface SectionProps {
   left: number;
   top: number;
   rotation: number;
-  style?: any; // Use any since React.CSSProperties is for web; for React Native, `style` can vary
+  style?: any;
 }
 
 const NativeSection: React.FC<SectionProps> = ({ id, name, left, top, rotation, style }) => {
@@ -20,15 +20,13 @@ const NativeSection: React.FC<SectionProps> = ({ id, name, left, top, rotation, 
           top: top,
           transform: [{ rotate: `${rotation}deg` }],
         },
-        style // Apply custom style passed as a prop
+        style
       ]}
     >
-      {/* Section Text */}
       <Text style={[styles.sectionText, { transform: [{ rotate: `-${rotation}deg` }] }]}>
         {name} {id}
       </Text>
 
-      {/* Arrow */}
       <View style={styles.arrow} />
     </View>
   );
@@ -39,7 +37,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 80,
     height: 40,
-    backgroundColor: '#007bff', // Default background color
+    backgroundColor: '#007bff', 
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
