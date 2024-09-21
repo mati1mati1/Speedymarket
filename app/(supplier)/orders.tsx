@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import OrderCard from '../../src/components/OrderCard';
 import { StyleSheet } from 'react-native';
-import { View } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import {getOrdersBySupplierId} from '../../src/api/api';
 import { useAuth } from '../../src/context/AuthContext';
 export default function SupplierScreen() {
@@ -41,6 +41,7 @@ export default function SupplierScreen() {
 
 
   return (
+    <ScrollView>
     <View style={styles.cardRow}>
       {orders.map((order) => (
         <OrderCard
@@ -52,6 +53,7 @@ export default function SupplierScreen() {
         />
       ))}
     </View>
+    </ScrollView>
   );
 }
 
