@@ -56,15 +56,13 @@ const ShoppingMap: React.FC = () => {
     
         if (supermarketId) {
           hubConnection.on(supermarketId, (items) => {
-            if (Array.isArray(items)) {
+            if (!isPaymentState && Array.isArray(items)) {
               items.forEach(item => {
                 if (itemFoundList.some(foundItem => foundItem.ItemName === item.itemName)) {
                   console.log("Received item:", item);
                   customAlert('Item Out of Stock', `Item: "${item.itemName}" is out of stock in supermarket.`, [{ text: 'OK' }]); 
                 }
               });
-            } else {
-              console.log("Received unexpected data format:", items);
             }
           });
         } else {

@@ -37,8 +37,8 @@ const PurchaseSummary: React.FC<PurchaseSummaryProps> = ({ sessionId, items, tot
   }
 
   const handleFinish = () => {
-    router.push("/shopping/supermarketMapsScreen");  // Navigate to another screen
-    onRequestClose();  // Close the modal/popup
+    router.push("/shopping/supermarketMapsScreen"); 
+    onRequestClose();  
   };
 
   return (
