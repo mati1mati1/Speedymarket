@@ -10,6 +10,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { Image } from 'react-native';
 import {uploadGroceryListImage, uploadRecipeUrl } from '../../../src/api/api';
 import { Alert } from 'react-native';
+import customAlert from '../../../src/components/AlertComponent';
 
 export default function EditListScreen() {
   let { listId, ListName } = useLocalSearchParams<{ listId: string; ListName?: string }>();
@@ -45,19 +46,10 @@ export default function EditListScreen() {
     launchImageLibrary({ mediaType: 'photo' }, async (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
-        Toast.show({
-          type: 'info',
-          text1: 'Cancelled',
-        });
-        //for mobile:
-        Alert.alert('Cancelled', 'User cancelled image picker');
+        customAlert('Cancelled', 'User cancelled image picker');
       } else if (response.errorMessage) {
         console.log('ImagePicker Error: ', response.errorMessage);
-        Toast.show({
-          type: 'error',
-          text1: 'Please try again with a different image',
-        });
-        Alert.alert('Error', response.errorMessage);
+        customAlert('Error', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
         const source = { uri: response.assets[0].uri as string };
         setImage(source);
@@ -82,18 +74,10 @@ export default function EditListScreen() {
             });
             setItems(prevItems => [...prevItems, ...parsedItems]);
           } else {
-            Toast.show({
-              type: 'error',
-              text1: 'Please try again with a different image',
-            });
-            Alert.alert('Error', 'Please try again with a different image');
+            customAlert('Error', 'Please try again with a different image');
           }
         } catch (error) {
-          Toast.show({
-            type: 'error',
-            text1: 'Please try again later, we had a problem',
-          });
-          Alert.alert('Error', 'Please try again later, we had a problem');
+          customAlert('Error', 'Please try again later, we had a problem');
         }
       }
     });
@@ -113,11 +97,7 @@ export default function EditListScreen() {
       // Add parsed items to the existing items in the list
       setItems(prevItems => [...prevItems, ...parsedItems]);
     } else {
-      Toast.show({
-        type: 'error',
-        text1: 'Please try again with a different URL',
-      });
-      Alert.alert('Error', 'Please try again with a different URL');
+      customAlert('Error', 'Please try again with a different URL');
     }
     setRecipeUrl('');
   };

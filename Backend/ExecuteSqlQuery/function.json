@@ -12,6 +12,13 @@
       "type": "http",
       "direction": "out",
       "name": "res"
+    },
+    {
+      "type": "signalR",
+      "name": "itemOutOfStockHub",
+      "hubName": "itemOutOfStock", 
+      "connectionStringSetting": "AzureSignalRConnectionString",
+      "direction": "out"
     }
   ]
 }

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, Pressable, Modal, TextInput, Alert } from 'react-native';
 import { ItemWithLocation } from 'src/services/mapService';
-import styles from '../styles/PopUpWindow'; // Import the styles
+import styles from '../styles/PopUpWindow'; 
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+import customAlert from './AlertComponent'; 
 
 interface FoundItemsModalProps {
   isOpen: boolean;
@@ -10,35 +11,33 @@ interface FoundItemsModalProps {
   items: ItemWithLocation[];
   checkedItems: { [key: string]: boolean };
   onCheckboxChange: (itemId: string) => void;
-  addToCart: (item: string, quantity: number) => void; // Function to add items to the cart
+  addToCart: (item: string, quantity: number) => void; 
 }
 
 const FoundItemsModal: React.FC<FoundItemsModalProps> = ({ isOpen, onRequestClose, items, checkedItems, onCheckboxChange, addToCart }) => {
   const [isQuantityModalOpen, setQuantityModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItemWithLocation | null>(null);
-  const [quantity, setQuantity] = useState('1'); // Default quantity is 1
+  const [quantity, setQuantity] = useState('1'); 
 
-  // Open the quantity modal for a specific item
   const handleAddToCartPress = (item: ItemWithLocation) => {
     setSelectedItem(item);
-    setQuantity('1'); // Reset quantity
+    setQuantity('1'); 
     setQuantityModalOpen(true);
   };
 
-  // Handle adding the item to the cart with the selected quantity
   const handleConfirmAddToCart = () => {
     if (!selectedItem || parseInt(quantity) <= 0) {
-      Alert.alert('Invalid Quantity', 'Please select a valid quantity.');
+      customAlert('Invalid Quantity', 'Please select a valid quantity.');
       return;
     }
-    addToCart(selectedItem.ItemName, parseInt(quantity)); // Call the addToCart function passed as a prop
+    addToCart(selectedItem.ItemName, parseInt(quantity)); 
     setQuantityModalOpen(false);
   };
 
   return (
     <Modal visible={isOpen} onRequestClose={onRequestClose} transparent={true}>
-      <Pressable style={styles.modalOverlay} onPress={() => { /* Do nothing to avoid modal close */ }}>
-        <Pressable style={styles.modalContent} onPress={() => { /* To prevent modal closing when clicking inside */ }}>
+      <Pressable style={styles.modalOverlay} onPress={() => { }}>
+        <Pressable style={styles.modalContent} onPress={() => { }}>
           <Text style={styles.title}>Found Items</Text>
           <FlatList
             data={items}
@@ -51,7 +50,7 @@ const FoundItemsModal: React.FC<FoundItemsModalProps> = ({ isOpen, onRequestClos
                     onPress={() => onCheckboxChange(item.ListItemID)}
                   />
                   <Text style={styles.listItemText}>
-                    {item.ItemName} Quantity: {item.Quantity} Shelf: {item.shelf}
+                    {item.ItemName} Quantity in the list : {item.Quantity}, Quantity in store : {item.quantityInStore} Shelf: {item.shelfId}
                   </Text>
                 </Pressable>
                 <Pressable style={styles.addButton} onPress={() => handleAddToCartPress(item)}>
