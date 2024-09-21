@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const sql = require('mssql');
+const crypto = require('crypto');
 
 const config = {
   user: 'SA',
@@ -27,16 +28,23 @@ module.exports = async function (context, req) {
   //     body: { message: 'Invalid credentials' },
   //   };
   // }
-  const { username } = req.body;
-  context.log('Username:', username);
+  const { username, password } = req.body;
   const user = await getUserByUserName(username);
-  context.log('User:', user);
+  const inputHash = crypto.createHash('sha256').update(password).digest('hex');
+  const match = inputHash.toLowerCase() === user.HashedPassword.toLowerCase(); // Now compare the SHA-256 hashes
   if (user ) { 
-    const token = jwt.sign({ userId: user.UserID, username: user.UserName, role: user.UserType }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    console.log('Token:', token);
-    context.res = {
-      body: { token },
-    };
+    if (!match) {
+      context.res = {
+        status: 401,
+        body: { message: 'Invalid credentials' },
+      };
+    } else {
+      const token = jwt.sign({ userId: user.UserID, username: user.UserName, role: user.UserType }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      console.log('Token:', token);
+      context.res = {
+        body: { token },
+      };
+    }
   } else {
     context.res = {
       status: 401,
@@ -49,7 +57,7 @@ async function getUserByUserName(username) {
   try {
     await sql.connect(config);
     // Password,
-    const result = await sql.query`SELECT UserID, UserName, UserType FROM [User] WHERE UserName = ${username}`;
+    const result = await sql.query`SELECT UserID, UserName, UserType, HashedPassword FROM [User] WHERE UserName = ${username}`;
     
     if (result.recordset.length > 0) {
       return result.recordset[0];

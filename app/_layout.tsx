@@ -40,11 +40,6 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { authState } = useAuth();
-  useEffect(() => {
-    if(!authState?.authenticated){ {
-      router.replace('/login');
-    }
-  }}, []);
   return (
     <DndProvider backend={HTML5Backend}>
       <Stack screenOptions={{headerShown: false}}>

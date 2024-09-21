@@ -1,6 +1,5 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
-import { StyleSheet } from 'react-native'; // Assuming you are using React Native
 
 const ItemTypes = {
   ENTRANCE: 'entrance'

@@ -1,0 +1,199 @@
+{
+    "sections": [
+      {
+        "id": 1,
+        "name": "???",
+        "left": 115,
+        "top": 377,
+        "rotation": 90,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 2,
+        "name": "???",
+        "left": 25,
+        "top": 372,
+        "rotation": 270,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 3,
+        "name": "???",
+        "left": 23,
+        "top": 452,
+        "rotation": 270,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 4,
+        "name": "???",
+        "left": 115,
+        "top": 459,
+        "rotation": 90,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 5,
+        "name": "???",
+        "left": 578,
+        "top": 176,
+        "rotation": 0,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 6,
+        "name": "???",
+        "left": 713,
+        "top": 180,
+        "rotation": 0,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 7,
+        "name": "???",
+        "left": 708,
+        "top": 269,
+        "rotation": 0,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 8,
+        "name": "???",
+        "left": 558,
+        "top": 274,
+        "rotation": 0,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 9,
+        "name": "???",
+        "left": 715,
+        "top": 361,
+        "rotation": 180,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 10,
+        "name": "???",
+        "left": 562,
+        "top": 358,
+        "rotation": 180,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 11,
+        "name": "???",
+        "left": 202,
+        "top": 355,
+        "rotation": 0,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 12,
+        "name": "???",
+        "left": 215,
+        "top": 476,
+        "rotation": 0,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 13,
+        "name": "???",
+        "left": 163,
+        "top": 192,
+        "rotation": 180,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 14,
+        "name": "???",
+        "left": 37,
+        "top": 195,
+        "rotation": 180,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 15,
+        "name": "???",
+        "left": 164,
+        "top": 235,
+        "rotation": 0,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 16,
+        "name": "???",
+        "left": 33,
+        "top": 235,
+        "rotation": 0,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 17,
+        "name": "???",
+        "left": 379,
+        "top": 156,
+        "rotation": 270,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 18,
+        "name": "???",
+        "left": 388,
+        "top": 83,
+        "rotation": 180,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 19,
+        "name": "???",
+        "left": 431,
+        "top": 471,
+        "rotation": 0,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 20,
+        "name": "???",
+        "left": 418,
+        "top": 342,
+        "rotation": 180,
+        "width": 80,
+        "height": 40
+      },
+      {
+        "id": 21,
+        "name": "???",
+        "left": 428,
+        "top": 429,
+        "rotation": 180,
+        "width": 80,
+        "height": 40
+      }
+    ],
+    "entrance": {
+      "left": 404,
+      "top": 550
+    },
+    "mapWidth": 800,
+    "mapHeight": 600
+  }
