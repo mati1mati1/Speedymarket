@@ -150,12 +150,6 @@ export default function InventoryManagementScreen() {
     }
   };
 
-  // const openAddItemModal = () => {
-  //   setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
-  //   setIsEditing(false);
-  //   setModalVisible(true);
-  // };
-
   const renderEditButton = (data: any, index: number) => (
     <View style={styles.buttonGroup}>
       <Pressable style={styles.editButton} onPress={() => handleEditClick(inventory[index])} >
@@ -182,7 +176,6 @@ export default function InventoryManagementScreen() {
         value={filter}
         onChangeText={setFilter}
       />
-      {/* <Button title="Add Item" onPress={openAddItemModal} /> */}
 
       <ScrollView horizontal>
         <ScrollView>
@@ -261,9 +254,9 @@ export default function InventoryManagementScreen() {
                   />
                 )}
               </View>
-))}
+            ))}
 
-              <View style= {styles.buttonContainer}>
+            <View style={styles.buttonContainer}>
               <RNEButton
                 title={isEditing ? "Update Item" : "Add Item"}
                 onPress={isEditing ? handleEditItem : handleAddItem}

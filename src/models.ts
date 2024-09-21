@@ -38,8 +38,8 @@ export interface ProductsList {
 }
 
 export interface OrderItem {
-  // OrderItemID: string;
-  // OrderID: string;
+  OrderItemID: string;
+  OrderID: string;
   ItemID: string;
   ItemName: string;
   Quantity: number;

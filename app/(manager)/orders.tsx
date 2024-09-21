@@ -38,7 +38,6 @@ export default function OrderManagementScreen() {
     };
     fetchData();
 
-
   }, []);
 
 
@@ -66,6 +65,8 @@ export default function OrderManagementScreen() {
 
   const createOrderItems = (selectedItems: { item: SupplierInventory, quantity: number }[]): OrderItem[] => {
     return selectedItems.map(({ item, quantity }) => ({
+      OrderID: '',
+      OrderItemID: '',
       ItemID: item.InventoryID,
       ItemName: item.ItemName,
       Quantity: quantity,
@@ -108,8 +109,7 @@ export default function OrderManagementScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Order Management</Text>
-      
+      <Text style={styles.title}>Order Management</Text>      
       <FlatList
         data={orders}
         renderItem={({ item }) => (

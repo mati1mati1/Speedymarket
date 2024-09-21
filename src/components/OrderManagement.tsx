@@ -131,7 +131,7 @@ const OrderManagement :  React.FC<OrderManagementProps> = ({ orderID, supermarke
       )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   orderCard: {

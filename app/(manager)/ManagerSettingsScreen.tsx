@@ -35,7 +35,6 @@ const ManagerSettingsScreen = () => {
     const [cityInputText, setCityInputText] = useState(''); 
     const [streetInputText, setStreetInputText] = useState(''); 
 
-
     useEffect(() => {
         const fetchSupermarketDetails = async () => {
             try {
@@ -276,7 +275,6 @@ const ManagerSettingsScreen = () => {
                 )}
             </View>
 
-
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Street</Text>
                 <TextInput
@@ -365,7 +363,7 @@ const ManagerSettingsScreen = () => {
                                     ])}
                                     textStyle={styles.text}
                                     widthArr={[4*screenWidth / 16, 5*screenWidth / 16, 5*screenWidth / 16, screenWidth / 16 - 16]}
-                                    />
+                                />
                             </TableWrapper>
                         </Table>
                     </View>
