@@ -41,7 +41,6 @@ const OrderManagement :  React.FC<OrderManagementProps> = ({ orderID, supermarke
         textColor = 'gray';
         break;
     }
-    // setStatusIcon(<Text style={{ color: textColor }}>{statusText}</Text>)
 
     return <Text style={{ color: textColor }}>{statusText}</Text>;
   };
