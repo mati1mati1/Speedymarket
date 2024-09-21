@@ -216,7 +216,7 @@ function findShortestPath(matrix, entrance) {
     }
 
 
-    console.log('Full Path:', fullPath);
+    //console.log('Full Path:', fullPath);
 
     const keyPointsPath = [fullPath[0]];
     for (let i = 1; i < fullPath.length - 1; i++) {
@@ -250,7 +250,7 @@ function mapToGridPoint(point, mapWidth, mapHeight, gridWidth, gridHeight) {
 module.exports = async function (context, req) {
     const { supermarketId, listId } = req.body;
     const token = req.headers.authorization?.split(' ')[1];
-    console.log( req.body);
+    //console.log( req.body);
     if (!supermarketId) {
         context.res = {
             status: 400,
@@ -274,7 +274,7 @@ module.exports = async function (context, req) {
         } catch (err) {
             throw new Error(`Error fetching map data: ${err.message}`);
         }
-        console.log("listId " +  listId);
+        //console.log("listId " +  listId);
         if(!listId || listId === ''){
             context.res = {
                 status: 200,
@@ -294,7 +294,7 @@ module.exports = async function (context, req) {
                 };
             } else {
                 shoppingList = listResult.recordset;
-                context.log('Shopping List:', shoppingList);
+                //context.log('Shopping List:', shoppingList);
             }
         } catch (err) {
             throw new Error(`Error fetching shopping list data: ${err.message}`);
@@ -311,12 +311,13 @@ module.exports = async function (context, req) {
         }
 
         const shelvesToVisit = shoppingList.map(item => {
-            const inventoryItem = inventory.find(inv => inv.ItemName === item.ItemName);
+            const inventoryItem = inventory.find(inv => inv.ItemName === item.ItemName && inv.Quantity > 0);
             if (!inventoryItem) {
                 context.log(`Missing item: ${item.ItemName}`);
                 missingItems.push(item);
                 return null;
             }
+            context.log(`Found item: ${item.ItemName} with quantity: ${inventoryItem.Quantity}`);
             const section = branchMap.sections.find(section => section.id === parseInt(inventoryItem.Location, 10));
             if (section) {
                 let location;
@@ -347,7 +348,8 @@ module.exports = async function (context, req) {
                 itemsWithLocations.push({
                     ...item,
                     location,
-                    shelfId: section.id
+                    shelfId: section.id,
+                    quantityInStore: inventoryItem.Quantity
                 });
             }
             return parseInt(inventoryItem.Location, 10);
@@ -363,7 +365,7 @@ module.exports = async function (context, req) {
         const grid = createGrid(branchMap.sections, branchMap.mapWidth, branchMap.mapHeight, shelvesToVisit);
 
         let { keyPointsPath, matrixWithPath } = findShortestPath(grid, branchMap.entrance);
-        context.log('Key points path found:', keyPointsPath);
+        //context.log('Key points path found:', keyPointsPath);
         writeMatrixToFile(matrixWithPath, 'matrix_with_path.txt');
 
         const pathInMapCoordinates = keyPointsPath.map(point => mapToGridPoint(point, branchMap.mapWidth, branchMap.mapHeight, grid[0].length, grid.length));

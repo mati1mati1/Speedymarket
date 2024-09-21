@@ -12,6 +12,16 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
   
+  const getShopInventoryBySuperMarketIdQuery = (supermarketID) => ({
+    query: `
+      Select ItemName, Quantity 
+      from ShopInventory
+      where SupermarketID = @supermarketID
+    `,
+    params: [
+      { name: 'supermarketID', type: 'UniqueIdentifier', value: supermarketID }
+    ]
+  });
   const getShopInventoryQuery = (userId) => ({
     query: `
       SELECT si.* 
@@ -240,7 +250,7 @@ const getUserByIdQuery = (userId) => ({
       
       -- Insert a new order into Order
       DECLARE @OrderID UNIQUEIDENTIFIER = NEWID();
-      INSERT INTO Order (OrderID, UserID, SupermarketID, TotalAmount, CreationDate, SessionId, OrderStatus)
+      INSERT INTO [Order] (OrderID, UserID, SupermarketID, TotalAmount, CreationDate, SessionId, OrderStatus)
       VALUES (@OrderID, @buyerId, @supermarketId, @totalAmount, GETDATE(), @sessionId, Null);
   
       -- Insert each item into OrderItem and update ShopInventory
@@ -332,6 +342,7 @@ const getUserByIdQuery = (userId) => ({
     getOrderByBuyerIdAndOrderIdQuery,
     getOrderDetailsByIdQuery,
     createPurchaseQuery,
+    getShopInventoryBySuperMarketIdQuery,
     getUserByIdQuery,
     getUserByUserNameQuery,
     getShopInventoryQuery,

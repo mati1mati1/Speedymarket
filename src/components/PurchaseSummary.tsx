@@ -9,7 +9,7 @@ interface PurchaseSummaryProps {
   items: ShopInventory[];
   totalAmount: string;
   supermarketId: string;
-  onRequestClose: () => void;  // New prop for closing the popup
+  onRequestClose: () => void;  
 }
 
 const PurchaseSummary: React.FC<PurchaseSummaryProps> = ({ sessionId, items, totalAmount, supermarketId, onRequestClose }) => {
@@ -37,7 +37,7 @@ const PurchaseSummary: React.FC<PurchaseSummaryProps> = ({ sessionId, items, tot
   }
 
   const handleFinish = () => {
-    router.push("/shopping/supermarketMapsScreean");  // Navigate to another screen
+    router.push("/shopping/supermarketMapsScreen");  // Navigate to another screen
     onRequestClose();  // Close the modal/popup
   };
 

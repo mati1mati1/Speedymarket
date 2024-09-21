@@ -3,6 +3,19 @@ const jwt = require('jsonwebtoken');
 const queries = require('./queries'); 
 const axios = require('axios');
 
+
+const config = {
+    user: 'SA',
+    password: 'Aa123456',
+    server: 'localhost',
+    port: 1433,
+    database: 'MySuperMarketDb',
+    options: {
+        encrypt: false 
+    }
+};
+
+
 const getQueryByName = async (functionName, params) => {
     console.log("this is the params in the index of the function: " + JSON.stringify(params));
     switch (functionName) {
@@ -97,12 +110,51 @@ async function getCoordinatesFromAzureMaps(address) {
     }
   }
 
+  async function sendSignalR(context, params) {
+    console.log("Sending SignalR with params: " + JSON.stringify(params));
+    let newItemOutOfStock = [];
+
+    try {
+        await sql.connect(config);
+
+        const request = new sql.Request();
+
+        const queryObject = queries.getShopInventoryBySuperMarketIdQuery(params.supermarketId);
+
+        request.input('supermarketID', sql.UniqueIdentifier, params.supermarketId);
+
+        const result = await request.query(queryObject.query);
+
+        for (const element of result.recordset) {
+            if (element['Quantity'] == 0) {
+                if (params.items.find(item => item.ItemName === element["ItemName"])) {
+                    newItemOutOfStock.push({
+                        itemName: element["ItemName"],
+                    });
+                }
+            }
+        }
+
+        if (newItemOutOfStock.length > 0) {
+            context.bindings.itemOutOfStockHub = [{
+                target: params.supermarketId,  
+                arguments: [newItemOutOfStock]  
+            }];
+            console.log('SignalR message sent:', newItemOutOfStock);
+        } else {
+            console.log('No out-of-stock items to notify.');
+        }
+
+    } catch (error) {
+        console.error('Error in sendSignalR function:', error);
+    }
+}
+
 module.exports = async function (context, req) {
     const token = req.headers.authorization?.split(' ')[1];
     const functionName = req.body.functionName;
     const params = req.body.params;
-    console.log("params: " + JSON.stringify(params));
-    console.log("0000000000000000000000000000000000000000000000000000")
+
     if (!token) {
         context.res = {
             status: 401,
@@ -112,7 +164,6 @@ module.exports = async function (context, req) {
     }
 
     if (!functionName || !params) {
-        console.log("fuck fuck fuck")
         context.res = {
             status: 400,
             body: "Please pass a function name and its parameters in the request body"
@@ -123,60 +174,36 @@ module.exports = async function (context, req) {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const config = {
-            user: 'SA',
-            password: 'Aa123456',
-            server: 'localhost',
-            port: 1433,
-            database: 'MySuperMarketDb',
-            options: {
-                encrypt: false 
-            }
-        };
-
         await sql.connect(config);
         const request = new sql.Request();
-        console.log("userID" + decoded.userId);
+
         const queryObject = await getQueryByName(functionName, params);
-        console.log(queryObject.query);
         for (const param of queryObject.params) {
-            if(param.name === 'userId' || param.name === 'buyerId' || param.name === 'sellerId'){
+            if (param.name === 'userId' || param.name === 'buyerId' || param.name === 'sellerId') {
                 request.input(param.name, sql[param.type], decoded.userId);
-            }
-            else if(param.name === 'userName'){
+            } else if (param.name === 'userName') {
                 request.input(param.name, sql[param.type], decoded.userName);
-            }
-            else{
+            } else {
                 request.input(param.name, sql[param.type], param.value);
             }
         }
-        context.log('SQL Query:', queryObject.query);
-        context.log('SQL Query Parameters:', queryObject.params);
+
         const result = await request.query(queryObject.query);
 
-        context.log('SQL Query Result:', result.recordset);
+        if (functionName === 'createPurchaseQuery') {
+            await sendSignalR(context, params);  // Reuse the existing connection
+        }
 
         context.res = {
             status: 200,
             body: result.recordset
         };
     } catch (err) {
-        if (err.name === 'JsonWebTokenError') {
-            context.log('JWT Error:', err);
-
-            context.res = {
-                status: 401,
-                body: `JWT Error: ${err.message}`
-            };
-        } else {
-            context.log('Error executing SQL query:', err);
-
-            context.res = {
-                status: 500,
-                body: `Error: ${err.message}`
-            };
-        }
+        context.res = {
+            status: 500,
+            body: `Error: ${err.message}`
+        };
     } finally {
-        sql.close();
+        sql.close();  // Close the connection after everything is done
     }
 };

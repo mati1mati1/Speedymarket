@@ -111,7 +111,7 @@ CREATE TABLE ShopInventory (
     InventoryID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     SupermarketID UNIQUEIDENTIFIER NOT NULL,
     ItemName NVARCHAR(50) NOT NULL,
-    Quantity INT NOT NULL CHECK (Quantity > 0),
+    Quantity INT NOT NULL CHECK (Quantity >= 0),
     Price DECIMAL(18, 2) NOT NULL,
     Discount DECIMAL(18, 2) NOT NULL,
     Location INT NOT NULL,

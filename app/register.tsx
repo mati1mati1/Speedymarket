@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, Pressable, Alert, Platform, useWindowDim
 import { useRouter } from 'expo-router';
 import Input from '../src/components/Input';
 import { Picker } from '@react-native-picker/picker';
+import customAlert from '../src/components/AlertComponent';
 
 
 export default function RegisterScreen() {
@@ -14,17 +15,16 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     try {
-      // Here, you would typically call an API to register the user
-      // For this example, we'll assume the registration is always successful
-      Alert.alert('Registration successful', 'You can now log in with your credentials.');
+
+      customAlert('Registration successful', 'You can now log in with your credentials.');
       router.replace('/login');
     } catch (error) {
       console.error('An error occurred during registration', error);
-      Alert.alert('An error occurred during registration', error.message);
+      customAlert('An error occurred during registration', error.message);
     }
   };
 
-  const isWeb = Platform.OS === 'web' && width > 600; // Check if the platform is web and width is greater than 600
+  const isWeb = Platform.OS === 'web' && width > 600; 
 
   return (
     <View style={styles.container}>

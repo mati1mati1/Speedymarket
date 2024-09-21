@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Modal, TouchableOpacity, Text, Platform, ScrollView, Animated, Alert } from 'react-native';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import WebSection from '../../../src/components/WebSection';
+import Toast from 'react-native-toast-message'; 
 import WebShoppingMap from '../../../src/components/WebShoppingMap';
-import Svg, { Line, Defs, Marker, Path, Circle } from 'react-native-svg';
 import { useLocalSearchParams } from 'expo-router';
 import { EntranceType, loadMapAndPath, SectionType, ItemWithLocation } from '../../../src/services/mapService';
 import { getItemBySupermarketIdAndBarcode, getItemBySupermarketIdAndItemName } from '../../../src/api/api';
@@ -15,9 +14,11 @@ import ShoppingCart from '../../../src/components/ShoppingCart';
 import ScanItem from '../../../src/components/Scanner';
 import QuantityModal from '../../../src/components/QuantityModal'; 
 import Payment from '../../../src/components/Payment';
+import customAlert from '../../../src/components/AlertComponent';
 import NativeShoppingMap from '../../../src/components/NativeShoppingMap'; 
-
-const Map = Platform.OS === 'web' ? WebShoppingMap : NativeShoppingMap;
+import * as signalR from '@microsoft/signalr';
+const isWeb = Platform.OS === 'web'
+const Map = isWeb ? WebShoppingMap : NativeShoppingMap;
 
 const ShoppingMap: React.FC = () => {
   const { supermarketId, listId } = useLocalSearchParams<{ supermarketId: string; listId?: string }>();
@@ -34,14 +35,68 @@ const ShoppingMap: React.FC = () => {
   const [isScannedDataOpen, setScannedDataModalOpen] = useState(false);
   const [isMissingItemsModalOpen, setIsMissingItemsModalOpen] = useState(false);
   const [isShoppingCartOpen, setIsShoppingCartOpen] = useState(false);
+  const [connection, setConnection] = useState<signalR.HubConnection | null>(null);
   const [isPaymentState, setIsPaymentState] = useState(false);
   const [scannedData, setScannedData] = useState<any>(null);
   const [menuCollapsed, setMenuCollapsed] = useState(true);
-  const [zoomLevel, setZoomLevel] = useState(new Animated.Value(1));
   const [isQuantityModalVisible, setIsQuantityModalVisible] = useState(false); 
   const [selectedItem, setSelectedItem] = useState<ShopInventory | null>(null); 
-  const mapWidth = 800;
-  const mapHeight = 600;
+
+
+  useEffect(() => {
+    async function connectSignalR(supermarketId) {
+      try {
+        const hubConnection = new signalR.HubConnectionBuilder()
+          .withUrl("https://speedymarketbackend1.azurewebsites.net/api", {
+            withCredentials: false,
+          })
+          .configureLogging(signalR.LogLevel.Information)
+          .withAutomaticReconnect()
+          .build();
+    
+        if (supermarketId) {
+          hubConnection.on(supermarketId, (items) => {
+            if (Array.isArray(items)) {
+              items.forEach(item => {
+                if (itemFoundList.some(foundItem => foundItem.ItemName === item.itemName)) {
+                  console.log("Received item:", item);
+                  customAlert('Item Out of Stock', `Item: "${item.itemName}" is out of stock in supermarket.`, [{ text: 'OK' }]); 
+                }
+              });
+            } else {
+              console.log("Received unexpected data format:", items);
+            }
+          });
+        } else {
+          console.error("supermarketId is undefined or invalid.");
+        }
+    
+        await hubConnection.start();
+        console.log("SignalR connected successfully.");
+      } catch (error) {
+        console.error("SignalR Connection Error:", error);
+      }
+    }
+    
+
+    connectSignalR(supermarketId);
+  }, []);
+  const addItemThatNotHaveEnoughStock = (items: ItemWithLocation[]) => {
+    items.forEach(item => {
+      if (item.quantityInStore < item.Quantity) {
+        setItemMissingList(prev => [
+          ...prev,
+          {
+            ItemName: item.ItemName,
+            Quantity: item.Quantity - item.quantityInStore, 
+            ListItemID: item.ListItemID,
+            ListID: item.ListID,
+            ItemID: '' , 
+          },
+        ]);
+      }
+    });
+  };
 
   useEffect(() => {
     const fetchMapAndPath = async () => {
@@ -52,6 +107,7 @@ const ShoppingMap: React.FC = () => {
         setPath(data.path || []);
         setItemFoundList(data.itemsWithLocations || []);
         setItemMissingList(data.missingItems || []);
+        addItemThatNotHaveEnoughStock(data.itemsWithLocations);
         if(data.missingItems?.length > 0){
           const initialCheckedItems = data.itemsWithLocations.reduce((acc: { [key: string]: boolean }, item: ItemWithLocation) => {
             acc[item.ListItemID] = false;
@@ -60,7 +116,7 @@ const ShoppingMap: React.FC = () => {
           setCheckedItems(initialCheckedItems);
         }
       } catch (error: any) {
-        alert(error.message);
+        customAlert(error.message, 'There was an error fetching the map and path. Please try again.', [{ text: 'OK' }]);
       }
     };
 
@@ -83,11 +139,11 @@ const ShoppingMap: React.FC = () => {
         setSelectedItem(item[0]); 
         setIsQuantityModalVisible(true);
       } else {
-        Alert.alert('Item Not Found', 'The scanned item was not found in the database.', [{ text: 'OK' }]);
+        customAlert('Item Not Found', 'The scanned item was not found in the database.', [{ text: 'OK' }]);
       }
     } catch (error) {
       console.error('Error fetching item:', error);
-      Alert.alert('Error', 'There was an error fetching the item. Please try again.', [{ text: 'OK' }]);
+      customAlert('Error', 'There was an error fetching the item. Please try again.', [{ text: 'OK' }]);
     }
   };
 
@@ -97,7 +153,7 @@ const ShoppingMap: React.FC = () => {
       setSelectedItem(null);
       setIsQuantityModalVisible(false);
     } else {
-      Alert.alert('Item Not Found', 'No item in the supermarket.', [{ text: 'OK' }]);
+      customAlert('Item Not Found', 'No item in the supermarket.', [{ text: 'OK' }]);
     }
   };
 
@@ -110,11 +166,11 @@ const ShoppingMap: React.FC = () => {
           setShoppingCart((prevCart) => updateCart(prevCart, selectedItem, quantity));
           setIsQuantityModalVisible(false);
         } else {
-          Alert.alert('Item Not Found', 'No item in the supermarket.', [{ text: 'OK' }]);
+          customAlert('Item Not Found', 'No item in the supermarket.', [{ text: 'OK' }]);
         }
       } catch (error) {
         console.error('Error fetching item:', error);
-        Alert.alert('Error', 'There was an error fetching the item. Please try again.', [{ text: 'OK' }]);
+        customAlert('Error', 'There was an error fetching the item. Please try again.', [{ text: 'OK' }]);
       }
     }
   };
@@ -133,7 +189,7 @@ const ShoppingMap: React.FC = () => {
     }
 
     if (totalQuantity > newItem.Quantity) {
-      Alert.alert('Not enough stock', 'Not enough stock in the supermarket.', [{ text: 'OK' }]);
+      customAlert('Not enough stock', 'Not enough stock in the supermarket.', [{ text: 'OK' }]);
       return cart;
     }
 
