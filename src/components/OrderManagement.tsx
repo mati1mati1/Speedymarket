@@ -1,48 +1,205 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Pressable } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { addShopInventory, getOrderDetailsByOrderId, updateOrderStatus, updateShopInventory } from '../../src/api/api';
+import { OrderItem, ShopInventory } from '../../src/models';
+import { v4 as uuidv4 } from 'uuid'; 
 
-export default function OrderManagement() {
-  const [orders, setOrders] = useState<{ id: number; product: string; status: string }[]>([]);
+type OrderManagementProps = {
+  orderID: string;
+  supermarketID: string;
+  totalAmount: number;
+  orderStatus: string;
+  creationDate: string;
+};
 
-  useEffect(() => {
-    // לוגיקה לטעינת הזמנות ממקור נתונים
-    setOrders([
-      { id: 1, product: 'Product 1', status: 'Pending' },
-      { id: 2, product: 'Product 2', status: 'Shipped' },
-      // הזמנות נוספות...
-    ]);
-  }, []);
+const OrderManagement :  React.FC<OrderManagementProps> = ({ orderID, supermarketID, totalAmount, orderStatus, creationDate}) => {
+  
+  const getStatusWithIcon = (status: string) => {
+    let statusText = '';
+    let textColor = '';
+
+    switch (status) {
+      case 'Shipped':
+        statusText = 'Shipped 🚚';
+        textColor = 'orange';
+        break;
+      case 'Delivered':
+        statusText = 'Delivered ✅';
+        textColor = 'green';
+        break;
+      case 'Cancelled':
+        statusText = 'Cancelled ❌';
+        textColor = 'red';
+        break;
+      case 'Pending':
+        statusText = 'Pending ⏳';
+        textColor = '#F6BE00';
+        break;
+      default:
+        statusText = 'Unknown ❌';
+        textColor = 'gray';
+        break;
+    }
+    // setStatusIcon(<Text style={{ color: textColor }}>{statusText}</Text>)
+
+    return <Text style={{ color: textColor }}>{statusText}</Text>;
+  };
+
+  const [expanded, setExpanded] = useState(false);
+  const [orderDetails, setOrderDetails] = useState<OrderItem[] | null>(null);
+  const [statusText, setStatusText] = useState(orderStatus);
+  const [statusIcon, setStatusIcon] = useState(getStatusWithIcon(orderStatus));
+  const [addToInventoryText, setAddToInventoryText] = useState<string>('+ Add to Inventory');
+
+  const handleOrderExpand = async () => {
+    setExpanded(!expanded);
+    if (!expanded) {
+      const details = await getOrderDetailsByOrderId(orderID);
+      setOrderDetails(details);
+    }
+  };
+
+  const handleChangeStatusToDelivered = async () => {
+    await updateOrderStatus(orderID, 'Delivered');
+    // add toast
+    // await refreshOrders();
+    setStatusIcon(getStatusWithIcon('Delivered'));
+    setStatusText('Delivered');
+  };
+
+  const handleAddToInventory = async (orderItems: OrderItem[] | null) => {
+    if (orderItems) {
+      for (const item of orderItems) {
+        try {
+          item.ItemName;
+          item.Quantity;
+          item.Price;
+          const inventoryItem: ShopInventory = { InventoryID: uuidv4(), SupermarketID: supermarketID, ItemName: item.ItemName, Quantity: item.Quantity, Price: item.Price, Discount: 0, Location: '0', Barcode: '0'};
+          await addShopInventory(inventoryItem);
+          setAddToInventoryText('✔️ Added To Inventory');
+        } 
+        catch (ex) {
+          //Toast
+        }
+      };
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Order Management</Text>
-      <FlatList
-        data={orders}
-        renderItem={({ item }) => (
-          <Text style={styles.item}>
-            {item.product} - Status: {item.status}
-          </Text>
-        )}
-        keyExtractor={(item) => item.id.toString()}
-      />
+    <View style={styles.orderCard}>
+      <TouchableOpacity onPress={handleOrderExpand} style={styles.orderHeader}>
+        <Text style={styles.orderTitle}>{orderID}</Text>
+        <Text style={styles.orderDetails}>
+          <strong>Amount:</strong> ${totalAmount} | <strong>Date:</strong> {creationDate} | <strong>Status:</strong> {statusIcon}
+        </Text>
+        <Icon name={expanded ? 'chevron-up' : 'chevron-down'} size={20} />
+      </TouchableOpacity>
+
+      {expanded && (
+        <View style={styles.orderBody}>
+          <View style={styles.tableHeader}>
+            <Text style={styles.tableHeaderRow}>Item</Text>
+            <Text style={styles.tableHeaderRow}>Qty</Text>
+            <Text style={styles.tableHeaderRow}>Price</Text>
+          </View>
+          <ScrollView>
+            {orderDetails != null &&
+              orderDetails.map((item, index) => (
+                <View key={index} style={styles.tableRow}>
+                  <Text style={styles.tableColumn}>{item.ItemName}</Text>
+                  <Text style={styles.tableColumn}>{item.Quantity}</Text>
+                  <Text style={styles.tableColumn}>${item.Price}</Text>
+                </View>
+              ))}
+          </ScrollView>
+                  <Pressable
+            style={[styles.statusButton, statusText === 'Delivered' && styles.disabledButton]}
+            onPress={handleChangeStatusToDelivered}
+            disabled={statusText === 'Delivered'}
+          >
+            <Text style={styles.buttonText}>Mark Delivered</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.inventoryButton, (statusText !== 'Delivered' || addToInventoryText === '✔️ Added To Inventory') && styles.disabledButton]}
+            onPress={() => handleAddToInventory(orderDetails)}
+            disabled={statusText !== 'Delivered' || addToInventoryText === '✔️ Added To Inventory'}
+          >
+            <Text style={styles.buttonText}>{addToInventoryText}</Text>
+          </Pressable>
+          
+        </View>
+      )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
+  orderCard: {
+    backgroundColor: '#fff',
     padding: 20,
+    marginBottom: 10,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.01,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
+  orderHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    alignItems: 'center',
+  },
+  orderTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  orderDetails: {
+    fontSize: 14,
+  },
+  orderBody: {
+    marginTop: 20,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    paddingBottom: 5,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    paddingVertical: 5,
+  },
+  tableHeaderRow: {
+    flex: 1,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  tableColumn: {
+    flex: 1,
     textAlign: 'center',
   },
-  item: {
+  statusButton: {
+    backgroundColor: '#4CAF50',
     padding: 10,
-    fontSize: 18,
-    height: 44,
+    marginTop: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  inventoryButton: {
+    backgroundColor: '#2196F3',
+    padding: 10,
+    marginTop: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: '#d3d3d3', 
+  },
+  buttonText: {
+    color: '#fff',
   },
 });
+
+export default OrderManagement;

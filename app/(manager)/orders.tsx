@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Modal, TextInput, Button, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, Text, FlatList, Modal, TextInput, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Button as RNEButton } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Picker } from '@react-native-picker/picker'; 
 import { getAllSuppliers, getSupplierInventory, createSuperMarketOrder, getSupermarketByUserId, getOrdersBySupermarketIdAndUserTypeSupplierQuery, getOrderDetailsByOrderId, updateOrderStatus } from '../../src/api/api';
-import { OrderItem, Supermarket, SupplierInventory, SupplierOrder, User } from '../../src/models';
+import { OrderItem, SupplierInventory, SupplierOrder, User } from '../../src/models';
+import OrderManagement from '../../src/components/OrderManagement';
 
 export default function OrderManagementScreen() {
   const [orders, setOrders] = useState<SupplierOrder[]>([]);
-  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<User | null>(null);
   const [inventory, setInventory] = useState<SupplierInventory[]>([]); 
   const [selectedItems, setSelectedItems] = useState<{ item: SupplierInventory, quantity: number }[]>([]);
   const [supermarketID, setSupermarketID] = useState<string>('');
-  const [orderDetails, setOrderDetails] = useState<OrderItem[] | null>(null);
   const [suppliers, setSuppliers] = useState<User[]>([]);
 
   useEffect(() => {
@@ -42,18 +41,6 @@ export default function OrderManagementScreen() {
 
   }, []);
 
-  const handleOrderExpand = async (orderId: string) => {
-    if (orderId === expandedOrderId) {
-      setExpandedOrderId(null);
-      setOrderDetails(null);
-    }
-    else {
-      setExpandedOrderId(orderId);
-      const orderDetails = await getOrderDetailsByOrderId(orderId);
-      console.log(orderDetails);
-      setOrderDetails(orderDetails);
-    }
-  };
 
   const handleAddOrder = () => {
     setModalVisible(true);
@@ -112,57 +99,12 @@ export default function OrderManagementScreen() {
     setOrders(orders);
   }
 
-  const handleChangeStatusToDelivered = async (orderId: string) => {
-    updateOrderStatus(orderId, 'Delivered');
-    // add toast
-    await refreshOrders();
-  };
-  
-  const handleAddToInventory = (orderId) => {
-    // Add logic to add order items to inventory
-    console.log(`Order ${orderId} added to inventory`);
-  };
-
   const closeModal = () => {
     setModalVisible(false); 
     setSelectedSupplier(null); 
     setInventory([]);
     setSelectedItems([]);
   }
-
-  const getStatusWithIcon = (orderStatus: string) => {
-    let statusText = '';
-    let textColor = '';
-  
-    switch(orderStatus) {
-      case 'Shipped':
-        statusText = 'Shipped 🚚';
-        textColor = 'orange';
-        break;
-      case 'Delivered':
-        statusText = 'Delivered ✅';
-        textColor = 'green';
-        break;
-      case 'Cancelled':
-        statusText = 'Cancelled ❌';
-        textColor = 'red';
-        break;
-      case 'Pending':
-        statusText = 'Pending 🕒';
-        textColor = '#F6BE00';
-        break;
-      default:
-        statusText = 'Unknown ❌';
-        textColor = 'gray';
-        break;
-    }
-  
-    return (
-      <Text style={{ color: textColor }}>
-        {statusText}
-      </Text>
-    );
-  };
 
   return (
     <View style={styles.container}>
@@ -172,46 +114,14 @@ export default function OrderManagementScreen() {
         data={orders}
         renderItem={({ item }) => (
           <View style={styles.orderItem}>
-            <TouchableOpacity onPress={() => handleOrderExpand(item.OrderID)} style={styles.orderContainer}>
-              <View style={styles.orderHeader}>
-                <Text style={styles.orderTitle}>{item.OrderID}</Text>
-                <Text style={styles.orderDetails}><span style={{fontWeight: 'bold'}}>Amount:</span> ${item.TotalAmount}     |     <span style={{fontWeight: 'bold'}}>Date:</span> {item.CreationDate}     |     <span style={{fontWeight: 'bold'}}>Status:</span> {getStatusWithIcon(item.OrderStatus)}</Text>
-                <View style={styles.actionButtons}>
-                  <TouchableOpacity 
-                    style={[styles.statusButton, item.OrderStatus === 'Delivered' && styles.disabledButton]} 
-                    onPress={() => handleChangeStatusToDelivered(item.OrderID)} 
-                    disabled={item.OrderStatus === 'Delivered'}
-                  >
-                    <Text style={styles.buttonText}>Mark as Delivered</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity 
-                    style={[styles.inventoryButton, item.OrderStatus !== 'Delivered' && styles.disabledButton]} 
-                    onPress={() => handleAddToInventory(item.OrderID)} 
-                    disabled={item.OrderStatus !== 'Delivered'}
-                  >
-                    <Text style={styles.buttonText}>Add to Inventory</Text>
-                  </TouchableOpacity>
-                <Text>{expandedOrderId === item.OrderID ? '▲' : '▼'}</Text>
-              </View>
-              </View>
-            </TouchableOpacity>
-            {expandedOrderId === item.OrderID && (
-              <View style={styles.orderItems}>
-                <View style={styles.tableHeader}>
-                  <Text style={styles.tableHeaderRow}>Item</Text>
-                  <Text style={styles.tableHeaderRow}>Qty</Text>
-                  <Text style={styles.tableHeaderRow}>Price</Text>
-                </View>
-                {orderDetails != null && orderDetails.map((orderItem, index) => (
-                  <View key={index} style={styles.tableRow}>
-                    <Text style={styles.tableColumn}>{orderItem.ItemName}</Text>
-                    <Text style={styles.tableColumn}>{orderItem.Quantity}</Text>
-                    <Text style={styles.tableColumn}>${orderItem.Price}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
+            <OrderManagement
+                key={item.OrderID}
+                orderID={item.OrderID}
+                supermarketID={item.SupermarketID}
+                totalAmount={item.TotalAmount}
+                orderStatus={item.OrderStatus}
+                creationDate={item.CreationDate}
+            ></OrderManagement>
           </View>
         )}
         keyExtractor={(item) => item.OrderID.toString()}
@@ -283,47 +193,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  tableHeader: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderColor: '#ccc',
-    paddingBottom: 5,
-  },
-  tableRow: {
-    flexDirection: 'row',
-    paddingVertical: 5,
-  },
-  tableHeaderRow: {
-    flex: 1,
-    textAlign: 'center',
-    fontWeight: 'bold'
-  },
-  tableColumn: {
-    flex: 1, // Adjust column width
-    textAlign: 'center',
-  },
   orderItem: {
     marginBottom: 10,
-  },
-  orderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  orderTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  orderDetails: {
-    fontSize: 14,
-  },
-  orderItems: {
-    paddingLeft: 20,
-    marginTop: 5
-  },
-  orderItemDetail: {
-    fontSize: 16,
-    marginVertical: 5,
   },
   modalContainer: {
     flex: 1,
@@ -334,12 +205,6 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
-    marginVertical: 10,
   },
   inventoryTitle: {
     fontSize: 18,
@@ -360,11 +225,6 @@ const styles = StyleSheet.create({
     width: 50,
     textAlign: 'center',
   },
-  orderContainer: {
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 15
-  },
   blueButton: {
     backgroundColor: '#007AFF',
     marginRight: 10,
@@ -383,26 +243,4 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 10,
   },
-  actionButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statusButton: {
-    backgroundColor: '#4CAF50',
-    padding: 10,
-    marginRight: 10,
-    borderRadius: 5,
-  },
-  inventoryButton: {
-    backgroundColor: '#2196F3',
-    padding: 10,
-    marginRight: 10,
-    borderRadius: 5,
-  },
-  disabledButton: {
-    backgroundColor: '#d3d3d3', 
-  },
-  buttonText: {
-    color: '#fff',
-  }
 });

@@ -393,7 +393,6 @@ const ManagerSettingsScreen = () => {
                         <Icon name="close" size={24} color="#007bff" />
                     </Pressable>
                         <Text style={styles.modalTitle}>{currentDay?.day}</Text>
-                        <View>
                         <Text style={styles.modalLabel}>Open Hour</Text>
                         <TextInput
                             placeholder="00:00"
@@ -402,8 +401,6 @@ const ManagerSettingsScreen = () => {
                             onChangeText={value => handleFormChange('openHour', value)}
                             style={styles.modalInput}
                         />
-                        </View>
-                        <View>
                         <Text style={styles.modalLabel}>Closing Hour</Text>
                         <TextInput
                             placeholder="00:00"
@@ -413,7 +410,6 @@ const ManagerSettingsScreen = () => {
                             style={styles.modalInput}
                             
                         />
-                        </View>
                         <View style={styles.buttonContainer}>
                             <RNEButton
                                 title=" Save"
@@ -468,7 +464,8 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderWidth: 1,
         paddingHorizontal: 10,
-        margin: 5
+        margin: 5,
+        alignSelf: 'flex-start'
     },
     tableContainer: {
         flex: 1,
@@ -506,7 +503,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
-        width: '90%',
+        width: '20%',
         maxWidth: 400,
     },
     modalOverlay: {
@@ -518,7 +515,9 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 20,
         marginBottom: 20,
+        paddingLeft: 5,
         fontWeight: 'bold',
+        alignSelf: 'flex-start'
     },
     buttonRow: {
         flexDirection: 'row',
@@ -549,7 +548,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     buttonContainer: {
-        alignSelf: 'center',
+        alignSelf: 'flex-start',
+        paddingLeft: 5,
         marginTop: 20,
       },
 });
