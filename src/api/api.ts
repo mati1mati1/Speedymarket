@@ -149,16 +149,16 @@ export const getOrdersBySupplierId = async (): Promise<SupplierOrder[]> => {
   return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySupplierId', {});
 };
 
-export const getOrdersBySupermarketId = async ( supermarketId: string): Promise<SupplierOrder[]> => {
-  return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySupermarketId', { supermarketId });
+export const getOrdersBySupermarketIdAndUserTypeSupplierQuery = async ( supermarketId: string): Promise<SupplierOrder[]> => {
+  return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySupermarketIdAndUserTypeSupplierQuery', { supermarketId });
 };
 
 // export const getDetailsForSuperMarketOrder = async ( orderId: string): Promise<SupplierOrder> => {
 //   return await executeDbFunction<SupplierOrder>( 'getDetailsForSuperMarketOrder', { orderId });
 // }
 
-export const updateOrderStatus = async ( orderId: string): Promise<void> => {
-  return await executeDbFunction<void>( 'updateOrderStatus', { orderId });
+export const updateOrderStatus = async ( orderId: string, orderStatus: string): Promise<void> => {
+  return await executeDbFunction<void>( 'updateOrderStatus', { orderId, orderStatus });
 };
 export const getAllSuppliers = async (): Promise<User[]> => {
   return await executeDbFunction<User[]>('getAllSuppliers', {});

@@ -297,20 +297,25 @@ const getUserByIdQuery = (userId) => ({
   //   ]
   // });
 
-  const updateOrderStatusQuery = (orderId) => ({
+  const updateOrderStatusQuery = (orderId, orderStatus) => ({
     query: `
       UPDATE [Order]
-      SET OrderStatus = 'Shipped'
+      SET OrderStatus = @orderStatus
       WHERE OrderID = @orderId
     `,
     params: [
-      { name: 'orderId', type: 'UniqueIdentifier', value: orderId }
+      { name: 'orderId', type: 'UniqueIdentifier', value: orderId },
+      { name: 'orderStatus', type: 'NVarChar', value: orderStatus }
     ]
   });
 
-  const getOrdersBySupermarketIdQuery = (supermarketId) => ({
+  const getOrdersBySupermarketIdAndUserTypeSupplierQuery = (supermarketId) => ({
     query: `
-      SELECT * FROM [Order] WHERE SupermarketID = @supermarketId
+      SELECT O.*
+      FROM [Order] O
+      JOIN [User] U ON O.UserID = U.UserID
+      WHERE O.SupermarketID = @supermarketId
+        AND U.UserType = 'Supplier';
     `,
     params: [
       { name: 'supermarketId', type: 'UniqueIdentifier', value: supermarketId }
@@ -373,7 +378,7 @@ const getUserByIdQuery = (userId) => ({
 
   module.exports = {
     // getDetailsForSuperMarketOrderQuery,
-    getOrdersBySupermarketIdQuery,
+    getOrdersBySupermarketIdAndUserTypeSupplierQuery,
     getOrderByBuyerIdAndOrderIdQuery,
     getOrderDetailsByIdQuery,
     createPurchaseQuery,

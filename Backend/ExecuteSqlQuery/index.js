@@ -64,12 +64,12 @@ const getQueryByName = async (functionName, params) => {
             return queries.getOrderDetailsByOrderIdQuery(params.orderId);
         case 'getOrdersBySupplierId':
             return queries.getOrdersByBuyerIdQuery(params.buyerId);
-        case 'getOrdersBySupermarketId':
-            return queries.getOrdersBySupermarketIdQuery(params.supermarketId);
+        case 'getOrdersBySupermarketIdAndUserTypeSupplierQuery':
+            return queries.getOrdersBySupermarketIdAndUserTypeSupplierQuery(params.supermarketId);
         // case 'getDetailsForSuperMarketOrderQuery':
         //     return queries.getDetailsForSuperMarketOrderQuery(params.orderId);
         case 'updateOrderStatus':
-            return queries.updateOrderStatusQuery(params.orderId);
+            return queries.updateOrderStatusQuery(params.orderId, params.orderStatus);
         case 'getAllSuppliers':
             return queries.getAllSuppliersQuery();
         case 'getSupplierInventory':

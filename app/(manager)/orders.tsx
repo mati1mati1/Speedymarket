@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, Modal, TextInput, Button, Style
 import { Button as RNEButton } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Picker } from '@react-native-picker/picker'; 
-import { getAllSuppliers, getSupplierInventory, createSuperMarketOrder, getSupermarketByUserId, getOrdersBySupermarketId, getOrderDetailsByOrderId } from '../../src/api/api';
+import { getAllSuppliers, getSupplierInventory, createSuperMarketOrder, getSupermarketByUserId, getOrdersBySupermarketIdAndUserTypeSupplierQuery, getOrderDetailsByOrderId, updateOrderStatus } from '../../src/api/api';
 import { OrderItem, Supermarket, SupplierInventory, SupplierOrder, User } from '../../src/models';
 
 export default function OrderManagementScreen() {
@@ -28,7 +28,7 @@ export default function OrderManagementScreen() {
         if (suppliers) {
           setSuppliers(suppliers);
         }
-        const orders = await getOrdersBySupermarketId(supermarket[0].SupermarketID);
+        const orders = await getOrdersBySupermarketIdAndUserTypeSupplierQuery(supermarket[0].SupermarketID);
         if (orders) {
           setOrders(orders);
         }
@@ -108,9 +108,20 @@ export default function OrderManagementScreen() {
   };
 
   const refreshOrders = async () => {
-    const orders = await getOrdersBySupermarketId(supermarketID);
+    const orders = await getOrdersBySupermarketIdAndUserTypeSupplierQuery(supermarketID);
     setOrders(orders);
   }
+
+  const handleChangeStatusToDelivered = async (orderId: string) => {
+    updateOrderStatus(orderId, 'Delivered');
+    // add toast
+    await refreshOrders();
+  };
+  
+  const handleAddToInventory = (orderId) => {
+    // Add logic to add order items to inventory
+    console.log(`Order ${orderId} added to inventory`);
+  };
 
   const closeModal = () => {
     setModalVisible(false); 
@@ -165,7 +176,24 @@ export default function OrderManagementScreen() {
               <View style={styles.orderHeader}>
                 <Text style={styles.orderTitle}>{item.OrderID}</Text>
                 <Text style={styles.orderDetails}><span style={{fontWeight: 'bold'}}>Amount:</span> ${item.TotalAmount}     |     <span style={{fontWeight: 'bold'}}>Date:</span> {item.CreationDate}     |     <span style={{fontWeight: 'bold'}}>Status:</span> {getStatusWithIcon(item.OrderStatus)}</Text>
+                <View style={styles.actionButtons}>
+                  <TouchableOpacity 
+                    style={[styles.statusButton, item.OrderStatus === 'Delivered' && styles.disabledButton]} 
+                    onPress={() => handleChangeStatusToDelivered(item.OrderID)} 
+                    disabled={item.OrderStatus === 'Delivered'}
+                  >
+                    <Text style={styles.buttonText}>Mark as Delivered</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity 
+                    style={[styles.inventoryButton, item.OrderStatus !== 'Delivered' && styles.disabledButton]} 
+                    onPress={() => handleAddToInventory(item.OrderID)} 
+                    disabled={item.OrderStatus !== 'Delivered'}
+                  >
+                    <Text style={styles.buttonText}>Add to Inventory</Text>
+                  </TouchableOpacity>
                 <Text>{expandedOrderId === item.OrderID ? '▲' : '▼'}</Text>
+              </View>
               </View>
             </TouchableOpacity>
             {expandedOrderId === item.OrderID && (
@@ -354,5 +382,27 @@ const styles = StyleSheet.create({
     height: 50,
     width: '100%',
     marginBottom: 10,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusButton: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    marginRight: 10,
+    borderRadius: 5,
+  },
+  inventoryButton: {
+    backgroundColor: '#2196F3',
+    padding: 10,
+    marginRight: 10,
+    borderRadius: 5,
+  },
+  disabledButton: {
+    backgroundColor: '#d3d3d3', 
+  },
+  buttonText: {
+    color: '#fff',
   }
 });

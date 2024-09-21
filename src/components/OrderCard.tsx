@@ -79,7 +79,7 @@ const OrderCard: React.FC<OrderProps> = ({ orderID, supermarketID, cost, status 
 
     const handleStatusChange = () => {
         try {
-            updateOrderStatus(orderID);
+            updateOrderStatus(orderID, 'Shipped');
             Toast.show({
                 type: 'success',
                 text1: 'Status Updated',
