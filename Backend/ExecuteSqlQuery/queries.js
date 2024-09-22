@@ -289,6 +289,21 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
 
+  const updateUserInfoQuery = (userId, name, lastName, email, phone) => ({
+    query: `
+      UPDATE [User]
+      SET FirstName = @name, LastName = @lastName, Email = @email, PhoneNumber = @phone
+      WHERE UserID = @userId
+    `,
+    params: [
+      { name: 'userId', type: 'UniqueIdentifier', value: userId },
+      { name: 'name', type: 'NVarChar', value: name },
+      { name: 'lastName', type: 'NVarChar', value: lastName },
+      { name: 'email', type: 'NVarChar', value: email },
+      { name: 'phone', type: 'NVarChar', value: phone }
+    ]
+  });
+
   const getOrderDetailsByOrderIdQuery = (orderId) => ({
     query: `
       SELECT * FROM SupplierOrderItem WHERE OrderID = @orderId
@@ -325,6 +340,7 @@ const getUserByIdQuery = (userId) => ({
   });
   
   module.exports = {
+    updateUserInfoQuery,
     registerUserQuery,
     getOrderByBuyerIdAndOrderIdQuery,
     getOrderDetailsByIdQuery,

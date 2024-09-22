@@ -80,8 +80,8 @@ const getQueryByName = async (functionName, params) => {
             return queries.getOrdersByBuyerIdQuery(params.userId);
         case 'getOrdersBySuperMarketIdQuery':
             return queries.getOrdersByBuyerIdQuery(params.supermarketId);
-        // case 'getDetailsForSuperMarketOrderQuery':
-        //     return queries.getDetailsForSuperMarketOrderQuery(params.orderId);
+        case 'updateUserInfo':
+            return queries.updateUserInfoQuery(params.userId, params.name,params.lastName, params.email, params.phone);
         case 'updateOrderStatus':
             return queries.updateOrderStatusQuery(params.orderId);
         case 'registerUser':

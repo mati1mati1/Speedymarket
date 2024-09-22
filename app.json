@@ -1,5 +1,6 @@
 {
   "expo": {
+    "jsEngine": "hermes",
     "name": "iot-supermarket",
     "slug": "iot-supermarket",
     "main": "expo-router/entry",

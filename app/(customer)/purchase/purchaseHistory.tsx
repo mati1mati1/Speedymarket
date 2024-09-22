@@ -28,6 +28,7 @@ const PurchaseHistoryScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>Purchase History</Text>
       <FlatList
         data={purchases}
         keyExtractor={(item) => item.OrderID.toString()}
@@ -58,6 +59,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
+    marginTop: 20,
   },
   item: {
     padding: 10,

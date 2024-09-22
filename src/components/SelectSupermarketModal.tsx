@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Modal, Pressable, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Modal, Pressable, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { getSupermarketByBarcode, getSupermarkets } from 'src/api/api';
 import { Supermarket } from 'src/models';
 import ScanItem from './Scanner';
 import { useAuth } from 'src/context/AuthContext';
+import { FontAwesome } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 
 interface SelectSupermarketModalProps {
   closeModal: (selectedSupermarket: Supermarket | null) => void;
   setIsLoading: (isLoading: boolean) => void;
   isLoading: boolean;
 }
+
 const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeModal, setIsLoading, isLoading }) => {
   const [supermarkets, setSupermarkets] = useState<Supermarket[]>([]);
   const [selectedSupermarket, setSelectedSupermarket] = useState<Supermarket | null>(null);
@@ -17,6 +20,7 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
   const [isScannedDataOpen, setScannedDataModalOpen] = useState(false);
   const { authState } = useAuth();
   const token = authState.token;
+
   const fetchSupermarkets = async () => {
     setIsLoading(true);
     try {
@@ -30,82 +34,84 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     if (!hasFetched) {
       fetchSupermarkets();
       setHasFetched(true);
     }
   }, [hasFetched]);
-  const handleSelectSupermarket = (supermarket: Supermarket) => {
-    setSelectedSupermarket(supermarket);
-  };
 
   const handleScannedBarcode = async (data: string) => {
-    try{
-      let response = await getSupermarketByBarcode( data);
-      if(response.length > 0){
+    try {
+      const response = await getSupermarketByBarcode(data);
+      if (response.length > 0) {
         setSelectedSupermarket(response[0]);
         setScannedDataModalOpen(false);
       }
-    }
-    catch(error){
+    } catch (error) {
       console.log(error);
     }
-  }
+  };
+
   const toggleIsScannedDataOpen = () => {
     setScannedDataModalOpen(!isScannedDataOpen);
   };
+
   const handleConfirmSelection = () => {
     closeModal(selectedSupermarket);
   };
+
   return (
     <Modal animationType="slide" transparent={true} onRequestClose={() => closeModal(null)}>
       <View style={styles.container}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>Select Supermarket</Text>
+          <TouchableOpacity style={styles.closeButton} onPress={() => closeModal(null)}>
+            <FontAwesome name="times" size={24} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Select A Supermarket</Text>
           {isLoading ? (
             <ActivityIndicator size="large" color="#0000ff" />
           ) : (
-            <FlatList
-              data={supermarkets}
-              keyExtractor={(item) => item.SupermarketID.toString()}
-              renderItem={({ item }) => (
-                <Pressable
-                  style={[styles.listItem, selectedSupermarket?.SupermarketID === item.SupermarketID && styles.selectedItem]}
-                  onPress={() => handleSelectSupermarket(item)}
-                >
-                  <Text style={styles.listItemText}>
-                    {item.BranchName}
-                  </Text>
-                </Pressable>
-              )}
-            />
+            <Picker
+              selectedValue={selectedSupermarket?.SupermarketID}
+              onValueChange={(itemValue, itemIndex) => {
+                const supermarket = supermarkets[itemIndex];
+                setSelectedSupermarket(supermarket);
+              }}
+              style={styles.picker}
+            >
+              {supermarkets.map((supermarket) => (
+                <Picker.Item key={supermarket.SupermarketID} label={supermarket.BranchName} value={supermarket.SupermarketID} />
+              ))}
+            </Picker>
           )}
+          <View style={styles.buttonContainer}>
+            <Pressable
+              style={[styles.button, !selectedSupermarket && styles.buttonDisabled]}
+              onPress={handleConfirmSelection}
+              disabled={!selectedSupermarket}
+            >
+              <Text style={styles.buttonText}>Select Supermarket</Text>
+            </Pressable>
+            <Text>OR</Text>
+            <Pressable style={styles.button} onPress={toggleIsScannedDataOpen}>
+              <Text style={styles.buttonText}>Scan</Text>
+            </Pressable>
+          </View>
           <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
-          <TouchableOpacity style={styles.modalContainer} onPress={toggleIsScannedDataOpen}>
-            <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
-              <ScanItem handleData={handleScannedBarcode}  />
-            </View>
-          </TouchableOpacity>
-        </Modal>
-          <Pressable
-            style={[styles.button, !selectedSupermarket && styles.buttonDisabled]}
-            onPress={handleConfirmSelection}
-            disabled={!selectedSupermarket}
-          >
-            <Text style={styles.buttonText}>Select Supermarket</Text>
-          </Pressable>
-          <Pressable style={styles.button} onPress={toggleIsScannedDataOpen}>
-              <Text style={styles.buttonText}>Scan </Text>
-          </Pressable>
-          <Pressable onPress={() => closeModal(null)}>
-            <Text style={styles.closeText}>Close</Text>
-          </Pressable>
+            <TouchableOpacity style={styles.modalContainer} onPress={toggleIsScannedDataOpen}>
+              <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+                <ScanItem handleData={handleScannedBarcode} />
+              </View>
+            </TouchableOpacity>
+          </Modal>
         </View>
       </View>
     </Modal>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -122,20 +128,16 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    marginBottom: 20,
+    alignSelf: 'flex-start',
   },
-  listItem: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+  picker: {
     width: '100%',
+    height: 20,
+    marginBottom: 150, // Add margin to separate from buttons
   },
-  listItemText: {
-    fontSize: 18,
-    color: 'black',
-  },
-  selectedItem: {
-    backgroundColor: '#dcdcdc',
+  buttonContainer: {
+    width: '100%',
+    alignItems: 'center',
   },
   button: {
     backgroundColor: '#007bff',
@@ -143,7 +145,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 10,
+    marginVertical: 5, // Adjust spacing between buttons
     width: '80%',
   },
   buttonDisabled: {
@@ -160,10 +162,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  closeText: {
-    color: 'red',
-    marginTop: 10,
-    fontSize: 16,
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 10,
   },
 });
 
