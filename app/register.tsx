@@ -20,21 +20,23 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     try {
       if (!username || !password || !name || !lastName || !email || !phone) {
-        Alert.alert('Missing fields', 'Please fill in all fields.');
-        Toast.show({
-          type: 'error',
-          text1: 'Missing fields',
-          text2: 'Please fill in all fields.',
-        });
+        // Alert.alert('Missing fields', 'Please fill in all fields.');
+        // Toast.show({
+        //   type: 'error',
+        //   text1: 'Missing fields',
+        //   text2: 'Please fill in all fields.',
+        // });
+        customAlert('Missing fields', 'Please fill in all fields.');
         return;
       }
       await registerUser(name, lastName, username, password, email, phone);
-      Alert.alert('Registration successful', 'You can now log in with your credentials.');
-      Toast.show({
-        type: 'success',
-        text1: 'Registration successful',
-        text2: 'You can now log in with your credentials.',
-      });
+      // Alert.alert('Registration successful', 'You can now log in with your credentials.');
+      // Toast.show({
+      //   type: 'success',
+      //   text1: 'Registration successful',
+      //   text2: 'You can now log in with your credentials.',
+      // });
+      customAlert('Registration successful', 'You can now log in with your credentials.');
       //put a timer:
       setTimeout(() => {
         router.replace('/login');

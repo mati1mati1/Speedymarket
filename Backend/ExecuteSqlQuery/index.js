@@ -251,4 +251,5 @@ module.exports = async function (context, req) {
         sql.close();
     }
     
+}
 };
