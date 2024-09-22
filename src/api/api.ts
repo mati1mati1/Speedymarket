@@ -54,6 +54,10 @@ export const getItemBySupermarketIdAndBarcode = async ( supermarketId: string, b
   return await executeDbFunction<ShopInventory[]>( 'getItemBySupermarketIdAndBarcode', { supermarketId, barcode });
 };
 
+export const updateUserInfo = async (name: string, lastName: string, email: string, phoneNumber: string): Promise<void> => {
+  await executeDbFunction<void>('updateUserInfo', { name, lastName, email, phoneNumber });
+};
+
 export const getMapBySupermarketId = async ( supermarketId: string): Promise<string[]> => {
   return await executeDbFunction<string[]>( 'getMapBySupermarketId', { supermarketId });
 };

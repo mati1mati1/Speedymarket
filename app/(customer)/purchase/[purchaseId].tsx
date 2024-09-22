@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     alignItems: 'center',
+    marginTop: 50,
   },
   backButton: {
     alignSelf: 'flex-start',

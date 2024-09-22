@@ -43,6 +43,10 @@ export default function EditListScreen() {
   }, [listId, ListName]);
 
   const handleUploadImage = () => {
+    if (!launchImageLibrary) {
+      customAlert('Error', 'Image picker is not available');
+      return;
+    }
     launchImageLibrary({ mediaType: 'photo' }, async (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
@@ -153,17 +157,19 @@ export default function EditListScreen() {
       <Pressable style={styles.button} onPress={handleUploadImage}>
         <Text style={styles.buttonText}>Add a List From Image</Text>
       </Pressable>
+      <View style={styles.borderBottom}></View>
       <View style={styles.modalButtons}>
         <TextInput
-          style={[styles.input, {width: '55%'}, {marginRight: 20}] }
+          style={[styles.input, {width: '55%'}, {marginRight: 7}] }
           placeholder="Enter Recipe URL"
           value={recipeUrl}
           onChangeText={setRecipeUrl}
         />
-        <Pressable style={[styles.button, {width: '45%'}]} onPress={handleRecipe}>
+        <Pressable style={[styles.button, {width: '44%'}]} onPress={handleRecipe}>
           <Text style={styles.buttonText}>Get Ingredients</Text>
         </Pressable>
       </View>
+      <View style={styles.borderBottom}></View>
       {image && <Image source={image} />}
       <TextInput
         style={styles.input}
@@ -220,7 +226,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   header: {
-    alignSelf: 'center',
+    // alignSelf: 'center',
     marginBottom: 20,
   },
   topButton: {
@@ -237,7 +243,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
   },

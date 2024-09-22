@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Modal, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Modal, Pressable, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { getShoppingListsByBuyerId } from 'src/api/api';
 import { useAuth } from 'src/context/AuthContext';
-import { ShoppingList } from 'src/models'; // Ensure this is correctly imported
+import { ShoppingList } from 'src/models';
+import { Picker } from '@react-native-picker/picker';
+import { FontAwesome } from '@expo/vector-icons';
 
 interface SelectListModalProps {
   closeModal: (selectedList: ShoppingList | null) => void;
@@ -35,10 +37,6 @@ const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueW
     fetchData();
   }, []);
 
-  const handleSelectList = (list: ShoppingList) => {
-    setSelectedList(list);
-  };
-
   const handleConfirmSelection = () => {
     closeModal(selectedList);
   };
@@ -47,25 +45,26 @@ const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueW
     <Modal animationType="slide" transparent={true} onRequestClose={() => closeModal(null)}>
       <View style={styles.container}>
         <View style={styles.modalContent}>
+          <TouchableOpacity style={styles.closeButton} onPress={() => closeModal(null)}>
+            <FontAwesome name="times" size={24} color="black" />
+          </TouchableOpacity>
           <Text style={styles.title}>Select a Shopping List</Text>
           {isLoading ? (
             <ActivityIndicator size="large" color="#0000ff" />
           ) : (
-            <FlatList
-              data={shoppingLists}
-              keyExtractor={(item) => item.ListID}
-              renderItem={({ item }) => (
-                <Pressable
-                  style={[styles.listItem, selectedList?.ListID === item.ListID && styles.selectedItem]}
-                  onPress={() => handleSelectList(item)}
-                >
-                  <Text style={styles.listItemText}>
-                    {item.ListName}
-                  </Text>
-                </Pressable>
-              )}
-              ListEmptyComponent={<Text>No Shopping Lists Available</Text>}
-            />
+            <Picker
+              selectedValue={selectedList?.ListID}
+              onValueChange={(itemValue) => {
+                const list = shoppingLists.find((shoppingList) => shoppingList.ListID === itemValue);
+                setSelectedList(list || null);
+              }}
+              style={styles.picker}
+            >
+              <Picker.Item label="Select a list..." value={null} />
+              {shoppingLists.map((list) => (
+                <Picker.Item key={list.ListID} label={list.ListName} value={list.ListID} />
+              ))}
+            </Picker>
           )}
           <Pressable
             style={[styles.button, !selectedList && styles.buttonDisabled]}
@@ -76,9 +75,6 @@ const SelectListModal: React.FC<SelectListModalProps> = ({ closeModal, continueW
           </Pressable>
           <Pressable style={[styles.button, styles.continueButton]} onPress={continueWithoutList}>
             <Text style={styles.buttonText}>Continue Without List</Text>
-          </Pressable>
-          <Pressable onPress={() => closeModal(null)}>
-            <Text style={styles.closeText}>Close</Text>
           </Pressable>
         </View>
       </View>
@@ -103,19 +99,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     marginBottom: 20,
+    alignSelf: 'flex-start',
   },
-  listItem: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+  picker: {
     width: '100%',
-  },
-  listItemText: {
-    fontSize: 18,
-    color: 'black',
-  },
-  selectedItem: {
-    backgroundColor: '#dcdcdc',
+    height: 30,
+    marginBottom: 120,
   },
   button: {
     backgroundColor: '#007bff',
@@ -137,10 +126,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  closeText: {
-    color: 'red',
-    marginTop: 10,
-    fontSize: 16,
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 10,
   },
 });
 
