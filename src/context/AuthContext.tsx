@@ -7,6 +7,7 @@ import { Role } from 'src/models';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert, Platform } from 'react-native';
 import { router } from 'expo-router';
+import customAlert from 'src/components/AlertComponent';
 
 export interface LoginResponse {
   success: boolean;
@@ -41,7 +42,7 @@ export const getToken = async () => {
   if (!token) {
     console.error('Token not found');
     router.replace('/login'); 
-    Alert.alert('Authentication error', 'Please log in again.');
+    customAlert('Authentication error', 'Please log in again.');
     return null;
   }
   return token;

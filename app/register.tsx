@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import Input from '../src/components/Input';
 import { registerUser } from '../src/api/api';
 import Toast from 'react-native-toast-message';
+import customAlert from '../src/components/AlertComponent';
 
 export default function RegisterScreen() {
   const [username, setUsername] = useState<string>('');
@@ -40,16 +41,11 @@ export default function RegisterScreen() {
       }, 3000);
     } catch (error) {
       console.error('An error occurred during registration', error);
-      Alert.alert('An error occurred during registration', error.message);
-      Toast.show({
-        type: 'error',
-        text1: 'An error occurred during registration',
-        text2: error.message,
-      });
+      customAlert('An error occurred during registration', error.message);
     }
   };
 
-  const isWeb = Platform.OS === 'web' && width > 600; // Check if the platform is web and width is greater than 600
+  const isWeb = Platform.OS === 'web' && width > 600; 
 
   return (
     <View style={styles.container}>

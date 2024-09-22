@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Alert, View, StyleSheet, Pressable, Text, Modal } from 'react-native';
 import { ShopInventory } from 'src/models'; 
 import PurchaseSummary from './PurchaseSummary';
+import customAlert from './AlertComponent';
 
 interface PaymentsMobileProps {
   isOpen: boolean;
@@ -72,7 +73,7 @@ const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items,supermark
     });
 
     if (error) {
-      Alert.alert('Error', error.message);
+      customAlert('Error', error.message);
     } 
   };
   useEffect(() => {
@@ -83,15 +84,15 @@ const PaymentsMobile: React.FC<PaymentsMobileProps> = ({ isOpen, items,supermark
     const { error } = await presentPaymentSheet();
 
     if (error) {
-      Alert.alert('Payment failed', error.message);
+      customAlert('Payment failed', error.message);
     } else {
-      Alert.alert('Success', 'Your payment is confirmed!');
+      customAlert('Success', 'Your payment is confirmed!');
       setIsComplete(true); 
     }
   };
 
   return isComplete ? (
-    <PurchaseSummary sessionId={sessionId} items={items} supermarketId={supermarketId} totalAmount={calculateTotalPrice()} />
+    <PurchaseSummary sessionId={sessionId} items={items} supermarketId={supermarketId} totalAmount={calculateTotalPrice()} onRequestClose={onRequestClose} />
   ) : (
     <StripeProvider
       publishableKey={publishableKey}
