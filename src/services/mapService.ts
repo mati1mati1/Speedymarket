@@ -61,8 +61,8 @@ export interface SectionType {
 
   export const loadMapAndPath = async (supermarketId: string, listId: string): Promise<Data> => {
     const token = await AsyncStorage.getItem('token'); 
-    // const response = await fetch('https://speedymarketbackend1.azurewebsites.net/api/CalculatePath?', {
-    const response = await fetch('http://localhost:7071/api/CalculatePath?', {
+    const response = await fetch('https://speedymarketbackend1.azurewebsites.net/api/CalculatePath?', {
+    //const response = await fetch('http://localhost:7071/api/CalculatePath?', {
 
       method: 'POST',
       headers: {

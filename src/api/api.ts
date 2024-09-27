@@ -5,7 +5,7 @@ import { getToken } from 'src/context/AuthContext';
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
   const token = await getToken();
   try {
-    const response = await axios.post<T>('http://localhost:7071/api/ExecuteSqlQuery', {
+    const response = await axios.post<T>('https://speedymarketbackend1.azurewebsites.net/api/ExecuteSqlQuery?', {
       functionName,
       params
     }, {
@@ -22,7 +22,7 @@ export const executeDbFunction = async <T>(functionName: string, params: Record<
 export const executePaymentFunction = async <T>(amount: string, paymentType: string, items: ShopInventory[]): Promise<T> => {
   const token = await getToken();
   try {
-    const response = await axios.post<T>('http://localhost:7071/api/Payment', {
+    const response = await axios.post<T>('https://speedymarketbackend1.azurewebsites.net/api/Payment?', {
       amount,
       paymentType,
       items
