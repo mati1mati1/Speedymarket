@@ -95,9 +95,11 @@ const ShoppingCartListScreen = () => {
           <View style={styles.listItemContainer}>
             <Pressable
               style={styles.item}
-              onPress={() => handleEditCart(item.ListID, item.ListName)}
             >
               <Text>{item.ListName}</Text>
+            </Pressable>
+            <Pressable style={styles.deleteButton} onPress={() => handleEditCart(item.ListID, item.ListName)}>
+              <Icon name="edit" size={24} color="#007bff" />
             </Pressable>
             <Pressable style={styles.deleteButton} onPress={() => confirmDeleteCart(item.ListID)}>
               <Icon name="trash" size={24} color="#FF6347" />
@@ -120,7 +122,7 @@ const ShoppingCartListScreen = () => {
             <View style={styles.top}>
               <Text style={styles.modalTitle}>Add a New Shopping List</Text>
               <Pressable onPress={handleCancel}>
-                  <Icon name="close" size={24} color="#007bff" />
+                  <Icon name="close" size={24} color="#000000" />
               </Pressable>
             </View>
               <View style={[styles.modalButtons]}>
@@ -149,7 +151,7 @@ const ShoppingCartListScreen = () => {
             <View style={styles.top}>
             <Text style={styles.modalTitle}>Are you sure you want to delete this shopping list?</Text>
             <Pressable onPress={() => setIsConfirmModalVisible(false)}>
-                <Icon name="close" size={24} color="#007bff" />
+                <Icon name="close" size={24} color="#000000" />
             </Pressable>
             </View>
               <Pressable style={[styles.modalButton, styles.deleteButton, styles.deleteButtonNoIcon]} onPress={handleDeleteCart}>
@@ -168,6 +170,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
+    marginTop: 30,
   },
   listItemContainer: {
     flexDirection: 'row',
@@ -217,6 +220,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
+    height: '20%',
   },
   modalDeleteList: {
     width: currWidth > 600 ? '35%': '80%',

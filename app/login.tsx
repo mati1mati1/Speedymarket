@@ -6,6 +6,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { Role } from '../src/models';
 import { ImageBackground } from 'react-native';
 import Toast from 'react-native-toast-message';
+import customAlert from '../src/components/AlertComponent';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState<string>('');
@@ -27,40 +28,17 @@ export default function LoginScreen() {
         } else if (response.role === Role.Supplier) {
           router.replace('/(supplier)/orders');
         }
-        else{
-          if (isWeb) {
-            Toast.show({
-              type: 'error',
-              text1: 'Login failed',
-              text2: 'Unknown role',
-            });
-          } else {
-            Alert.alert('Login failed', 'Unknown role');
-          }
+        else
+        {
+            customAlert('Login failed', 'Unknown role');
         }
       }
        else {
-        if (isWeb) {
-          Toast.show({
-            type: 'error',
-            text1: 'Login failed',
-            text2: 'Please check your username and password.',
-          });
-        } else {
-          Alert.alert('Login failed', 'Please check your username and password.');
-        }
+          customAlert('Login failed', 'Please check your username and password.');
       }
     } catch (error) {
       console.error('An error occurred during login', error);
-      if (isWeb) {
-        Toast.show({
-          type: 'error',
-          text1: 'Login failed',
-          text2: error.message,
-        });
-      } else {
-        Alert.alert('An error occurred during login', error.message);
-      }
+      customAlert('An error occurred during login', error.message);
     }
   };
 

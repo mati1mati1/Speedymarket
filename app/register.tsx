@@ -2,29 +2,52 @@ import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable, Alert, Platform, useWindowDimensions, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import Input from '../src/components/Input';
-import { Picker } from '@react-native-picker/picker';
-
+import { registerUser } from '../src/api/api';
+import Toast from 'react-native-toast-message';
+import customAlert from '../src/components/AlertComponent';
 
 export default function RegisterScreen() {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [role, setRole] = useState<string>('customer'); // Default role as 'customer'
+  const [name, setName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
+
   const router = useRouter();
   const { width } = useWindowDimensions(); // Get the window width
 
   const handleRegister = async () => {
     try {
-      // Here, you would typically call an API to register the user
-      // For this example, we'll assume the registration is always successful
-      Alert.alert('Registration successful', 'You can now log in with your credentials.');
-      router.replace('/login');
+      if (!username || !password || !name || !lastName || !email || !phone) {
+        // Alert.alert('Missing fields', 'Please fill in all fields.');
+        // Toast.show({
+        //   type: 'error',
+        //   text1: 'Missing fields',
+        //   text2: 'Please fill in all fields.',
+        // });
+        customAlert('Missing fields', 'Please fill in all fields.');
+        return;
+      }
+      await registerUser(name, lastName, username, password, email, phone);
+      // Alert.alert('Registration successful', 'You can now log in with your credentials.');
+      // Toast.show({
+      //   type: 'success',
+      //   text1: 'Registration successful',
+      //   text2: 'You can now log in with your credentials.',
+      // });
+      customAlert('Registration successful', 'You can now log in with your credentials.');
+      //put a timer:
+      setTimeout(() => {
+        router.replace('/login');
+      }, 3000);
     } catch (error) {
       console.error('An error occurred during registration', error);
-      Alert.alert('An error occurred during registration', error.message);
+      customAlert('An error occurred during registration', error.message);
     }
   };
 
-  const isWeb = Platform.OS === 'web' && width > 600; // Check if the platform is web and width is greater than 600
+  const isWeb = Platform.OS === 'web' && width > 600; 
 
   return (
     <View style={styles.container}>
@@ -32,6 +55,7 @@ export default function RegisterScreen() {
         <View style={styles.webLayout}>
           <View style={styles.formContainer}>
             <View style={styles.loginForm}>
+              <Toast/>
               <Text style={styles.title}>Register for SpeedyMarket</Text>
               <Text style={styles.subtitle}>Please enter your details to register</Text>
               <Input
@@ -45,18 +69,26 @@ export default function RegisterScreen() {
                 placeholder="Password"
                 secureTextEntry
               />
-              <View style={styles.pickerContainer}>
-                <Text style={styles.label}>Select Role:</Text>
-                  <Picker
-                    selectedValue={role}
-                    onValueChange={(itemValue) => setRole(itemValue)}
-                    style={styles.picker}
-                  >
-                    <Picker.Item label="Customer" value="customer" />
-                    <Picker.Item label="Seller" value="seller" />
-                    <Picker.Item label="Supplier" value="supplier" />
-                  </Picker>
-              </View>
+              <Input
+                value={name}
+                onChangeText={setName}
+                placeholder="Name"
+              />
+              <Input
+                value={lastName}
+                onChangeText={setLastName}
+                placeholder="Last Name"
+              />
+              <Input
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Email"
+              />
+              <Input
+                value={phone}
+                onChangeText={setPhone}
+                placeholder="Phone Number"
+              />
               <Pressable onPress={handleRegister} style={styles.button}>
                 <Text style={styles.buttonText}>Register</Text>
               </Pressable>
@@ -86,9 +118,24 @@ export default function RegisterScreen() {
               secureTextEntry
             />
             <Input
-              value={role}
-              onChangeText={setRole}
-              placeholder="Role"
+              value={name}
+              onChangeText={setName}
+              placeholder="Name"
+            />
+            <Input
+              value={lastName}
+              onChangeText={setLastName}
+              placeholder="Last Name"
+            />
+            <Input
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Email"
+            />
+            <Input
+              value={phone}
+              onChangeText={setPhone}
+              placeholder="Phone Number"
             />
             <Pressable onPress={handleRegister} style={styles.button}>
               <Text style={styles.buttonText}>Register</Text>

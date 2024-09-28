@@ -10,6 +10,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { Image } from 'react-native';
 import {uploadGroceryListImage, uploadRecipeUrl } from '../../../src/api/api';
 import { Alert } from 'react-native';
+import customAlert from '../../../src/components/AlertComponent';
 
 export default function EditListScreen() {
   let { listId, ListName } = useLocalSearchParams<{ listId: string; ListName?: string }>();
@@ -42,22 +43,17 @@ export default function EditListScreen() {
   }, [listId, ListName]);
 
   const handleUploadImage = () => {
+    if (!launchImageLibrary) {
+      customAlert('Error', 'Image picker is not available');
+      return;
+    }
     launchImageLibrary({ mediaType: 'photo' }, async (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
-        Toast.show({
-          type: 'info',
-          text1: 'Cancelled',
-        });
-        //for mobile:
-        Alert.alert('Cancelled', 'User cancelled image picker');
+        customAlert('Cancelled', 'User cancelled image picker');
       } else if (response.errorMessage) {
         console.log('ImagePicker Error: ', response.errorMessage);
-        Toast.show({
-          type: 'error',
-          text1: 'Please try again with a different image',
-        });
-        Alert.alert('Error', response.errorMessage);
+        customAlert('Error', response.errorMessage);
       } else if (response.assets && response.assets.length > 0) {
         const source = { uri: response.assets[0].uri as string };
         setImage(source);
@@ -82,18 +78,10 @@ export default function EditListScreen() {
             });
             setItems(prevItems => [...prevItems, ...parsedItems]);
           } else {
-            Toast.show({
-              type: 'error',
-              text1: 'Please try again with a different image',
-            });
-            Alert.alert('Error', 'Please try again with a different image');
+            customAlert('Error', 'Please try again with a different image');
           }
         } catch (error) {
-          Toast.show({
-            type: 'error',
-            text1: 'Please try again later, we had a problem',
-          });
-          Alert.alert('Error', 'Please try again later, we had a problem');
+          customAlert('Error', 'Please try again later, we had a problem');
         }
       }
     });
@@ -113,11 +101,7 @@ export default function EditListScreen() {
       // Add parsed items to the existing items in the list
       setItems(prevItems => [...prevItems, ...parsedItems]);
     } else {
-      Toast.show({
-        type: 'error',
-        text1: 'Please try again with a different URL',
-      });
-      Alert.alert('Error', 'Please try again with a different URL');
+      customAlert('Error', 'Please try again with a different URL');
     }
     setRecipeUrl('');
   };
@@ -173,17 +157,19 @@ export default function EditListScreen() {
       <Pressable style={styles.button} onPress={handleUploadImage}>
         <Text style={styles.buttonText}>Add a List From Image</Text>
       </Pressable>
+      <View style={styles.borderBottom}></View>
       <View style={styles.modalButtons}>
         <TextInput
-          style={[styles.input, {width: '55%'}, {marginRight: 20}] }
+          style={[styles.input, {width: '55%'}, {marginRight: 7}] }
           placeholder="Enter Recipe URL"
           value={recipeUrl}
           onChangeText={setRecipeUrl}
         />
-        <Pressable style={[styles.button, {width: '45%'}]} onPress={handleRecipe}>
+        <Pressable style={[styles.button, {width: '44%'}]} onPress={handleRecipe}>
           <Text style={styles.buttonText}>Get Ingredients</Text>
         </Pressable>
       </View>
+      <View style={styles.borderBottom}></View>
       {image && <Image source={image} />}
       <TextInput
         style={styles.input}
@@ -240,7 +226,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   header: {
-    alignSelf: 'center',
+    // alignSelf: 'center',
     marginBottom: 20,
   },
   topButton: {
@@ -257,7 +243,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
   },

@@ -12,6 +12,16 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
   
+  const getShopInventoryBySuperMarketIdQuery = (supermarketID) => ({
+    query: `
+      Select ItemName, Quantity 
+      from ShopInventory
+      where SupermarketID = @supermarketID
+    `,
+    params: [
+      { name: 'supermarketID', type: 'UniqueIdentifier', value: supermarketID }
+    ]
+  });
   const getShopInventoryQuery = (userId) => ({
     query: `
       SELECT si.* 
@@ -240,7 +250,7 @@ const getUserByIdQuery = (userId) => ({
       
       -- Insert a new order into Order
       DECLARE @OrderID UNIQUEIDENTIFIER = NEWID();
-      INSERT INTO Order (OrderID, UserID, SupermarketID, TotalAmount, CreationDate, SessionId, OrderStatus)
+      INSERT INTO [Order] (OrderID, UserID, SupermarketID, TotalAmount, CreationDate, SessionId, OrderStatus)
       VALUES (@OrderID, @buyerId, @supermarketId, @totalAmount, GETDATE(), @sessionId, Null);
   
       -- Insert each item into OrderItem and update ShopInventory
@@ -279,6 +289,21 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
 
+  const updateUserInfoQuery = (userId, name, lastName, email, phone) => ({
+    query: `
+      UPDATE [User]
+      SET FirstName = @name, LastName = @lastName, Email = @email, PhoneNumber = @phone
+      WHERE UserID = @userId
+    `,
+    params: [
+      { name: 'userId', type: 'UniqueIdentifier', value: userId },
+      { name: 'name', type: 'NVarChar', value: name },
+      { name: 'lastName', type: 'NVarChar', value: lastName },
+      { name: 'email', type: 'NVarChar', value: email },
+      { name: 'phone', type: 'NVarChar', value: phone }
+    ]
+  });
+
   const getOrderDetailsByOrderIdQuery = (orderId) => ({
     query: `
       SELECT * FROM SupplierOrderItem WHERE OrderID = @orderId
@@ -288,14 +313,20 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
 
-  // const getOrdersBySupplierIdQuery = (userId) => ({
-  //   query: `
-  //     SELECT * FROM SuperMarketOrder WHERE SupplierID = @userId
-  //   `,
-  //   params: [
-  //     { name: 'userId', type: 'UniqueIdentifier', value: userId }
-  //   ]
-  // });
+  const registerUserQuery = (name, lastName, userName, password, email, phone) => ({
+    query: `
+      INSERT INTO [User] (UserID, FirstName, LastName, UserName, HashedPassword, Email, PhoneNumber, UserType)
+      VALUES (NEWID(), @name, @lastName, @userName, @password, @email, @phone, 'Buyer')
+    `,
+    params: [
+      { name: 'name', type: 'NVarChar', value: name },
+      { name: 'lastName', type: 'NVarChar', value: lastName },
+      { name: 'userName', type: 'NVarChar', value: userName },
+      { name: 'password', type: 'NVarChar', value: password },
+      { name: 'email', type: 'NVarChar', value: email },
+      { name: 'phone', type: 'NVarChar', value: phone }
+    ]
+  });
 
   const updateOrderStatusQuery = (orderId, orderStatus) => ({
     query: `
@@ -379,9 +410,12 @@ const getUserByIdQuery = (userId) => ({
   module.exports = {
     // getDetailsForSuperMarketOrderQuery,
     getOrdersBySupermarketIdAndUserTypeSupplierQuery,
+    updateUserInfoQuery,
+    registerUserQuery,
     getOrderByBuyerIdAndOrderIdQuery,
     getOrderDetailsByIdQuery,
     createPurchaseQuery,
+    getShopInventoryBySuperMarketIdQuery,
     getUserByIdQuery,
     getUserByUserNameQuery,
     getShopInventoryQuery,
@@ -404,7 +438,6 @@ const getUserByIdQuery = (userId) => ({
     deleteShopInventoryQuery,
     updateSupermarketDetailsQuery,
     getOrderDetailsByOrderIdQuery,
-    // getOrdersBySupplierIdQuery,
     updateOrderStatusQuery,
     getAllSuppliersQuery,
     getSupplierInventoryBySupplierIdQuery,

@@ -258,9 +258,6 @@ const SupermarketMapsScreen = () => {
               setIsLoading={setIsSupermarketLoading}
               isLoading={isSupermarketLoading}
             />
-            <Pressable style={styles.closeButton} onPress={() => closeSupermarketModal(null)}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </Pressable>
           </View>
         </View>
       </Modal>
