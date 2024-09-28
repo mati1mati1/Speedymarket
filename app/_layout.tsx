@@ -40,6 +40,8 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { authState } = useAuth();
+  console.error = () => {};
+  console.warn = () => {};
   return (
     <DndProvider backend={HTML5Backend}>
       <Stack screenOptions={{headerShown: false}}>
