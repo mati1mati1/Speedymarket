@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Modal, Alert, ScrollView, Dimensions, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Modal, Alert, ScrollView, Dimensions, TouchableOpacity, Pressable, useWindowDimensions } from 'react-native';
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
 import { ShopInventory } from '../../src/models';
 import { addShopInventory, getShopInventory, getSupermarketByUserId, updateShopInventory, deleteShopInventory } from '../../src/api/api';
@@ -9,6 +9,8 @@ import { useAuth } from '../../src/context/AuthContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button as RNEButton } from 'react-native-elements';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);
@@ -23,27 +25,29 @@ export default function InventoryManagementScreen() {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<ShopInventory | null>(null);
   const { authState } = useAuth();
-  const screenWidth = Dimensions.get('window').width;
+  const { width } = useWindowDimensions();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const shopInventory = await getShopInventory();
-        if (shopInventory) {
-          setInventory(shopInventory);
-        }
-        setIsDataFetched(true);
-        const supermarket = await getSupermarketByUserId();
-        if (supermarket) {
-          setSupermarketID(supermarket[0].SupermarketID);
-        }
-      } catch (error) {
-        console.error('Failed to fetch data:', error);
+  const fetchData = async () => {
+    try {
+      const shopInventory = await getShopInventory();
+      if (shopInventory) {
+        setInventory(shopInventory);
       }
-    };
+      setIsDataFetched(true);
+      const supermarket = await getSupermarketByUserId();
+      if (supermarket) {
+        setSupermarketID(supermarket[0].SupermarketID);
+      }
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  };
 
-    fetchData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   const handleFormChange = (name: string, value: string) => {
     setForm({ ...form, [name]: value });
@@ -185,7 +189,7 @@ export default function InventoryManagementScreen() {
                 data={['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode', 'Actions']}
                 style={styles.head}
                 textStyle={styles.headerText}
-                widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, 80]}
+                widthArr={[width / 7, width / 7, width / 7, width / 7, width / 7, width / 7, 80]}
               />
               <TableWrapper style={styles.wrapper}>
                 <Rows
@@ -199,7 +203,7 @@ export default function InventoryManagementScreen() {
                     renderEditButton(null, inventory.indexOf(item))
                   ])}
                   textStyle={styles.text}
-                  widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, 80]}
+                  widthArr={[width / 7, width / 7, width / 7, width / 7, width / 7, width / 7, 80]}
                 />
               </TableWrapper>
             </Table>

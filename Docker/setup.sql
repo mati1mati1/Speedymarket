@@ -251,26 +251,6 @@ VALUES
 
 INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
 VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 45.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), 'Pending');
-
-INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
-VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 35.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), 'Cancelled');
-
-INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
-VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 55.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Delivered');
-
-INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
-VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 65.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Delivered');
-
-INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
-VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 65.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Pending');
-
-INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
-VALUES 
 ((SELECT UserID FROM [User] WHERE UserName = 'johndoe'), 27.47, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), NULL);
 
 INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
@@ -283,27 +263,19 @@ VALUES
 
 INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
 VALUES 
+((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 36.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), NULL);
+
+INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
+VALUES 
 ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 45.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), 'Pending');
 
 INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
 VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 35.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), 'Cancelled');
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 32.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), 'Shipped');
 
 INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
 VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 55.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Delivered');
-
-INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
-VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 65.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Delivered');
-
-INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
-VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 65.00, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), 'Pending');
-
-INSERT INTO [Order] (UserID, TotalAmount, SupermarketID, SessionId, OrderStatus)
-VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'mikejohnson'), 36.96, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Market Plaza'), NEWID(), NULL);
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 39.95, (SELECT SupermarketID FROM Supermarket WHERE BranchName = 'Main Street Store'), NEWID(), 'Pending');
 
 GO
 
@@ -311,36 +283,36 @@ GO
 
 INSERT INTO OrderItem (OrderID, ItemID, ItemName, Quantity, Price)
 VALUES 
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 27.47 ORDER BY OrderID), 'ITEM001', 'Apples', 3, 3.50),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 21.97 ORDER BY OrderID), 'ITEM002', 'Bananas', 5, 2.50),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 38.47 ORDER BY OrderID), 'ITEM003', 'Oranges', 4, 4.25),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 27.47 ORDER BY OrderID), 'ITEM001', 'Apple', 3, 3.50),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'johndoe') AND TotalAmount = 21.97 ORDER BY OrderID), 'ITEM002', 'Banana', 5, 2.50),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 38.47 ORDER BY OrderID), 'ITEM003', 'Orange', 4, 4.25),
 ((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'mikejohnson') AND TotalAmount = 36.96 ORDER BY OrderID), 'ITEM004', 'Grapes', 2, 5.00),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 45.00 ORDER BY OrderID), 'ITEM001', 'Apples', 5, 3.50),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 35.00 ORDER BY OrderID), 'ITEM002', 'Bananas', 7, 2.50),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 55.00 ORDER BY OrderID), 'ITEM003', 'Oranges', 6, 4.25),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM004', 'Grapes', 3, 5.00),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM005', 'Milk', 2, 2.49),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM006', 'Bread', 1, 1.50),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM007', 'Butter', 1, 3.99),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM008', 'Cheese', 2, 4.99),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM009', 'Chicken', 1, 5.99),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM010', 'Beef', 1, 8.99),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM011', 'Fish', 1, 7.99),
-((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 65.00 ORDER BY OrderID), 'ITEM012', 'Eggs', 1, 2.99);
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 45.00 ORDER BY OrderID), 'ITEM001', 'Apple', 5, 3.50),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 45.00 ORDER BY OrderID), 'ITEM002', 'Banana', 7, 2.50),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 45.00 ORDER BY OrderID), 'ITEM004', 'Grapes', 2, 5.00),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 32.00 ORDER BY OrderID), 'ITEM003', 'Orange', 6, 4.25),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 32.00 ORDER BY OrderID), 'ITEM005', 'Milk', 2, 2.50),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 32.00 ORDER BY OrderID), 'ITEM006', 'Bread', 1, 1.50),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 39.95 ORDER BY OrderID), 'ITEM007', 'Butter', 1, 3.99),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 39.95 ORDER BY OrderID), 'ITEM008', 'Cheese', 2, 5.00),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 39.95 ORDER BY OrderID), 'ITEM009', 'Chicken', 1, 5.99),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 39.95 ORDER BY OrderID), 'ITEM010', 'Beef', 1, 8.99),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 39.95 ORDER BY OrderID), 'ITEM011', 'Fish', 1, 7.99),
+((SELECT TOP 1 OrderID FROM [Order] WHERE UserID = (SELECT UserID FROM [User] WHERE UserName = 'talsabel') AND TotalAmount = 39.95 ORDER BY OrderID), 'ITEM012', 'Eggs', 1, 2.99);
 
-GO
+GO 
 
 INSERT INTO SupplierInventory (UserID, ItemName, Price)
 VALUES 
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Apples', 2.99),
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Bananas', 1.49),
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Oranges', 3.25),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Apple', 2.99),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Banana', 1.49),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Orange', 3.25),
 ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Grapes', 4.75),
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Strawberries', 5.99),
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Mangoes', 2.50),
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Peaches', 3.10),
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Blueberries', 4.99),
-((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Cherries', 6.49),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Strawberry', 5.99),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Mango', 2.50),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Peach', 3.10),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Blueberry', 4.99),
+((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Cherry', 6.49),
 ((SELECT UserID FROM [User] WHERE UserName = 'talsabel'), 'Watermelon', 7.99);
 GO
 

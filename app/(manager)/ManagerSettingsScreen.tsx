@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Modal, Dimensions, ActivityIndicator, FlatList, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ScrollView, Modal, Dimensions, ActivityIndicator, FlatList, TouchableOpacity, Pressable, useWindowDimensions } from 'react-native';
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
 import { getCountries, getCities, getStreets } from '../../src/api/locationApi';
 import { Country, City, dailyHours, Street, Supermarket } from '../../src/models';
@@ -34,6 +34,7 @@ const ManagerSettingsScreen = () => {
     const [countryInputText, setCountryInputText] = useState(''); 
     const [cityInputText, setCityInputText] = useState(''); 
     const [streetInputText, setStreetInputText] = useState(''); 
+    const { width } = useWindowDimensions();
 
     useEffect(() => {
         const fetchSupermarketDetails = async () => {
@@ -187,7 +188,6 @@ const ManagerSettingsScreen = () => {
       setFilteredStreets(filtered);
   };
 
-    const screenWidth = Dimensions.get('window').width;
 
     if (loading) {
         return (
@@ -349,7 +349,7 @@ const ManagerSettingsScreen = () => {
                                 data={['Day', 'Open Hour', 'Closing Hour', 'Edit']}
                                 style={styles.head}
                                 textStyle={styles.headerText}
-                                widthArr={[4*screenWidth / 16, 5*screenWidth / 16, 5*screenWidth / 16, screenWidth / 16 - 16]}
+                                widthArr={[4*width / 16, 5*width / 16, 5*width / 16, width / 16 - 16]}
                             />
                             <TableWrapper style={styles.wrapper}>
                                 <Rows
@@ -362,7 +362,7 @@ const ManagerSettingsScreen = () => {
                                         </Pressable>
                                     ])}
                                     textStyle={styles.text}
-                                    widthArr={[4*screenWidth / 16, 5*screenWidth / 16, 5*screenWidth / 16, screenWidth / 16 - 16]}
+                                    widthArr={[4*width / 16, 5*width / 16, 5*width / 16, width / 16 - 16]}
                                 />
                             </TableWrapper>
                         </Table>

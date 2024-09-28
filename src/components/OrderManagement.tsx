@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { addShopInventory, getOrderDetailsByOrderId, updateOrderStatus, updateShopInventory } from '../../src/api/api';
+import { addShopInventory, getOrderDetailsByOrderId, getShopInventoryByItemName, updateOrderStatus, updateShopInventory, updateShopInventoryQuantityQuery } from '../../src/api/api';
 import { OrderItem, ShopInventory } from '../../src/models';
 import { v4 as uuidv4 } from 'uuid'; 
+import customAlert from './AlertComponent';
 
 type OrderManagementProps = {
   orderID: string;
@@ -71,17 +72,22 @@ const OrderManagement :  React.FC<OrderManagementProps> = ({ orderID, supermarke
     if (orderItems) {
       for (const item of orderItems) {
         try {
-          item.ItemName;
-          item.Quantity;
-          item.Price;
-          const inventoryItem: ShopInventory = { InventoryID: uuidv4(), SupermarketID: supermarketID, ItemName: item.ItemName, Quantity: item.Quantity, Price: item.Price, Discount: 0, Location: '0', Barcode: '0'};
-          await addShopInventory(inventoryItem);
-          setAddToInventoryText('✔️ Added To Inventory');
+          let savedItem = await getShopInventoryByItemName(item.ItemName);
+          if (savedItem.length > 0) {
+            let quantity = savedItem[0].Quantity;
+            savedItem[0].Quantity = quantity + item.Quantity;
+            console.log("Saved item: " + savedItem[0].Quantity);
+            await updateShopInventoryQuantityQuery(savedItem[0]);
+          } else {
+            const inventoryItem: ShopInventory = { InventoryID: uuidv4(), SupermarketID: supermarketID, ItemName: item.ItemName, Quantity: item.Quantity, Price: 0, Discount: 0, Location: '0', Barcode: '0'};
+            await addShopInventory(inventoryItem);
+          }
         } 
         catch (ex) {
-          //Toast
+          customAlert("Failed to Add", "Oops, there was an issue adding this item, please try again later.");
         }
       };
+      setAddToInventoryText('✔️ Added To Inventory');
     }
   };
 

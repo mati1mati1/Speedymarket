@@ -211,6 +211,19 @@ const getUserByIdQuery = (userId) => ({
     ]
   });
   
+  const getShopInventoryByItemName = (userId, itemName) => ({
+    query: `
+      SELECT si.* 
+      FROM ShopInventory si
+      JOIN Supermarket sm ON si.SupermarketID = sm.SupermarketID
+      WHERE sm.UserID = @userId AND ItemName = @itemName
+    `,
+    params: [
+      { name: 'userId', type: 'UniqueIdentifier', value: userId },
+      { name: 'itemName', type: 'NVarChar', value: itemName }
+    ]
+  });
+
   const addShopInventoryQuery = (inventory) => ({
     query: `
       INSERT INTO ShopInventory (SupermarketID, ItemName, Quantity, Price, Discount, Location, Barcode)
@@ -244,6 +257,18 @@ const getUserByIdQuery = (userId) => ({
       { name: 'barcode', type: 'NVarChar', value: inventory.Barcode }
     ]
   });
+
+  const updateShopInventoryQuantityQuery = (inventory) => ({
+    query: `IF EXISTS (SELECT * FROM ShopInventory WHERE InventoryID = @inventoryId)
+              UPDATE ShopInventory
+              SET Quantity = @quantity
+              WHERE InventoryID = @inventoryId`,
+    params: [
+      { name: 'inventoryId', type: 'UniqueIdentifier', value: inventory.InventoryID },
+      { name: 'quantity', type: 'Int', value: inventory.Quantity },
+    ]
+  });
+
   const createPurchaseQuery = (buyerId, supermarketId, totalAmount, items, sessionId) => ({
     query: `
       BEGIN TRANSACTION;
@@ -419,6 +444,7 @@ const getUserByIdQuery = (userId) => ({
     getUserByIdQuery,
     getUserByUserNameQuery,
     getShopInventoryQuery,
+    getShopInventoryByItemName,
     getItemBySupermarketIdAndItemNameQuery,
     getItemBySupermarketIdAndBarcodeQuery,
     getMapBySupermarketIdQuery,
@@ -435,6 +461,7 @@ const getUserByIdQuery = (userId) => ({
     changeShoppingListQuery,
     addShopInventoryQuery,
     updateShopInventoryQuery,
+    updateShopInventoryQuantityQuery,
     deleteShopInventoryQuery,
     updateSupermarketDetailsQuery,
     getOrderDetailsByOrderIdQuery,

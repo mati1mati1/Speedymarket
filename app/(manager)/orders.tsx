@@ -6,6 +6,8 @@ import { Picker } from '@react-native-picker/picker';
 import { getAllSuppliers, getSupplierInventory, createSuperMarketOrder, getSupermarketByUserId, getOrdersBySupermarketIdAndUserTypeSupplierQuery, getOrderDetailsByOrderId, updateOrderStatus } from '../../src/api/api';
 import { OrderItem, SupplierInventory, SupplierOrder, User } from '../../src/models';
 import OrderManagement from '../../src/components/OrderManagement';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 export default function OrderManagementScreen() {
   const [orders, setOrders] = useState<SupplierOrder[]>([]);
@@ -16,30 +18,31 @@ export default function OrderManagementScreen() {
   const [supermarketID, setSupermarketID] = useState<string>('');
   const [suppliers, setSuppliers] = useState<User[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {  
-        const supermarket = await getSupermarketByUserId();
-        if (supermarket) {
-          setSupermarketID(supermarket[0].SupermarketID);
-        }
-        const suppliers = await getAllSuppliers();
-        if (suppliers) {
-          setSuppliers(suppliers);
-        }
-        const orders = await getOrdersBySupermarketIdAndUserTypeSupplierQuery(supermarket[0].SupermarketID);
-        if (orders) {
-          setOrders(orders);
-        }
-
-      } catch(e) {
-        console.error('Failed to fetch data: ', e);
+  const fetchData = async () => {
+    try {  
+      const supermarket = await getSupermarketByUserId();
+      if (supermarket) {
+        setSupermarketID(supermarket[0].SupermarketID);
       }
-    };
-    fetchData();
+      const suppliers = await getAllSuppliers();
+      if (suppliers) {
+        setSuppliers(suppliers);
+      }
+      const orders = await getOrdersBySupermarketIdAndUserTypeSupplierQuery(supermarket[0].SupermarketID);
+      if (orders) {
+        setOrders(orders);
+      }
 
-  }, []);
+    } catch(e) {
+      console.error('Failed to fetch data: ', e);
+    }
+  };
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   const handleAddOrder = () => {
     setModalVisible(true);

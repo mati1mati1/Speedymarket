@@ -141,12 +141,20 @@ export const changeShoppingListName = async ( listName: string, listId: string):
   return await executeDbFunction<ShoppingList[]>( 'changeShoppingListName', { listName, listId });
 };
 
+export const getShopInventoryByItemName = async ( itemName: string ): Promise<ShopInventory[]> => {
+  return await executeDbFunction<ShopInventory[]>( 'getShopInventoryByItemName', {itemName});
+};
+
 export const addShopInventory = async ( shopInventory: ShopInventory): Promise<string> => {
   return await executeDbFunction<string>( 'addShopInventory', { shopInventory });
 };
 
 export const updateShopInventory = async ( shopInventory: ShopInventory): Promise<void> => {
   return await executeDbFunction<void>( 'updateShopInventory', { shopInventory });
+};
+
+export const updateShopInventoryQuantityQuery = async (shopInventory: ShopInventory): Promise<void> => {
+  return await executeDbFunction<void>( 'updateShopInventoryQuantityQuery', {shopInventory});
 };
 
 export const deleteShopInventory = async ( inventoryId: string): Promise<void> => {

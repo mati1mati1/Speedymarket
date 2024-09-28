@@ -56,10 +56,14 @@ const getQueryByName = async (functionName, params) => {
             return queries.createShoppingListQuery(params.listName, params.userId);
         case 'changeShoppingListName':
             return queries.changeShoppingListQuery(params.listName, params.listId);
+        case 'getShopInventoryByItemName':
+            return queries.getShopInventoryByItemName(params.userId, params.itemName);
         case 'addShopInventory':
             return queries.addShopInventoryQuery(params.shopInventory);
         case 'updateShopInventory':
             return queries.updateShopInventoryQuery(params.shopInventory);
+        case 'updateShopInventoryQuantityQuery':
+            return queries.updateShopInventoryQuantityQuery(params.shopInventory);
         case 'deleteShopInventory':
             return queries.deleteShopInventoryQuery(params.inventoryId);
         case 'updateSupermarketDetailsQuery':
