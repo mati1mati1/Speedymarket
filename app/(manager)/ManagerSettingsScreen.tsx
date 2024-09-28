@@ -7,6 +7,7 @@ import { useAuth } from '../../src/context/AuthContext';
 import { getSupermarketByUserId, updateSupermarketDetails } from '../../src/api/api';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button as RNEButton } from 'react-native-elements';
+import customAlert from '../../src/components/AlertComponent';
 
 const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -40,6 +41,7 @@ const ManagerSettingsScreen = () => {
         const fetchSupermarketDetails = async () => {
             try {
                 const fetchedSupermarket = await getSupermarketByUserId();
+                debugger;
                 if (fetchedSupermarket && fetchedSupermarket.length > 0) {
                     const supermarketDetails = fetchedSupermarket[0];
                     setSupermarket(supermarketDetails);
@@ -54,6 +56,7 @@ const ManagerSettingsScreen = () => {
                     try {
                         operatingHoursArray = JSON.parse(supermarketDetails.OperatingHours as unknown as string);
                     } catch (error) {
+                        customAlert("Failed to parse OperatingHours: ", "Oops something went wrong");
                         console.error('Failed to parse OperatingHours:', error);
                         operatingHoursArray = daysOfWeek.map(day => ({ day, openHour: '', closeHour: '' }));
                     }
@@ -68,6 +71,7 @@ const ManagerSettingsScreen = () => {
                     setOperatingHours(daysOfWeek.map(day => ({ day, openHour: '', closeHour: '' })));
                 }
             } catch (error) {
+                customAlert("Failed to fetch supermarket details: ", "Oops something went wrong");
                 console.error('Failed to fetch supermarket details:', error);
             } finally {
                 setLoading(false);
@@ -84,6 +88,7 @@ const ManagerSettingsScreen = () => {
                 setCountries(fetchedCountries);
                 setFilteredCountries(fetchedCountries);
             } catch (error) {
+                customAlert("Failed to fetch countries: ", "Oops something went wrong");
                 console.log('Failed to fetch countries:', error);
             }
         };
@@ -101,6 +106,7 @@ const ManagerSettingsScreen = () => {
                     setFilteredCities(fetchedCities);
                   }
                 } catch (error) {
+                    customAlert("Failed to fetch cities: ", "Oops something went wrong");
                     console.log('Failed to fetch cities:', error);
                 }
             };
@@ -120,6 +126,7 @@ const ManagerSettingsScreen = () => {
                     setFilteredStreets(fetchedStreets);
                   }
                 } catch (error) {
+                    customAlert("Failed to fetch streets: ", "Oops something went wrong");
                     console.log('Failed to fetch streets:', error);
                 } finally {
                     setFetchingStreets(false);
@@ -376,7 +383,7 @@ const ManagerSettingsScreen = () => {
                     <Icon name="save" size={20} color="#fff" />
                 }
                 buttonStyle={[styles.blueButton, { marginTop: 20}]}
-                onPress={handleSaveHours}        
+                onPress={handleSave}        
             />                              
 
             <Modal

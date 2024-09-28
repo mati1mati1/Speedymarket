@@ -8,6 +8,7 @@ import { OrderItem, SupplierInventory, SupplierOrder, User } from '../../src/mod
 import OrderManagement from '../../src/components/OrderManagement';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import customAlert from '../../src/components/AlertComponent';
 
 export default function OrderManagementScreen() {
   const [orders, setOrders] = useState<SupplierOrder[]>([]);
@@ -34,6 +35,7 @@ export default function OrderManagementScreen() {
       }
 
     } catch(e) {
+      customAlert("Failed to fetch data: ", "Oops something went wrong");
       console.error('Failed to fetch data: ', e);
     }
   };
@@ -51,8 +53,12 @@ export default function OrderManagementScreen() {
   const handleSupplierSelect = async (supplierId: string) => {
     setSelectedSupplier(suppliers.find(supplier => supplier.UserID === supplierId) || null);
     if (supplierId != '') {
-      let inventory = await getSupplierInventory(supplierId);
-      setInventory(inventory);
+      try {
+        let inventory = await getSupplierInventory(supplierId);
+        setInventory(inventory);
+      } catch (e) {
+        customAlert("Failed to fetch supplier inventory: ", "Oops something went wrong");
+      }
     }
   };
 
@@ -86,12 +92,12 @@ export default function OrderManagementScreen() {
   
     try {
       if (!selectedSupplier) {
-        console.log("Please select a supervisor!"); // TODO: toast?
+        customAlert("Please select a supervisor!", "Please!!!");
       } else{
         let orderID = await createSuperMarketOrder(selectedSupplier.UserID, supermarketID, totalAmount, 'Pending', orderItems);
       }
     } catch (e) {
-      console.log("Could not create order."); //TODO: insert toast
+      customAlert("Could not create order.", "Oops something went wrong");
     }
 
     await refreshOrders();
@@ -99,8 +105,12 @@ export default function OrderManagementScreen() {
   };
 
   const refreshOrders = async () => {
-    const orders = await getOrdersBySupermarketIdAndUserTypeSupplierQuery(supermarketID);
-    setOrders(orders);
+    try {
+      const orders = await getOrdersBySupermarketIdAndUserTypeSupplierQuery(supermarketID);
+      setOrders(orders);
+    } catch (e) {
+      customAlert("Failed to refresh orders: ", "Oops something went wrong");
+    }
   }
 
   const closeModal = () => {

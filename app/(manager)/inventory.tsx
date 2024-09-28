@@ -11,6 +11,7 @@ import { Button as RNEButton } from 'react-native-elements';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import customAlert from '../../src/components/AlertComponent';
 
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);
@@ -39,6 +40,7 @@ export default function InventoryManagementScreen() {
         setSupermarketID(supermarket[0].SupermarketID);
       }
     } catch (error) {
+      customAlert("Failed to Get Inventory", "Oops, there was an issue, please try again later.");
       console.error('Failed to fetch data:', error);
     }
   };
@@ -91,11 +93,16 @@ export default function InventoryManagementScreen() {
       Barcode: form.Barcode,
       SupermarketID: supermarketID
     };
-    const response = await addShopInventory(newItem);
-    newItem.InventoryID = response[0];
-    setInventory([...inventory, newItem]);
-    setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
-    setModalVisible(false);
+    try {
+      const response = await addShopInventory(newItem);
+      newItem.InventoryID = response[0];
+      setInventory([...inventory, newItem]);
+      setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+      setModalVisible(false);
+    } catch (error) {
+      customAlert("Failed to Add Item", "Oops, there was an issue, please try again later.");
+      console.error('Failed to add item:', error);
+    }
   };
 
   const handleEditItem = async () => {
@@ -110,19 +117,23 @@ export default function InventoryManagementScreen() {
         Location: form.Location,
         Barcode: form.Barcode
       };
+      try {
+        await updateShopInventory(updatedItem);
 
-      await updateShopInventory(updatedItem);
+        const updatedInventory = inventory.map(item =>
+          item.InventoryID === currentItem.InventoryID
+            ? updatedItem
+            : item
+        );
 
-      const updatedInventory = inventory.map(item =>
-        item.InventoryID === currentItem.InventoryID
-          ? updatedItem
-          : item
-      );
-
-      setInventory(updatedInventory);
-      setCurrentItem(null);
-      setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
-      setModalVisible(false);
+        setInventory(updatedInventory);
+        setCurrentItem(null);
+        setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+        setModalVisible(false);
+      } catch (error) {
+        customAlert("Failed to Update Item", "Oops, there was an issue, please try again later.");
+        console.error('Failed to update item:', error);
+      }
     }
   };
 
@@ -147,10 +158,15 @@ export default function InventoryManagementScreen() {
 
   const confirmDeleteItem = async () => {
     if (itemToDelete) {
-      await deleteShopInventory(itemToDelete.InventoryID);
-      setInventory(inventory.filter(i => i.InventoryID !== itemToDelete.InventoryID));
-      setDeleteModalVisible(false);
-      setItemToDelete(null);
+      try {
+        await deleteShopInventory(itemToDelete.InventoryID);
+        setInventory(inventory.filter(i => i.InventoryID !== itemToDelete.InventoryID));
+        setDeleteModalVisible(false);
+        setItemToDelete(null);
+      } catch (error) {
+        customAlert("Failed to Delete Item", "Oops, there was an issue, please try again later.");
+        console.error('Failed to delete item:', error);
+      }
     }
   };
 

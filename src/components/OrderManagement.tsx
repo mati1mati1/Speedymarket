@@ -55,17 +55,23 @@ const OrderManagement :  React.FC<OrderManagementProps> = ({ orderID, supermarke
   const handleOrderExpand = async () => {
     setExpanded(!expanded);
     if (!expanded) {
-      const details = await getOrderDetailsByOrderId(orderID);
-      setOrderDetails(details);
+      try {
+        const details = await getOrderDetailsByOrderId(orderID);
+        setOrderDetails(details);
+      } catch (ex) {
+        customAlert("Failed to Load", "Oops, there was an issue loading the details of this order, please try again later.");
+      }
     }
   };
 
   const handleChangeStatusToDelivered = async () => {
-    await updateOrderStatus(orderID, 'Delivered');
-    // add toast
-    // await refreshOrders();
-    setStatusIcon(getStatusWithIcon('Delivered'));
-    setStatusText('Delivered');
+    try {
+      await updateOrderStatus(orderID, 'Delivered');
+      setStatusIcon(getStatusWithIcon('Delivered'));
+      setStatusText('Delivered');
+    } catch (ex) {
+      customAlert("Failed to Update", "Oops, there was an issue updating the status of this order, please try again later.");
+    }
   };
 
   const handleAddToInventory = async (orderItems: OrderItem[] | null) => {
@@ -76,18 +82,17 @@ const OrderManagement :  React.FC<OrderManagementProps> = ({ orderID, supermarke
           if (savedItem.length > 0) {
             let quantity = savedItem[0].Quantity;
             savedItem[0].Quantity = quantity + item.Quantity;
-            console.log("Saved item: " + savedItem[0].Quantity);
             await updateShopInventoryQuantityQuery(savedItem[0]);
           } else {
             const inventoryItem: ShopInventory = { InventoryID: uuidv4(), SupermarketID: supermarketID, ItemName: item.ItemName, Quantity: item.Quantity, Price: 0, Discount: 0, Location: '0', Barcode: '0'};
             await addShopInventory(inventoryItem);
           }
+          setAddToInventoryText('✔️ Added To Inventory');
         } 
         catch (ex) {
           customAlert("Failed to Add", "Oops, there was an issue adding this item, please try again later.");
         }
       };
-      setAddToInventoryText('✔️ Added To Inventory');
     }
   };
 
