@@ -8,20 +8,39 @@ export default StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)', // Added for background transparency
     padding: 16,
   },
+  scrollContainer: {
+    height: 400, // Set a fixed height for the scrollable area
+    width: '100%', // Full width
+    marginTop: 10,
+  },
   modalContent: {
     width: '80%',
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
     alignItems: 'center', // Center align items inside the modal
+    maxHeight: '80%', // Ensures the modal does not exceed the screen height
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',  // Title on the left, close button on the right
+    alignItems: 'center',
+    paddingHorizontal: 10,  // Add some padding
+    paddingVertical: 15,
   },
   title: {
     fontSize: 20,
-    marginBottom: 16,
+    fontWeight: 'bold',
+    flex: 1, 
   },
   list: {
     flexGrow: 1,
     justifyContent: 'center',
+  },
+  line:{
+    marginLeft: 60,
+    height: 50,
+    alignItems: 'center',
   },
   listItem: {
     flexDirection: 'row',
@@ -30,14 +49,11 @@ export default StyleSheet.create({
     backgroundColor: '#f9f9f9',
     borderRadius: 8,
     width: '100%',
-    alignItems: 'center',
+    // height: 200,
+    // alignItems: 'center',
   },
   selectedItem: {
     backgroundColor: '#cce5ff',
-  },
-  listItemText: {
-    fontSize: 16,
-    flex: 1,
   },
   button: {
     backgroundColor: 'blue',
@@ -148,14 +164,6 @@ export default StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
-  },
-  listItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: 'gray',
   },
   listItemText: {
     flex: 1,

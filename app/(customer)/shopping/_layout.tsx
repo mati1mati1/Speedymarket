@@ -13,7 +13,7 @@ function ShoppingListLayout() {
         name="shoppingMap" 
         options={{ 
           headerShown: true, 
-          headerTitle: 'Shopping Map'
+          headerTitle: 'SuperMarket Map'
         }} 
       />
     </Stack>

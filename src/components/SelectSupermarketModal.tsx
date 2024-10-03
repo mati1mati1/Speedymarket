@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Modal, Pressable, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { getSupermarketByBarcode, getSupermarkets } from 'src/api/api';
 import { Supermarket } from 'src/models';
-import ScanItem from './Scanner';
+import ScanMobileItem from './ScannerMobile';
 import { useAuth } from 'src/context/AuthContext';
 import { FontAwesome } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import customAlert from './AlertComponent';
 
 interface SelectSupermarketModalProps {
   closeModal: (selectedSupermarket: Supermarket | null) => void;
@@ -48,6 +49,8 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
       if (response.length > 0) {
         setSelectedSupermarket(response[0]);
         setScannedDataModalOpen(false);
+      } else {
+        customAlert('Supermarket not found', 'Please try again');
       }
     } catch (error) {
       console.log(error);
@@ -102,7 +105,7 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
           <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
             <TouchableOpacity style={styles.modalContainer} onPress={toggleIsScannedDataOpen}>
               <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
-                <ScanItem handleData={handleScannedBarcode} />
+                <ScanMobileItem handleData={handleScannedBarcode} closeMe={setScannedDataModalOpen}/>
               </View>
             </TouchableOpacity>
           </Modal>
@@ -161,6 +164,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    height: '10%'
   },
   closeButton: {
     position: 'absolute',
