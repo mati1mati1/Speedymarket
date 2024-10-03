@@ -11,7 +11,7 @@ import { ShopInventory, ShoppingListItem } from '../../../src/models';
 import MissingItemsModal from '../../../src/components/MissingItemsModal';
 import FoundItemsModal from '../../../src/components/FoundItemsModal';
 import ShoppingCart from '../../../src/components/ShoppingCart';
-import ScanItem from '../../../src/components/Scanner';
+import ScanMobileItem from '../../../src/components/ScannerMobile';
 import QuantityModal from '../../../src/components/QuantityModal'; 
 import Payment from '../../../src/components/Payment';
 import customAlert from '../../../src/components/AlertComponent';
@@ -137,7 +137,7 @@ const ShoppingMap: React.FC = () => {
         setSelectedItem(item[0]); 
         setIsQuantityModalVisible(true);
       } else {
-        customAlert('Item Not Found', 'The scanned item was not found in the database.', [{ text: 'OK' }]);
+        customAlert('Item Not Found', 'The scanned item was not found in this store, go to cashier.', [{ text: 'OK' }]);
       }
     } catch (error) {
       console.error('Error fetching item:', error);
@@ -270,8 +270,8 @@ const ShoppingMap: React.FC = () => {
        <Map sections={sections} entrance={entrance} path={path} itemFoundList={itemFoundList} />
         <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
           <TouchableOpacity style={styles.modalOverlay} onPress={toggleIsScannedDataOpen}>
-            <View style={styles.modal} onStartShouldSetResponder={() => true}>
-              <ScanItem handleData={handleScannedData}/>
+            <View style={[styles.modal, {height: '40%'}]} onStartShouldSetResponder={() => true}>
+              <ScanMobileItem handleData={handleScannedData} closeMe={toggleIsScannedDataOpen}/>
             </View>
           </TouchableOpacity>
         </Modal>
