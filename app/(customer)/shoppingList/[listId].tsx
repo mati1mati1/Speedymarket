@@ -6,10 +6,11 @@ import { updateShoppingListItems, getShoppingListItemByCardId } from '../../../s
 import { useAuth } from '../../../src/context/AuthContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Toast from 'react-native-toast-message';
-import { launchImageLibrary } from 'react-native-image-picker';
+// import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
+
 import { Image } from 'react-native';
 import {uploadGroceryListImage, uploadRecipeUrl } from '../../../src/api/api';
-import { Alert } from 'react-native';
 import customAlert from '../../../src/components/AlertComponent';
 
 export default function EditListScreen() {
@@ -41,50 +42,53 @@ export default function EditListScreen() {
 
     fetchData();
   }, [listId, ListName]);
-
-  const handleUploadImage = () => {
-    if (!launchImageLibrary) {
-      customAlert('Error', 'Image picker is not available');
-      return;
-    }
-    launchImageLibrary({ mediaType: 'photo' }, async (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-        customAlert('Cancelled', 'User cancelled image picker');
-      } else if (response.errorMessage) {
-        console.log('ImagePicker Error: ', response.errorMessage);
-        customAlert('Error', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        const source = { uri: response.assets[0].uri as string };
-        setImage(source);
-        try {
-          const res = await uploadGroceryListImage(source.uri);
-          if (res.success) {
-            const itemsList = res.list;
-            const parsedItems = itemsList.filter(item => {
-              const [quantity, ...nameParts] = item.split(' ');
-              const itemName = nameParts.join(' ').trim();
-              return itemName && itemName.toLowerCase() !== 'nan';
-            }).map(item => {
-              const [quantity, ...nameParts] = item.split(' ');
-              const itemName = nameParts.join(' ');
-              return {
-                ItemID: Date.now().toString() + Math.random().toString(36).substr(2, 9), // unique ID
-                ItemName: itemName.trim(),
-                Quantity: parseInt(quantity),
-                ListItemID: '',
-                ListID: ''
-              };
-            });
-            setItems(prevItems => [...prevItems, ...parsedItems]);
-          } else {
-            customAlert('Error', 'Please try again with a different image');
-          }
-        } catch (error) {
-          customAlert('Error', 'Please try again later, we had a problem');
-        }
-      }
+  const handleUploadImage = async () => {
+    // Launch the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true, // You can allow editing if needed
+      quality: 1, // Quality of the image
     });
+  
+    if (result.canceled) {
+    } else if (result.assets[0].uri) {
+      // If image selected, continue the process
+      const source = { uri: result.assets[0].uri };
+      setImage(source);
+      
+      try {
+        // Assuming `uploadGroceryListImage` is a function that uploads the image to the server
+        const res = await uploadGroceryListImage(source.uri);
+        
+        if (res.success) {
+          const itemsList = res.list;
+  
+          // Parsing items
+          const parsedItems = itemsList.filter(item => {
+            const [quantity, ...nameParts] = item.split(' ');
+            const itemName = nameParts.join(' ').trim();
+            return itemName && itemName.toLowerCase() !== 'nan';
+          }).map(item => {
+            const [quantity, ...nameParts] = item.split(' ');
+            const itemName = nameParts.join(' ');
+            return {
+              ItemID: Date.now().toString() + Math.random().toString(36).substr(2, 9), // unique ID
+              ItemName: itemName.trim(),
+              Quantity: parseInt(quantity),
+              ListItemID: '',
+              ListID: ''
+            };
+          });
+  
+          // Update state with parsed items
+          setItems(prevItems => [...prevItems, ...parsedItems]);
+        } else {
+          customAlert('Error', 'Please try again with a different image');
+        }
+      } catch (error) {
+        customAlert('Error', 'Please try again later, we had a problem');
+      }
+    }
   };
 
   const handleRecipe = async () => {
