@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { ShopInventory } from 'src/models';
-import { StyleSheet, Text, View, Modal, FlatList, Pressable, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Modal, FlatList, Pressable,ScrollView, TextInput } from 'react-native';
 import { getItemBySupermarketIdAndItemName } from 'src/api/api';
+import { FontAwesome } from '@expo/vector-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 interface ShoppingCartProps {
   itemInCard: ShopInventory[];
@@ -48,8 +50,6 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onRequestClose, ite
       const filteredCart = updatedCart.filter(item => item.Quantity > 0);
   
       onUpdateCart(filteredCart);
-  
-      // Close the modal and clear selection
       setUpdateModalVisible(false);
       setSelectedItem(null);
     }
@@ -74,8 +74,13 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onRequestClose, ite
     <Modal visible={isOpen} onRequestClose={onRequestClose} transparent={true}>
       <Pressable style={styles.modalOverlay} onPress={() => {}}>
         <Pressable style={styles.modalContent} onPress={() => {}}>
-          <View style={styles.container}>
-            <Text style={styles.title}>Shopping Cart</Text>
+            <View style={styles.header}>
+              <Text style={styles.title}>Shopping Cart</Text>
+              <Pressable onPress={onRequestClose}>
+                <FontAwesome name="close" size={24} color="black" />
+              </Pressable>
+            </View>
+            <ScrollView >
             <FlatList
               data={itemInCard}
               keyExtractor={(item) => item.ItemName.toString()}
@@ -84,17 +89,17 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onRequestClose, ite
                   <Text style={styles.listItemText}>
                     {item.ItemName} (Quantity: {item.Quantity}) - ${item.Price.toFixed(2)} each
                   </Text>
-                  <Pressable style={styles.updateButton} onPress={() => openUpdateModal(item)}>
+                  {/* <Pressable style={styles.updateButton} onPress={() => openUpdateModal(item)}>
                     <Text style={styles.buttonText}>Update</Text>
+                  </Pressable> */}
+                  <Pressable  onPress={() => openUpdateModal(item)}>
+                    <Icon name="edit" size={24} color="#007bff" />
                   </Pressable>
                 </View>
               )}
             />
+            </ScrollView>
             <Text style={styles.totalPrice}>Total Price: ${calculateTotalPrice()}</Text>
-            <Pressable style={styles.button} onPress={onRequestClose}>
-              <Text style={styles.buttonText}>Close</Text>
-            </Pressable>
-          </View>
         </Pressable>
       </Pressable>
 
@@ -127,22 +132,27 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ isOpen, onRequestClose, ite
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 16,
-  },
+
   modalContent: {
     backgroundColor: 'white',
     padding: 20,
     borderRadius: 10,
-    width: '80%',
+    width: '95%',
+    height: '60%', // Added height to modal
     alignItems: 'center',
+    position: 'relative', // Allows for positioning the close button
   },
   title: {
     fontSize: 20,
-    marginBottom: 16,
+    flex: 1,
+    fontWeight: 'bold'
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',  // Title on the left, close button on the right
+    alignItems: 'center',
+    paddingHorizontal: 10,  // Add some padding
+    paddingVertical: 15,
   },
   listItem: {
     padding: 16,
@@ -165,7 +175,6 @@ const styles = StyleSheet.create({
   totalPrice: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginVertical: 16,
   },
   button: {
     padding: 10,

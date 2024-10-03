@@ -11,11 +11,13 @@ const PurchaseDetailsScreen = () => {
   const [orderDetails, setOrderDetails] = useState<BuyerOrder | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [presentedOrderId, setPresentedOrderId] = useState<string | null>(null);
 
   const fetchOrderDetails = async () => {
     try {
       const response = await getOrderByBuyerIdOrderId(purchaseId);
       setOrderDetails(response[0]);
+      setPresentedOrderId(response[0].OrderID.toString().substring(0, 8));
     } catch (error) {
       console.error("Failed to fetch order details:", error);
     }
@@ -53,7 +55,7 @@ const PurchaseDetailsScreen = () => {
           
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Order ID:</Text>
-            <Text style={styles.detailValue}>{orderDetails.OrderID}</Text>
+            <Text style={styles.detailValue}>{presentedOrderId}</Text>
           </View>
 
           <View style={styles.detailRow}>

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, Pressable, Modal, TextInput, Alert } from 'react-native';
+import { View, Text, FlatList, Pressable, Modal, TextInput, Alert, StyleSheet } from 'react-native';
 import { ItemWithLocation } from 'src/services/mapService';
 import styles from '../styles/PopUpWindow'; 
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import customAlert from './AlertComponent'; 
+import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome for the 'X'
 
 interface FoundItemsModalProps {
   isOpen: boolean;
@@ -36,32 +37,39 @@ const FoundItemsModal: React.FC<FoundItemsModalProps> = ({ isOpen, onRequestClos
 
   return (
     <Modal visible={isOpen} onRequestClose={onRequestClose} transparent={true}>
-      <Pressable style={styles.modalOverlay} onPress={() => { }}>
+      <Pressable style={styles.modalOverlay} onPress={onRequestClose}>
         <Pressable style={styles.modalContent} onPress={() => { }}>
-          <Text style={styles.title}>Found Items</Text>
-          <FlatList
-            data={items}
-            keyExtractor={(item) => item.ListItemID.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.listItem}>
-                <Pressable onPress={() => onCheckboxChange(item.ListItemID)}>
-                  <BouncyCheckbox
-                    isChecked={checkedItems[item.ListItemID]}
-                    onPress={() => onCheckboxChange(item.ListItemID)}
-                  />
-                  <Text style={styles.listItemText}>
-                    {item.ItemName} Quantity in the list : {item.Quantity}, Quantity in store : {item.quantityInStore} Shelf: {item.shelfId}
-                  </Text>
-                </Pressable>
-                <Pressable style={styles.addButton} onPress={() => handleAddToCartPress(item)}>
-                  <Text style={styles.buttonText}>Add to Cart</Text>
-                </Pressable>
-              </View>
-            )}
-          />
-          <Pressable style={styles.button} onPress={onRequestClose}>
-            <Text style={styles.buttonText}>Close</Text>
-          </Pressable>
+          {/* Modal Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Found Items</Text>
+            <Pressable onPress={onRequestClose}>
+              <FontAwesome name="close" size={24} color="black" />
+            </Pressable>
+          </View>
+          
+          {/* Scrollable List of Items */}
+          <View style={styles.scrollContainer}>
+            <FlatList
+              data={items}
+              keyExtractor={(item) => item.ListItemID.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.listItem}>
+                  <Pressable onPress={() => onCheckboxChange(item.ListItemID)} style={{width:160}}>
+                    <BouncyCheckbox
+                      isChecked={checkedItems[item.ListItemID]}
+                      onPress={() => onCheckboxChange(item.ListItemID)}
+                    />
+                    <Text style={styles.listItemText}>
+                      {item.ItemName} Quantity: {item.Quantity} Shelf: {item.shelfId}
+                    </Text>
+                  </Pressable>
+                  <Pressable style={[styles.addButton, styles.line]} onPress={() => handleAddToCartPress(item)}>
+                    <Text style={styles.buttonText}>+</Text>
+                  </Pressable>
+                </View>
+              )}
+            />
+          </View>
         </Pressable>
       </Pressable>
 
@@ -69,7 +77,7 @@ const FoundItemsModal: React.FC<FoundItemsModalProps> = ({ isOpen, onRequestClos
       {selectedItem && (
         <Modal visible={isQuantityModalOpen} onRequestClose={() => setQuantityModalOpen(false)} transparent={true}>
           <Pressable style={styles.modalOverlay} onPress={() => setQuantityModalOpen(false)}>
-            <Pressable style={styles.modalContent} onPress={() => {}}>
+            <Pressable style={styles.modalContent} onPress={() => { }}>
               <Text style={styles.title}>Select Quantity for {selectedItem.ItemName}</Text>
               <TextInput
                 style={styles.input}
