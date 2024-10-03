@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, BuyerOrderItem, SupplierOrder } from '../models';
+import { User, BuyerOrder, ShoppingList, ShopInventory, Supermarket, ShoppingListItem, OrderItem, SupplierOrder, SupplierInventory } from '../models';
 import { getToken } from 'src/context/AuthContext'; 
 
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
@@ -61,8 +61,8 @@ export const updateUserInfo = async (name: string, lastName: string, email: stri
 export const getMapBySupermarketId = async ( supermarketId: string): Promise<string[]> => {
   return await executeDbFunction<string[]>( 'getMapBySupermarketId', { supermarketId });
 };
-export const getOrderDetailsByOrderId = async ( orderId: string): Promise<BuyerOrderItem[]> => {
-  return await executeDbFunction<BuyerOrderItem[]>( 'getOrderDetailsById', { orderId });
+export const getOrderDetailsByOrderId = async ( orderId: string): Promise<OrderItem[]> => {
+  return await executeDbFunction<OrderItem[]>( 'getOrderDetailsById', { orderId });
 };
 export const getOrderByBuyerIdOrderId = async ( orderId: string): Promise<BuyerOrder> => {
   return await executeDbFunction<BuyerOrder>( 'getOrderByBuyerIdAndOrderId', { orderId });
@@ -141,12 +141,20 @@ export const changeShoppingListName = async ( listName: string, listId: string):
   return await executeDbFunction<ShoppingList[]>( 'changeShoppingListName', { listName, listId });
 };
 
+export const getShopInventoryByItemName = async ( itemName: string ): Promise<ShopInventory[]> => {
+  return await executeDbFunction<ShopInventory[]>( 'getShopInventoryByItemName', {itemName});
+};
+
 export const addShopInventory = async ( shopInventory: ShopInventory): Promise<string> => {
   return await executeDbFunction<string>( 'addShopInventory', { shopInventory });
 };
 
 export const updateShopInventory = async ( shopInventory: ShopInventory): Promise<void> => {
   return await executeDbFunction<void>( 'updateShopInventory', { shopInventory });
+};
+
+export const updateShopInventoryQuantityQuery = async (shopInventory: ShopInventory): Promise<void> => {
+  return await executeDbFunction<void>( 'updateShopInventoryQuantityQuery', {shopInventory});
 };
 
 export const deleteShopInventory = async ( inventoryId: string): Promise<void> => {
@@ -157,17 +165,28 @@ export const getOrdersBySupplierId = async (): Promise<SupplierOrder[]> => {
   return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySupplierId', {});
 };
 
-export const getOrdersBySuperMarketId = async ( supermarketId: string): Promise<SupplierOrder[]> => {
-  return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySuperMarketId', { supermarketId });
+export const getOrdersBySupermarketIdAndUserTypeSupplierQuery = async ( supermarketId: string): Promise<SupplierOrder[]> => {
+  return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySupermarketIdAndUserTypeSupplierQuery', { supermarketId });
 };
 
 // export const getDetailsForSuperMarketOrder = async ( orderId: string): Promise<SupplierOrder> => {
 //   return await executeDbFunction<SupplierOrder>( 'getDetailsForSuperMarketOrder', { orderId });
 // }
 
-export const updateOrderStatus = async ( orderId: string): Promise<void> => {
-  return await executeDbFunction<void>( 'updateOrderStatus', { orderId });
+export const updateOrderStatus = async ( orderId: string, orderStatus: string): Promise<void> => {
+  return await executeDbFunction<void>( 'updateOrderStatus', { orderId, orderStatus });
 };
+export const getAllSuppliers = async (): Promise<User[]> => {
+  return await executeDbFunction<User[]>('getAllSuppliers', {});
+}
+
+export const getSupplierInventory = async ( supplierId: string ): Promise<SupplierInventory[]> => {
+  return await executeDbFunction<SupplierInventory[]>('getSupplierInventory', { supplierId });
+}
+
+export const createSuperMarketOrder = async ( supplierId: string, supermarketId: string, totalAmount: number, orderStatus: string, items: OrderItem[]): Promise<{ OrderID : string }[]> => {
+    return await executeDbFunction<{ OrderID : string }[]>('createSuperMarketOrder', { supplierId, supermarketId, totalAmount, orderStatus, items });
+}
 
 interface AIResponse {
   success: boolean;

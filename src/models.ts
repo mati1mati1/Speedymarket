@@ -37,7 +37,7 @@ export interface ProductsList {
   Price: number;
 }
 
-export interface BuyerOrderItem {
+export interface OrderItem {
   OrderItemID: string;
   OrderID: string;
   ItemID: string;
@@ -118,4 +118,11 @@ export interface  dailyHours{
   openHour: string;
   closeHour: string;
   
+}
+
+export interface SupplierInventory {
+  InventoryID: string;
+  UserID: string;
+  ItemName: string;
+  Price: number;
 }

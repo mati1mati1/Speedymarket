@@ -56,10 +56,14 @@ const getQueryByName = async (functionName, params) => {
             return queries.createShoppingListQuery(params.listName, params.userId);
         case 'changeShoppingListName':
             return queries.changeShoppingListQuery(params.listName, params.listId);
+        case 'getShopInventoryByItemName':
+            return queries.getShopInventoryByItemName(params.userId, params.itemName);
         case 'addShopInventory':
             return queries.addShopInventoryQuery(params.shopInventory);
         case 'updateShopInventory':
             return queries.updateShopInventoryQuery(params.shopInventory);
+        case 'updateShopInventoryQuantityQuery':
+            return queries.updateShopInventoryQuantityQuery(params.shopInventory);
         case 'deleteShopInventory':
             return queries.deleteShopInventoryQuery(params.inventoryId);
         case 'updateSupermarketDetailsQuery':
@@ -71,19 +75,25 @@ const getQueryByName = async (functionName, params) => {
         case 'createPurchaseQuery':
             return queries.createPurchaseQuery(params.buyerId, params.supermarketId, params.totalAmount, params.items, params.sessionId);
         case 'getOrderDetailsById':
-                return queries.getOrderDetailsByIdQuery(params.orderId);
+            return queries.getOrderDetailsByIdQuery(params.orderId);
         case 'getOrderByBuyerIdAndOrderId':
-                return queries.getOrderByBuyerIdAndOrderIdQuery(params.buyerId,params.orderId);
+            return queries.getOrderByBuyerIdAndOrderIdQuery(params.buyerId,params.orderId);
         case 'getOrderDetailsByOrderId':
             return queries.getOrderDetailsByOrderIdQuery(params.orderId);
         case 'getOrdersBySupplierId':
-            return queries.getOrdersByBuyerIdQuery(params.userId);
-        case 'getOrdersBySuperMarketIdQuery':
-            return queries.getOrdersByBuyerIdQuery(params.supermarketId);
+            return queries.getOrdersByBuyerIdQuery(params.buyerId);
+        case 'getOrdersBySupermarketIdAndUserTypeSupplierQuery':
+            return queries.getOrdersBySupermarketIdAndUserTypeSupplierQuery(params.supermarketId);
         case 'updateUserInfo':
             return queries.updateUserInfoQuery(params.userId, params.name,params.lastName, params.email, params.phone);
         case 'updateOrderStatus':
-            return queries.updateOrderStatusQuery(params.orderId);
+            return queries.updateOrderStatusQuery(params.orderId, params.orderStatus);
+        case 'getAllSuppliers':
+            return queries.getAllSuppliersQuery();
+        case 'getSupplierInventory':
+            return queries.getSupplierInventoryBySupplierIdQuery(params.supplierId);
+        case 'createSuperMarketOrder':
+            return queries.createSuperMarketOrderQuery(params.supplierId, params.supermarketId, params.totalAmount, params.orderStatus, params.items);
         case 'registerUser':
             const inputHash = crypto.createHash('sha256').update(params.password).digest('hex');
             return queries.registerUserQuery(params.name, params.lastName, params.userName, inputHash, params.email, params.phone);

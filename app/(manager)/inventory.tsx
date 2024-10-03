@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Modal, Alert, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Modal, Alert, ScrollView, Dimensions, TouchableOpacity, Pressable, useWindowDimensions } from 'react-native';
 import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
 import { ShopInventory } from '../../src/models';
 import { addShopInventory, getShopInventory, getSupermarketByUserId, updateShopInventory, deleteShopInventory } from '../../src/api/api';
 import { v4 as uuidv4 } from 'uuid'; // Ensure uuid is installed
 import ScanItem from '../../src/components/Scanner';
 import { useAuth } from '../../src/context/AuthContext';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { Button as RNEButton } from 'react-native-elements';
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+import customAlert from '../../src/components/AlertComponent';
 
 export default function InventoryManagementScreen() {
   const [inventory, setInventory] = useState<ShopInventory[]>([]);
@@ -20,27 +26,30 @@ export default function InventoryManagementScreen() {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<ShopInventory | null>(null);
   const { authState } = useAuth();
-  const screenWidth = Dimensions.get('window').width;
+  const { width } = useWindowDimensions();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const shopInventory = await getShopInventory();
-        if (shopInventory) {
-          setInventory(shopInventory);
-        }
-        setIsDataFetched(true);
-        const supermarket = await getSupermarketByUserId();
-        if (supermarket) {
-          setSupermarketID(supermarket[0].SupermarketID);
-        }
-      } catch (error) {
-        console.error('Failed to fetch data:', error);
+  const fetchData = async () => {
+    try {
+      const shopInventory = await getShopInventory();
+      if (shopInventory) {
+        setInventory(shopInventory);
       }
-    };
+      setIsDataFetched(true);
+      const supermarket = await getSupermarketByUserId();
+      if (supermarket) {
+        setSupermarketID(supermarket[0].SupermarketID);
+      }
+    } catch (error) {
+      customAlert("Failed to Get Inventory", "Oops, there was an issue, please try again later.");
+      console.error('Failed to fetch data:', error);
+    }
+  };
 
-    fetchData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   const handleFormChange = (name: string, value: string) => {
     setForm({ ...form, [name]: value });
@@ -84,11 +93,16 @@ export default function InventoryManagementScreen() {
       Barcode: form.Barcode,
       SupermarketID: supermarketID
     };
-    const response = await addShopInventory(newItem);
-    newItem.InventoryID = response[0];
-    setInventory([...inventory, newItem]);
-    setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
-    setModalVisible(false);
+    try {
+      const response = await addShopInventory(newItem);
+      newItem.InventoryID = response[0];
+      setInventory([...inventory, newItem]);
+      setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+      setModalVisible(false);
+    } catch (error) {
+      customAlert("Failed to Add Item", "Oops, there was an issue, please try again later.");
+      console.error('Failed to add item:', error);
+    }
   };
 
   const handleEditItem = async () => {
@@ -103,19 +117,23 @@ export default function InventoryManagementScreen() {
         Location: form.Location,
         Barcode: form.Barcode
       };
+      try {
+        await updateShopInventory(updatedItem);
 
-      await updateShopInventory(updatedItem);
+        const updatedInventory = inventory.map(item =>
+          item.InventoryID === currentItem.InventoryID
+            ? updatedItem
+            : item
+        );
 
-      const updatedInventory = inventory.map(item =>
-        item.InventoryID === currentItem.InventoryID
-          ? updatedItem
-          : item
-      );
-
-      setInventory(updatedInventory);
-      setCurrentItem(null);
-      setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
-      setModalVisible(false);
+        setInventory(updatedInventory);
+        setCurrentItem(null);
+        setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
+        setModalVisible(false);
+      } catch (error) {
+        customAlert("Failed to Update Item", "Oops, there was an issue, please try again later.");
+        console.error('Failed to update item:', error);
+      }
     }
   };
 
@@ -140,23 +158,26 @@ export default function InventoryManagementScreen() {
 
   const confirmDeleteItem = async () => {
     if (itemToDelete) {
-      await deleteShopInventory(itemToDelete.InventoryID);
-      setInventory(inventory.filter(i => i.InventoryID !== itemToDelete.InventoryID));
-      setDeleteModalVisible(false);
-      setItemToDelete(null);
+      try {
+        await deleteShopInventory(itemToDelete.InventoryID);
+        setInventory(inventory.filter(i => i.InventoryID !== itemToDelete.InventoryID));
+        setDeleteModalVisible(false);
+        setItemToDelete(null);
+      } catch (error) {
+        customAlert("Failed to Delete Item", "Oops, there was an issue, please try again later.");
+        console.error('Failed to delete item:', error);
+      }
     }
-  };
-
-  const openAddItemModal = () => {
-    setForm({ ItemName: '', Quantity: '', Price: '', Discount: '', Location: '', Barcode: '' });
-    setIsEditing(false);
-    setModalVisible(true);
   };
 
   const renderEditButton = (data: any, index: number) => (
     <View style={styles.buttonGroup}>
-      <Button title="Edit" onPress={() => handleEditClick(inventory[index])} />
-      <Button title="Delete" onPress={() => handleDeleteItem(inventory[index])} color="red" />
+      <Pressable style={styles.editButton} onPress={() => handleEditClick(inventory[index])} >
+              <Icon name="pencil" size={24} color="#007bFF" />
+      </Pressable>
+      <Pressable style={styles.deleteButton} onPress={() => handleDeleteItem(inventory[index])}>
+              <Icon name="trash" size={24} color="#FF6347" />
+      </Pressable>
     </View>
   );
 
@@ -167,13 +188,14 @@ export default function InventoryManagementScreen() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Inventory</Text>  
       <TextInput
         placeholder="Filter items"
-        style={styles.input}
+        placeholderTextColor={"#808080"}
+        style={styles.filterInput}
         value={filter}
         onChangeText={setFilter}
       />
-      <Button title="Add Item" onPress={openAddItemModal} />
 
       <ScrollView horizontal>
         <ScrollView>
@@ -182,8 +204,8 @@ export default function InventoryManagementScreen() {
               <Row
                 data={['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode', 'Actions']}
                 style={styles.head}
-                textStyle={styles.text}
-                widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7]}
+                textStyle={styles.headerText}
+                widthArr={[width / 7, width / 7, width / 7, width / 7, width / 7, width / 7, 80]}
               />
               <TableWrapper style={styles.wrapper}>
                 <Rows
@@ -197,7 +219,7 @@ export default function InventoryManagementScreen() {
                     renderEditButton(null, inventory.indexOf(item))
                   ])}
                   textStyle={styles.text}
-                  widthArr={[screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7, screenWidth / 7]}
+                  widthArr={[width / 7, width / 7, width / 7, width / 7, width / 7, width / 7, 80]}
                 />
               </TableWrapper>
             </Table>
@@ -215,35 +237,54 @@ export default function InventoryManagementScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalView}>
+            <Pressable onPress={() => {setModalVisible(false); setCurrentItem(null);} } style={styles.closeButton}>
+                <Icon name="close" size={24} color="#007bff" />
+              </Pressable>
             {['Item Name', 'Quantity', 'Price', 'Discount', 'Location', 'Barcode'].map((placeholder, index) => (
               <View style={styles.inputContainer} key={index}>
                 <Text style={styles.label}>{placeholder}</Text>
-                <TextInput
-                  placeholder={placeholder}
-                  value={form[placeholder.replace(' ', '')]}
-                  onChangeText={(value) => handleFormChange(placeholder.replace(' ', ''), value)}
-                  style={styles.input}
-                  keyboardType={placeholder === 'Quantity' || placeholder === 'Price' || placeholder === 'Discount' ? 'numeric' : 'default'}
-                />
+                {placeholder === 'Barcode' ? (
+                  <View style={styles.barcodeContainer}>
+                    <TextInput
+                      placeholder={placeholder}
+                      value={form[placeholder.replace(' ', '')]}
+                      onChangeText={(value) => handleFormChange(placeholder.replace(' ', ''), value)}
+                      style={[styles.input, styles.barcodeInput]}
+                      keyboardType='default'
+                    />
+                    <RNEButton
+                      title=" Scan"
+                      icon={
+                        <MaterialIcon
+                          name="barcode-scan"
+                          size={20}
+                          color="white"
+                        />
+                      }
+                      buttonStyle={styles.blueButton}
+                      onPress={toggleIsScannedDataOpen}        />
+                  </View>
+                ) : (
+                  <TextInput
+                    placeholder={placeholder}
+                    value={form[placeholder.replace(' ', '')]}
+                    onChangeText={(value) => handleFormChange(placeholder.replace(' ', ''), value)}
+                    style={styles.input}
+                    keyboardType={placeholder === 'Quantity' || placeholder === 'Price' || placeholder === 'Discount' ? 'numeric' : 'default'}
+                  />
+                )}
               </View>
             ))}
 
-            <View style={styles.buttonRow}>
-              <Button
+            <View style={styles.buttonContainer}>
+              <RNEButton
                 title={isEditing ? "Update Item" : "Add Item"}
                 onPress={isEditing ? handleEditItem : handleAddItem}
+                buttonStyle={styles.blueButton}
               />
-              <Button
-                title="Cancel"
-                onPress={() => {
-                  setModalVisible(false);
-                  setCurrentItem(null);
-                }}
-              />
-              <Button
-                title="Scan Barcode"
-                onPress={toggleIsScannedDataOpen}
-              />
+              </View>
+              <View style={styles.buttonRow}>
+
               <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
                 <TouchableOpacity style={styles.modalOverlay} onPress={toggleIsScannedDataOpen}>
                   <View style={styles.modal} onStartShouldSetResponder={() => true}>
@@ -266,18 +307,13 @@ export default function InventoryManagementScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalView}>
+            <Pressable onPress={() => setDeleteModalVisible(false)} style={styles.closeButton}>
+                <Icon name="close" size={24} color="#007bff" />
+            </Pressable>
             <Text style={styles.modalText}>Are you sure you want to delete this item?</Text>
-            <View style={styles.buttonRow}>
-              <Button
-                title="Delete"
-                onPress={confirmDeleteItem}
-                color="red"
-              />
-              <Button
-                title="Cancel"
-                onPress={() => setDeleteModalVisible(false)}
-              />
-            </View>
+              <Pressable style={[styles.modalButton, styles.deleteButton, styles.deleteButtonNoIcon]} onPress={confirmDeleteItem}>
+                <Text style={styles.buttonText}>Delete</Text>
+              </Pressable>
           </View>
         </View>
       </Modal>
@@ -293,13 +329,23 @@ const styles = StyleSheet.create({
   },
   tableContainer: {
     flex: 1,
-    padding: 16,
     paddingTop: 30,
     backgroundColor: '#fff',
   },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    fontWeight: 'bold',
+    alignSelf: 'center'
+},
   head: {
     height: 50,
     backgroundColor: '#f1f8ff',
+  },
+  headerText: {
+    margin: 6,
+    textAlign: 'center',
+    fontWeight: 'bold'
   },
   wrapper: {
     flexDirection: 'row',
@@ -311,19 +357,28 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
+    marginTop: 5,
     width: '100%',
   },
   label: {
     width: '30%',
-    textAlign: 'right',
-    paddingRight: 10,
+    textAlign: 'left',
+    paddingLeft: 20,
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 10,
     width: '70%',
+    paddingRight: 50
+  },
+  filterInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    width: '95%',
+    paddingRight: 50
   },
   buttonRow: {
     flexDirection: 'row',
@@ -345,7 +400,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    width: '90%',
+    width: '50%',
   },
   modalOverlay: {
     flex: 1,
@@ -354,7 +409,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modal: {
-    width: '80%',
+    width: '30%',
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
@@ -365,5 +420,52 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
+    fontWeight: 'bold'
+  },
+  closeButton: {
+    marginTop: 5,
+    alignSelf: 'flex-end',
+  },
+  blueButton: {
+    backgroundColor: '#007AFF',
+    marginLeft: 10,
+    paddingHorizontal: 10,
+  },
+  barcodeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1
+  },
+  barcodeInput: {
+    flex: 1, 
+    width: '80%'
+  },
+  buttonContainer: {
+    alignSelf: 'flex-end',
+    marginTop: 20,
+  },
+  deleteButton: {
+    padding: 10,
+    borderRadius: 5,
+  },
+  deleteButtonNoIcon: {
+    backgroundColor: 'red',
+    marginTop: 20,
+  },
+  editButton: {
+    padding: 10,
+    borderRadius: 5
+  },
+  modalButton: {
+    flex: 1,
+    padding: 10,
+    alignItems: 'center',
+    borderRadius: 5,
+    height: 40,
+    marginLeft: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });

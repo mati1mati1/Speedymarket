@@ -3,13 +3,13 @@ import { View, Text, StyleSheet, ActivityIndicator, ScrollView, Pressable } from
 import { useNavigation } from '@react-navigation/native'; // Add this import
 import { getOrderByBuyerIdOrderId, getOrderDetailsByOrderId } from '../../../src/api/api'; 
 import { useLocalSearchParams } from 'expo-router';
-import { BuyerOrder, BuyerOrderItem } from '../../../src/models';
+import { BuyerOrder, OrderItem } from '../../../src/models';
 
 const PurchaseDetailsScreen = () => {
   const { purchaseId } = useLocalSearchParams<{ purchaseId: string }>();
   const navigation = useNavigation(); // Use navigation hook
   const [orderDetails, setOrderDetails] = useState<BuyerOrder | null>(null);
-  const [orderItems, setOrderItems] = useState<BuyerOrderItem[]>([]);
+  const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchOrderDetails = async () => {

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, ActivityIndicator, ScrollView } from 'react-native';
 import { CameraView, Camera } from 'expo-camera';
 import { BarCodeScanningResult } from 'expo-camera/build/legacy/Camera.types';
+import { Button as RNEButton } from 'react-native-elements';
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 interface ScanItemProps {
   handleData: (data: string) => void;
@@ -45,10 +47,22 @@ const ScanItem: React.FC<ScanItemProps> = ({ handleData }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.statusText}>Status: {status}</Text>
-      <View style={styles.buttonContainer}>
-        <Button title="Scan Barcode" onPress={() => { setScanned(false); setCameraVisible(true); }} disabled={loading} />
-      </View>
+      <Text style={styles.statusText}>Status{status}</Text>
+        <View style={styles.buttonContainer}>
+          <RNEButton
+            title=" Scan Barcode"
+            icon={
+              <MaterialIcon
+                name="barcode-scan"
+                size={20}
+                color="white"
+              />
+            }
+            buttonStyle={styles.blueButton}
+            onPress={() => { setScanned(false); setCameraVisible(true); }} 
+            disabled={loading}        
+          />
+        </View>
       {cameraVisible && !scanned && (
         <CameraView
           style={StyleSheet.absoluteFillObject}
@@ -87,6 +101,11 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     marginVertical: 10,
+  },
+  blueButton: {
+    backgroundColor: '#007AFF',
+    marginLeft: 10,
+    paddingHorizontal: 10,
   },
   map: {
     width: '100%',
