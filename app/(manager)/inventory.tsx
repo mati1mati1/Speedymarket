@@ -4,7 +4,7 @@ import { Table, TableWrapper, Row, Rows } from 'react-native-table-component';
 import { ShopInventory } from '../../src/models';
 import { addShopInventory, getShopInventory, getSupermarketByUserId, updateShopInventory, deleteShopInventory } from '../../src/api/api';
 import { v4 as uuidv4 } from 'uuid'; // Ensure uuid is installed
-import ScanItem from '../../src/components/Scanner';
+import ScanWebItem from '../../src/components/ScannerWeb';
 import { useAuth } from '../../src/context/AuthContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button as RNEButton } from 'react-native-elements';
@@ -288,7 +288,7 @@ export default function InventoryManagementScreen() {
               <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
                 <TouchableOpacity style={styles.modalOverlay} onPress={toggleIsScannedDataOpen}>
                   <View style={styles.modal} onStartShouldSetResponder={() => true}>
-                    <ScanItem handleData={handleScannedBarcode} />
+                    <ScanWebItem handleData={handleScannedBarcode} closeMe={toggleIsScannedDataOpen}/>
                   </View>
                 </TouchableOpacity>
               </Modal>
