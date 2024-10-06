@@ -13,8 +13,8 @@ const Tab = createBottomTabNavigator();
 
 const iconMap = {
   "Inventory Management": 'cubes',
-  OrderManagement: 'clipboard',
-  SupermarketMap: 'map',
+  "Order Management": 'clipboard',
+  "Supermarket Map": 'map',
   Settings: 'cog',
 };
 
@@ -33,9 +33,9 @@ export default function ManagerScreen() {
         })}
       >
         <Tab.Screen name="Inventory Management" component={InventoryManagementScreen} options={{headerShown: false}} />
-        <Tab.Screen name="OrderManagement" component={OrderManagementScreen} options={{headerShown: false}} />
+        <Tab.Screen name="Order Management" component={OrderManagementScreen} options={{headerShown: false}} />
         {Platform.OS === 'web' ?
-        <Tab.Screen name="SupermarketMap" component={ManagerMapEditor}  options={{headerShown: false}}/>
+        <Tab.Screen name="Supermarket Map" component={ManagerMapEditor}  options={{headerShown: false}}/>
         : null}
         <Tab.Screen name="Settings" component={ManagerSettingsScreen} options={{headerShown: false}} />
       </Tab.Navigator>

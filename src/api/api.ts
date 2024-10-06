@@ -5,12 +5,14 @@ import { getToken } from 'src/context/AuthContext';
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
   const token = await getToken();
   try {
-    const response = await axios.post<T>('https://speedymarketbackend1.azurewebsites.net/api/ExecuteSqlQuery?', {
+    // const response = await axios.post<T>('https://speedymarketbackend1.azurewebsites.net/api/ExecuteSqlQuery?', {
+      const response = await axios.post<T>('https://executesqlquery1.azurewebsites.net/api/HttpTrigger1?', {
       functionName,
       params
     }, {
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
+        'Access-Control-Allow-Origin': '*'
       }
     });
     return response.data;
@@ -192,42 +194,52 @@ interface AIResponse {
   success: boolean;
   list: string[];
 }
-export const uploadGroceryListImage = async (imageFile: string): Promise<AIResponse> => {
-  const response = await fetch('https://readimage.azurewebsites.net/api/readImage?', {
-    method: 'POST',
-    // headers: {
-    //   'Content-Type': 'application/json',
-    // },
-    body: imageFile,
-  });
-  const data = await response.json();
-  if (data) {
-    const lines = data.readResult.blocks[0].lines
-    const textLines = lines.map((line: { text: any; }) => line.text)
-    return {
-      success: true,
-      list: textLines,
-    };
-  } else {
+export const uploadGroceryListImage = async (imageFile: Blob): Promise<AIResponse> => {
+  try {
+    const response = await axios.post('https://readimage.azurewebsites.net/api/readImage?', imageFile, {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        // 'Accept': 'application/octet-stream',
+      },
+    });
+
+    const data = response.data;
+    if (data) {
+      const lines = data.readResult.blocks[0].lines;
+      const textLines = lines.map((line: { text: any; }) => line.text);
+      return {
+        success: true,
+        list: textLines,
+      };
+    } else {
+      return {
+        success: false,
+        list: [],
+      };
+    }
+  } catch (error) {
+    console.error('Error uploading grocery list image:', error);
     return {
       success: false,
-      list: JSON.parse(""),
+      list: [],
     };
   }
-}
+};
 
-export const uploadRecipeUrl = async (recipeUrl: string): Promise<AIResponse>=>{
+export const uploadRecipeUrl = async (recipeUrl: string): Promise<AIResponse> => {
   const key = process.env.RECIPE_FUNCTION_KEY;
-  //MATAN make sure u put the key in the env file with the value i sent in the group chat
-  const response = await fetch(`https://readimage.azurewebsites.net/api/readRecipeURL?code=${key}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    }, 
-    body: JSON.stringify({ url: recipeUrl })
-  });
+  // const key = '=='; // Ensure this is stored securely
+  const url = `https://readimage.azurewebsites.net/api/readRecipeURL?code=${key}`;
+
   try {
-    const data = await response.json();
+    const response = await axios.post(url, { url: recipeUrl }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    });
+
+    const data = response.data;
     if (data.success) {
       return {
         success: true,
@@ -239,13 +251,12 @@ export const uploadRecipeUrl = async (recipeUrl: string): Promise<AIResponse>=>{
         list: [],
       };
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.error('An error occurred during uploadRecipeUrl', error);
     return {
       success: false,
       list: [],
-    }
+    };
   }
-}
+};
 

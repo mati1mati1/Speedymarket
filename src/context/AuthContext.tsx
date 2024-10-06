@@ -65,7 +65,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
       else{
         token = await SecureStore.getItemAsync(TOKEN_KEY);
       }
-      console.log('Token:', token);
+      // console.log('Token:', token);
       if (token) {
         const userRole = decodedToken(token)?.role;
         setAuthState({ token, role: userRole || null, authenticated: true });
@@ -101,12 +101,14 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const logout = async () => {
+    // debugger;
     if (Platform.OS === 'web') {
       await AsyncStorage.removeItem(TOKEN_KEY);
     }
     else{
       await SecureStore.deleteItemAsync(TOKEN_KEY);
     }    setAuthState({ token: null, role: null, authenticated: false });
+    router.replace('/login');
   };
 
   const value = {

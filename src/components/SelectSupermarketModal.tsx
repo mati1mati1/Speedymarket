@@ -84,6 +84,7 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
               }}
               style={styles.picker}
             >
+              <Picker.Item label="Select a supermarket..." value={null} />
               {supermarkets.map((supermarket) => (
                 <Picker.Item key={supermarket.SupermarketID} label={supermarket.BranchName} value={supermarket.SupermarketID} />
               ))}
