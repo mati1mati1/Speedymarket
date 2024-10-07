@@ -227,7 +227,7 @@ export const uploadGroceryListImage = async (imageFile: Blob): Promise<AIRespons
 };
 
 export const uploadRecipeUrl = async (recipeUrl: string): Promise<AIResponse> => {
-  const key = process.env.RECIPE_FUNCTION_KEY;
+  const key = process.env.EXPO_PUBLIC_RECIPE_FUNCTION_KEY;
   // const key = '=='; // Ensure this is stored securely
   const url = `https://readimage.azurewebsites.net/api/readRecipeURL?code=${key}`;
 
