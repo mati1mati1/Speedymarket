@@ -5,7 +5,6 @@ import { getToken } from 'src/context/AuthContext';
 export const executeDbFunction = async <T>(functionName: string, params: Record<string, any>): Promise<T> => {
   const token = await getToken();
   try {
-    // const response = await axios.post<T>('https://speedymarketbackend1.azurewebsites.net/api/ExecuteSqlQuery?', {
       const response = await axios.post<T>('https://executesqlquery1.azurewebsites.net/api/HttpTrigger1?', {
       functionName,
       params
@@ -39,7 +38,7 @@ export const executePaymentFunction = async <T>(amount: string, paymentType: str
     throw error;
   }
 };
-// Example usage
+
 export const getUserById = async (): Promise<User[]> => {
   return await executeDbFunction<User[]>( 'getUserById', {});
 };
@@ -171,10 +170,6 @@ export const getOrdersBySupermarketIdAndUserTypeSupplierQuery = async ( supermar
   return await executeDbFunction<SupplierOrder[]>( 'getOrdersBySupermarketIdAndUserTypeSupplierQuery', { supermarketId });
 };
 
-// export const getDetailsForSuperMarketOrder = async ( orderId: string): Promise<SupplierOrder> => {
-//   return await executeDbFunction<SupplierOrder>( 'getDetailsForSuperMarketOrder', { orderId });
-// }
-
 export const updateOrderStatus = async ( orderId: string, orderStatus: string): Promise<void> => {
   return await executeDbFunction<void>( 'updateOrderStatus', { orderId, orderStatus });
 };
@@ -193,28 +188,33 @@ export const createSuperMarketOrder = async ( supplierId: string, supermarketId:
 interface AIResponse {
   success: boolean;
   list: string[];
+  message?: string;
 }
-export const uploadGroceryListImage = async (imageFile: Blob): Promise<AIResponse> => {
+export const uploadGroceryListImage = async (imageFile: String | null | undefined): Promise<AIResponse> => {
   try {
-    const response = await axios.post('https://readimage.azurewebsites.net/api/readImage?', imageFile, {
-      headers: {
-        'Content-Type': 'application/octet-stream',
-        // 'Accept': 'application/octet-stream',
-      },
-    });
-
+    const response = await axios.post('https://readimage.azurewebsites.net/api/readImage?', imageFile, {});
     const data = response.data;
     if (data) {
-      const lines = data.readResult.blocks[0].lines;
-      const textLines = lines.map((line: { text: any; }) => line.text);
-      return {
-        success: true,
-        list: textLines,
-      };
+      try {
+        const lines = data.readResult.blocks[0].lines;
+        const textLines = lines.map((line: { text: any; }) => line.text);
+        return {
+          success: true,
+          list: textLines,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          list: [],
+          message: data.message
+        }
+      }
+      
     } else {
       return {
         success: false,
         list: [],
+        // message: response.
       };
     }
   } catch (error) {
