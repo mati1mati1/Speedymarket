@@ -8,7 +8,6 @@ import { ShoppingList, Supermarket } from '../../../src/models';
 import SelectListModal from '../../../src/components/SelectListModal';
 import SelectSupermarketModal from '../../../src/components/SelectSupermarketModal';
 import { router } from 'expo-router';
-import { useAuth } from '../../../src/context/AuthContext';
 
 const SupermarketMapsScreen = () => {
   const [supermarkets, setSupermarkets] = useState<Supermarket[]>([]);

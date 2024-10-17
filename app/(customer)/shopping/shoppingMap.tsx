@@ -48,7 +48,7 @@ const ShoppingMap: React.FC = () => {
       try {
         const hubConnection = new signalR.HubConnectionBuilder()
           .withUrl("https://speedymarketbackend1.azurewebsites.net/api", {
-            withCredentials: false,
+            withCredentials: true,
           })
           .configureLogging(signalR.LogLevel.Information)
           .withAutomaticReconnect()
