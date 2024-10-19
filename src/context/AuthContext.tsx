@@ -101,7 +101,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const logout = async () => {
-    // debugger;
+    router.replace('/login');
     if (Platform.OS === 'web') {
       await AsyncStorage.removeItem(TOKEN_KEY);
     }

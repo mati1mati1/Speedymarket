@@ -81,7 +81,7 @@ const ManagerMapEditor: React.FC = () => {
     const adjustedPosition = adjustPosition(shelfCounter, left, top, rotation);
     setSections((sections) => [
       ...sections,
-      { id: shelfCounter, name: `מדף`, left: adjustedPosition.left, top: adjustedPosition.top, rotation: rotation, width: 80, height: 40 }
+      { id: shelfCounter, name: `shelf`, left: adjustedPosition.left, top: adjustedPosition.top, rotation: rotation, width: 80, height: 40 }
     ]);
     setShelfCounter(shelfCounter + 1);
   };
