@@ -147,8 +147,10 @@ export default function EditListScreen() {
     }
   };
 
-  const removeItem = (itemId: string) => {
-    setItems(items.filter((item) => item.ItemID !== itemId));
+  const removeItem = (ItemName: string) => {
+  // Filter out the item and update the state
+  const newItems = items.filter((item) => item.ItemName !== ItemName);  
+  setItems(newItems);
   };
 
   const saveList = async () => {
@@ -223,7 +225,7 @@ export default function EditListScreen() {
             </View>
             <Pressable
               style={styles.deleteButton}
-              onPress={() => removeItem(item.ItemID)}
+              onPress={() => removeItem(item.ItemName)}
             >
               <Icon name="trash" size={24} color="#FF6347" />
             </Pressable>
