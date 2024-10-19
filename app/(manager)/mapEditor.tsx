@@ -176,6 +176,13 @@ const ManagerMapEditor: React.FC = () => {
     );
   };
 
+  const addEntrance = () => {
+    if (!entrance)
+      setEntrance({ left: 0, top: 0 });
+    else 
+      customAlert('Entrance already exists', 'Only one entrance is allowed');
+  }
+
   const moveEntrance = (left: number, top: number) => {
     const adjustedLeft = Math.max(0, Math.min(left, mapWidth - 50));
     const adjustedTop =
@@ -237,7 +244,7 @@ const ManagerMapEditor: React.FC = () => {
         <div style={styles.btnAddSection} onClick={() => addSection(0, 0, 0)}>
           Add Shelf
         </div>
-        <div style={styles.btnAddEntrance} onClick={() => !entrance && setEntrance({ left: 0, top: 0 })}>
+        <div style={styles.btnAddEntrance} onClick={addEntrance}>
           Add Entrance
         </div>
       </div>
