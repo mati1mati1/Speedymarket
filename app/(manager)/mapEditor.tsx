@@ -3,6 +3,7 @@ import { useDrop, DropTargetMonitor } from 'react-dnd';
 import WebSection from '../../src/components/WebSection';
 import WebEntrance from '../../src/components/WebEntrance';
 import { getSupermarketByUserId, updateMap } from '../../src/api/api';
+import customAlert from '../../src/components/AlertComponent';
 
 const ItemTypes = {
   SECTION: 'section',
@@ -78,7 +79,24 @@ const ManagerMapEditor: React.FC = () => {
   });
 
   const addSection = (left: number, top: number, rotation: number) => {
+    let overlap = false;
+    sections.forEach((section) => {
+      let leftSection = section.left;
+      let topSection = section.top;
+      let position = section.rotation;
+
+      const isOverlapping = (leftSection == left && topSection == top && position == rotation);
+      if (isOverlapping) {
+        overlap = true;
+      }
+    });
+    if (overlap) {
+      customAlert('Overlapping shelves', 'The new section is added to the top left corner');
+      return;
+    }
+    //check if the new section overlaps with any existing sections
     const adjustedPosition = adjustPosition(shelfCounter, left, top, rotation);
+    
     setSections((sections) => [
       ...sections,
       { id: shelfCounter, name: `shelf`, left: adjustedPosition.left, top: adjustedPosition.top, rotation: rotation, width: 80, height: 40 }
