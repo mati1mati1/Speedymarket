@@ -101,14 +101,14 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const logout = async () => {
-    // debugger;
+    router.replace('/login');
     if (Platform.OS === 'web') {
       await AsyncStorage.removeItem(TOKEN_KEY);
     }
     else{
       await SecureStore.deleteItemAsync(TOKEN_KEY);
     }    setAuthState({ token: null, role: null, authenticated: false });
-    router.replace('/login');
+    // router.replace('/login');
   };
 
   const value = {

@@ -110,7 +110,7 @@ const SelectSupermarketModal: React.FC<SelectSupermarketModalProps> = ({ closeMo
           <Modal visible={isScannedDataOpen} transparent={true} onRequestClose={toggleIsScannedDataOpen}>
             <TouchableOpacity style={styles.modalContainer} onPress={toggleIsScannedDataOpen}>
               <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
-                <ScanMobileItem handleData={handleScannedBarcode} closeMe={setScannedDataModalOpen}/>
+                <ScanMobileItem handleData={handleScannedBarcode} closeMe={toggleIsScannedDataOpen}/>
               </View>
             </TouchableOpacity>
           </Modal>

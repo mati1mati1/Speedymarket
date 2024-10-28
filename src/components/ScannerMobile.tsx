@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, ActivityIndicator, ScrollView } from 'react-native';
 import { CameraView, Camera } from 'expo-camera';
 import { BarCodeScanningResult } from 'expo-camera/build/legacy/Camera.types';
+import customAlert from './AlertComponent';
 
 interface ScanItemProps {
   handleData: (data: string) => void;
-  closeMe: React.Dispatch<React.SetStateAction<boolean>>;
+  closeMe: () => void;
 }
 
 const ScanMobileItem: React.FC<ScanItemProps> = ({ handleData, closeMe }) => {
@@ -13,8 +14,8 @@ const ScanMobileItem: React.FC<ScanItemProps> = ({ handleData, closeMe }) => {
   const [scanned, setScanned] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(true);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(false); // Loading state
-  const [superMarket, setSuperMarket] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -36,39 +37,31 @@ const ScanMobileItem: React.FC<ScanItemProps> = ({ handleData, closeMe }) => {
   }
 
   const handleBarCodeScanned = ({ type, data }: BarCodeScanningResult) => {
-    setScanned(true);
-    setLoading(true);
-    console.log(`barcode detected: ${data}`);
-    handleData(data);
-    closeMe(false);
-    setLoading(false);
-    setCameraVisible(false);
+    if (!scanned) {
+      // customAlert('Barcode detected', `Barcode data: ${data}`);
+      setScanned(true);
+      setLoading(true);
+      handleData(data); // Send data to parent
+      closeMe(); // Close modal
+      setLoading(false);
+      setCameraVisible(false); // Hide camera after scanning
+      // setTimeout(() => {
+        setScanned(false); // Allow a new scan
+        
+      // }, 5000); // Adjust timing as needed
+
+    }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.statusText}>Scan Barcode{status}</Text>
-        {/* <View style={styles.buttonContainer}>
-          <RNEButton
-            title=" Scan Barcode"
-            icon={
-              <MaterialIcon
-                name="barcode-scan"
-                size={20}
-                color="white"
-              />
-            }
-            buttonStyle={styles.blueButton}
-            onPress={() => { setScanned(false); setCameraVisible(true); }} 
-            disabled={loading}        
-          />
-        </View> */}
-      {cameraVisible && !scanned && (
+      {cameraVisible && (
         <CameraView
-          style={[{ height: "200%", width: 500}]}
-          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+          style={{ height: "200%", width: 500 }}
+          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned} // Disable scanning if already scanned
           barcodeScannerSettings={{
-            barcodeTypes: ["qr","ean13","ean8","upc_a","upc_e","code39","code93","code128","codabar"],
+            barcodeTypes: ["qr", "ean13", "ean8", "upc_a", "upc_e", "code39", "code93", "code128", "codabar"],
           }}
         />
       )}
@@ -77,11 +70,6 @@ const ScanMobileItem: React.FC<ScanItemProps> = ({ handleData, closeMe }) => {
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
       )}
-      {scanned && (
-        <>
-        <Text style={styles.message}>Barcode scanned</Text>
-        <Text style={styles.message}>Supermarket: {superMarket}</Text>
-        </>)}
     </ScrollView>
   );
 };
@@ -89,8 +77,6 @@ const ScanMobileItem: React.FC<ScanItemProps> = ({ handleData, closeMe }) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    // justifyContent: 'center',
-    // alignItems: 'center',
     backgroundColor: '#fff',
     paddingVertical: 20,
     width: '100%',

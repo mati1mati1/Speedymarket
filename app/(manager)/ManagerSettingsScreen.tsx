@@ -41,7 +41,6 @@ const ManagerSettingsScreen = () => {
         const fetchSupermarketDetails = async () => {
             try {
                 const fetchedSupermarket = await getSupermarketByUserId();
-                debugger;
                 if (fetchedSupermarket && fetchedSupermarket.length > 0) {
                     const supermarketDetails = fetchedSupermarket[0];
                     setSupermarket(supermarketDetails);
