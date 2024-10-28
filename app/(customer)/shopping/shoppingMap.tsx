@@ -132,7 +132,7 @@ const ShoppingMap: React.FC = () => {
   const handleScannedData = async (data: string) => {
     setScannedData(data);
     try {
-      const item: ShopInventory[] = await getItemBySupermarketIdAndBarcode(supermarketId || '', data);
+      const item: ShopInventory[] = await getItemBySupermarketIdAndBarcode(supermarketId, data);
       if (item.length > 0 && item[0].Quantity > 0) {
         setSelectedItem(item[0]); 
         setIsQuantityModalVisible(true);
@@ -140,7 +140,6 @@ const ShoppingMap: React.FC = () => {
         customAlert('Item Not Found', 'The scanned item was not found in this store, go to cashier.', [{ text: 'OK' }]);
       }
     } catch (error) {
-      console.error('Error fetching item:', error);
       customAlert('Error', 'There was an error fetching the item. Please try again.', [{ text: 'OK' }]);
     }
   };
