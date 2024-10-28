@@ -14,7 +14,6 @@ const ScanWebItem: React.FC<ScanItemProps> = ({ handleData, closeMe }) => {
   const [data, setData] = useState<string | null>(null);
 
   const handleBarCodeScanned = (err: any, result: any) => {
-    debugger;
     if (err) {
       console.error(err); // Handle error appropriately
       return;
